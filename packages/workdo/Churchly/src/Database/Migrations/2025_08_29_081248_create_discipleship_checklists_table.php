@@ -1,0 +1,25 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('discipleship_checklists', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('requirement_id')->index();
+            $table->string('item');
+            $table->boolean('is_completed')->default(false);
+            $table->unsignedBigInteger('workspace')->index();
+            $table->unsignedBigInteger('created_by');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('discipleship_checklists');
+    }
+};

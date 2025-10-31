@@ -1,0 +1,30 @@
+{
+    "name": "workdo/churchly",
+    "description": "Description for church package",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\Churchly\\": "src/"
+            
+            
+        }
+    },
+    "authors": [
+        {
+            "name": "Victor Oluwasusi",
+            "email": "you@example.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\Churchly\\Providers\\ChurchlyServiceProvider",
+                "Workdo\\Churchly\\Providers\\ViewComposer"
+            ]
+        }
+    }
+
+     
+}
