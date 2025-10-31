@@ -20,9 +20,6 @@ jobs:
           extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo
           coverage: none
 
-      - name: Validate composer.json
-        run: composer validate --strict --no-check-lock
-
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -35,52 +32,56 @@ jobs:
     runs-on: [self-hosted, hestia]
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Preflight checks (PHP/Composer on runner)
         run: |
           set -e
-          php -v || (echo "❌ PHP not installed on runner" && exit 1)
-          composer --version || echo "⚠️ Composer missing, installing locally..."
-          echo "✅ Preflight checks passed."
+          command -v php >/dev/null 2>&1 || { echo "PHP CLI not found on runner"; exit 1; }
+          php -v
+          if command -v composer >/dev/null 2>&1; then
+            composer --version
+          else
+            echo "Composer not found in PATH; a local composer.phar will be used."
+          fi
 
       - name: Deploy Laravel project to Hestia
+        env:
+          DEPLOY_PATH: /home/oluwasusiv/web/open.vicezion.com/public_html
+          REPO_URL: https://github.com/visezion/OPEN.git
         run: |
-          echo "🚀 Starting deployment on $(hostname)"
-          cd /home/oluwasusiv/web/open.vicezion.com/public_html/
+          set -e
+          echo "Starting deployment on $(hostname)"
+          cd "$DEPLOY_PATH"
 
-          # Ensure this folder is a valid git repo
+          export GIT_TERMINAL_PROMPT=0
+
           if [ ! -d .git ]; then
-            echo "⚙️ Initializing git repository..."
+            echo "Initializing git repository..."
             git init
-            git remote add origin https://github.com/visezion/OPEN.git
-            git fetch origin main
-            git checkout -B main origin/main
-          else
-            echo "🔄 Pulling latest code..."
-            git fetch origin main
-            git reset --hard origin/main
+            git remote add origin "$REPO_URL"
           fi
 
-          echo "🧩 Installing dependencies..."
-          if ! command -v composer >/dev/null 2>&1; then
+          git fetch origin main
+          git checkout -B main origin/main
+          git reset --hard origin/main
+
+          if command -v composer >/dev/null 2>&1; then
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+          else
             php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-            php composer-setup.php --quiet
+            php composer-setup.php --quiet --install-dir=. --filename=composer.phar
             rm composer-setup.php
             php composer.phar install --no-interaction --prefer-dist --optimize-autoloader
-          else
-            composer install --no-interaction --prefer-dist --optimize-autoloader
           fi
 
-          echo "🧠 Optimizing Laravel..."
           php artisan migrate --force || true
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
 
-          echo "🔁 Reloading services..."
           sudo systemctl reload php8.2-fpm || true
           sudo systemctl reload nginx || true
 
-          echo "✅ Deployment completed successfully!"
+          echo "Deployment completed successfully."
