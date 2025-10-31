@@ -53,6 +53,9 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 // Auth::routes();
 require __DIR__ . '/auth.php';
 
+// Root route (available regardless of domain-check)
+Route::match(['GET','HEAD'], '/', [HomeController::class, 'index'])->name('start');
+
 // custom domain code
 Route::middleware('domain-check')->group(function () {
     Route::get('/register/{lang?}', [RegisteredUserController::class, 'create'])->name('register');
@@ -66,7 +69,7 @@ Route::middleware('domain-check')->group(function () {
     Route::get('pricing', [HomeController::class, 'Pricing'])->name('apps.pricing');
     Route::get('pricing/plans', [HomeController::class, 'PricingPlans'])->name('apps.pricing.plan');
     Route::get('pages', [HomeController::class, 'CustomPage'])->name('custompage');
-    Route::get('/', [HomeController::class, 'index'])->name('start');
+    // Note: root route defined above to avoid 405 on GET /
 });
 Route::middleware(['auth', 'verified'])->group(function () {
 
