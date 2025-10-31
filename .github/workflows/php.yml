@@ -43,9 +43,31 @@ jobs:
 
       # 🧠 Step 4: Prepare Laravel environment
       - name: Prepare Laravel environment
+        shell: bash
         run: |
-          cp .env.example .env
-          php artisan key:generate
+          if [ -f .env ]; then
+            echo ".env already exists"
+          elif [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            echo "No .env.example found; creating a minimal .env for CI"
+            cat > .env << 'EOF'
+            APP_NAME=OPEN
+            APP_ENV=local
+            APP_KEY=
+            APP_DEBUG=true
+            APP_URL=http://localhost
+            LOG_CHANNEL=stack
+            LOG_LEVEL=debug
+            DB_CONNECTION=sqlite
+            DB_DATABASE=:memory:
+            CACHE_DRIVER=file
+            QUEUE_CONNECTION=sync
+            SESSION_DRIVER=array
+            SESSION_LIFETIME=120
+            EOF
+          fi
+          php artisan key:generate --force
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
