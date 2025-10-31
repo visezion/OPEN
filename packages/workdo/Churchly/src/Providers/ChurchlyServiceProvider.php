@@ -33,8 +33,7 @@ class ChurchlyServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'churchly');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
-        $this->loadRoutesFrom(__DIR__.'/../Routes/api_v1.php');
+        // Routes are registered via RouteServiceProvider to avoid double-loading
 
 
         

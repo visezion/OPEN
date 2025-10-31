@@ -11,20 +11,19 @@ class RouteServiceProvider extends ServiceProvider
 
     public function map()
     {
-        // 🔒 Authenticated web routes
+        // Authenticated web routes
         Route::middleware(['web', 'auth', 'verified'])
             ->namespace($this->namespace)
             ->group(__DIR__.'/../Routes/web.php');
 
-        // 🌍 Public routes (no auth)
+        // Public routes (no auth)
         Route::middleware('web')
             ->namespace($this->namespace)
             ->group(__DIR__.'/../Routes/public.php');
 
-        // 🌐 API routes (public, JSON responses)
-        Route::prefix('api_v1')
-            ->middleware('api')
-            ->namespace($this->namespace.'\\Api\\V1')
+        // API routes are already self-prefixed inside the route file
+        Route::middleware('api')
             ->group(__DIR__.'/../Routes/api_v1.php');
     }
 }
+

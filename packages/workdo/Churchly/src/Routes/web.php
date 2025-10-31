@@ -30,8 +30,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('timer', [TimerController::class, 'timer'])->name('timer.church');
     Route::get('doc', [TimerController::class, 'doc'])->name('timer.doc');
 
-    // Members CRUD
-    Route::resource('members', MemberController::class);
+    // Members CRUD (use custom show route with encrypted IDs)
+    Route::resource('members', MemberController::class)->except(['show']);
    // Route::get('members-grid', [MemberController::class, 'grid'])->name('members.grid');
     Route::get('members/{id}', [MemberController::class, 'show'])->name('members.show');
 
@@ -123,7 +123,8 @@ Route::get('/birthday-card/{member}', [BirthdayCardController::class, 'generate'
 // Route group for Church Feedback, assuming 'auth' and 'workspace' middleware
         Route::get('/feedback/dashboard', [ChurchFeedbackController::class, 'dashboard'])->name('feedback.dashboard');
 
-        Route::resource('feedback', ChurchFeedbackController::class)->except(['edit']);
+        // Use resource routes, but exclude ones we define manually
+        Route::resource('feedback', ChurchFeedbackController::class)->except(['edit', 'update', 'destroy', 'index']);
         Route::get('feedback/{id}/edit', [ChurchFeedbackController::class, 'edit'])->name('feedback.edit');
         Route::put('feedback/{id}', [ChurchFeedbackController::class, 'update'])->name('feedback.update');
         Route::delete('feedback/{id}', [ChurchFeedbackController::class, 'destroy'])->name('feedback.destroy');
