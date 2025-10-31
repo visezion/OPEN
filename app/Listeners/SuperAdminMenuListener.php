@@ -201,6 +201,21 @@ class SuperAdminMenuListener
             'permission' => 'notification template manage'
         ]);
 
+        // Troubleshoot tools for Super Admin
+        $menu->add([
+            'category' => 'Settings',
+            'title' => __('Troubleshoot'),
+            'icon' => 'tool',
+            'name' => 'troubleshoot',
+            'parent' => null,
+            'order' => 180,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'superadmin.troubleshoot.index',
+            'module' => $module,
+            'permission' => 'setting manage'
+        ]);
+
         $menu->add([
             'category' => 'Settings',
             'title' => __('Settings'),

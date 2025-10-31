@@ -31,6 +31,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SuperAdmin\SettingsController as SuperAdminSettingsController;
+use App\Http\Controllers\SuperAdmin\TroubleshootController;
 use App\Http\Controllers\WarehouseTransferController;
 use App\Http\Controllers\WorkSpaceController;
 use App\Http\Controllers\NotificationController;
@@ -216,6 +217,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('helpdesk-ticket/{id}/note', [HelpdeskTicketController::class, 'storeNote'])->name('helpdesk-ticket.note.store');
     Route::delete('helpdesk-ticket-attachment/{tid}/destroy/{id}', [HelpdeskTicketController::class, 'attachmentDestroy'])->name('helpdesk-ticket.attachment.destroy');
     // End helpdesk
+
+    // Super Admin Troubleshoot
+    Route::prefix('superadmin')->group(function () {
+        Route::get('troubleshoot', [TroubleshootController::class, 'index'])->name('superadmin.troubleshoot.index');
+        Route::post('troubleshoot/storage-link', [TroubleshootController::class, 'storageLink'])->name('superadmin.troubleshoot.storage-link');
+    });
 
 
     Route::group(['middleware' => 'PlanModuleCheck:Account-Taskly'], function () {
