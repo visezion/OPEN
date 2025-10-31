@@ -216,6 +216,21 @@ class SuperAdminMenuListener
             'permission' => 'setting manage'
         ]);
 
+        // CI/CD Status
+        $menu->add([
+            'category' => 'Settings',
+            'title' => __('CI/CD Status'),
+            'icon' => 'activity',
+            'name' => 'cicd-status',
+            'parent' => null,
+            'order' => 185,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'superadmin.cicd.index',
+            'module' => $module,
+            'permission' => 'setting manage'
+        ]);
+
         $menu->add([
             'category' => 'Settings',
             'title' => __('Settings'),

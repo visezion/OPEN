@@ -32,6 +32,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SuperAdmin\SettingsController as SuperAdminSettingsController;
 use App\Http\Controllers\SuperAdmin\TroubleshootController;
+use App\Http\Controllers\SuperAdmin\CiCdController;
 use App\Http\Controllers\WarehouseTransferController;
 use App\Http\Controllers\WorkSpaceController;
 use App\Http\Controllers\NotificationController;
@@ -225,6 +226,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('superadmin')->group(function () {
         Route::get('troubleshoot', [TroubleshootController::class, 'index'])->name('superadmin.troubleshoot.index');
         Route::post('troubleshoot/storage-link', [TroubleshootController::class, 'storageLink'])->name('superadmin.troubleshoot.storage-link');
+        Route::post('troubleshoot/cache/clear', [TroubleshootController::class, 'clearCaches'])->name('superadmin.troubleshoot.cache-clear');
+        Route::post('troubleshoot/cache/build', [TroubleshootController::class, 'buildCaches'])->name('superadmin.troubleshoot.cache-build');
+        Route::post('troubleshoot/permissions/fix', [TroubleshootController::class, 'fixPermissions'])->name('superadmin.troubleshoot.permissions-fix');
+        Route::post('troubleshoot/logs/clear', [TroubleshootController::class, 'clearLog'])->name('superadmin.troubleshoot.logs-clear');
+
+        // CI/CD status + manual dispatch
+        Route::get('cicd', [CiCdController::class, 'index'])->name('superadmin.cicd.index');
+        Route::post('cicd/dispatch', [CiCdController::class, 'dispatch'])->name('superadmin.cicd.dispatch');
     });
 
 

@@ -1,61 +1,184 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Troubleshoot</title>
-    <style>
-        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 2rem; }
-        .card { max-width: 720px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.25rem; }
-        .row { margin-bottom: 1rem; }
-        .btn { display: inline-block; background: #111827; color: #fff; padding: .6rem 1rem; border-radius: 6px; text-decoration: none; }
-        .btn:disabled { opacity: .6; cursor: not-allowed; }
-        .muted { color: #6b7280; font-size: .9rem; }
-        .ok { color: #065f46; }
-        .warn { color: #92400e; }
-        .flash { margin-bottom: 1rem; padding:.75rem 1rem; border-radius:6px; }
-        .flash.success { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
-        .flash.error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
-    </style>
-    @csrf
-</head>
-<body>
-<div class="card">
-    <h2>System Troubleshoot</h2>
-    <p class="muted">Common fixes when images or uploads are not visible.</p>
+@extends('layouts.main')
 
-    @if(session('success'))
-        <div class="flash success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="flash error">{{ session('error') }}</div>
-    @endif
+@section('page-title')
+    {{ __('Troubleshoot') }}
+@endsection
 
-    <div class="row">
-        <strong>Public storage link</strong>
-        <div class="muted">{{ $publicStorage }}</div>
-        @if($linkExists)
-            <div class="ok">Link or directory exists.</div>
-        @else
-            <div class="warn">Missing. Create the symlink below.</div>
-        @endif
+@section('page-breadcrumb')
+    {{ __('Troubleshoot') }}
+@endsection
+
+@section('page-action')
+    <div class="d-flex gap-2">
+        <form action="{{ route('superadmin.troubleshoot.storage-link') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
+                title="{{ __('Create public/storage symlink') }}">
+                <i class="ti ti-link"></i> {{ __('Create/Repair Storage Symlink') }}
+            </button>
+        </form>
+
+        <form action="{{ route('superadmin.troubleshoot.cache-clear') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-warning" data-bs-toggle="tooltip"
+                title="{{ __('Run cache:clear, config:clear, route:clear, view:clear, optimize:clear') }}">
+                <i class="ti ti-broom"></i> {{ __('Clear All Caches') }}
+            </button>
+        </form>
+
+        <form action="{{ route('superadmin.troubleshoot.cache-build') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-success" data-bs-toggle="tooltip"
+                title="{{ __('Run config:cache, route:cache, view:cache') }}">
+                <i class="ti ti-rocket"></i> {{ __('Rebuild Caches') }}
+            </button>
+        </form>
     </div>
+@endsection
 
+@section('content')
     <div class="row">
-        <strong>Storage public path</strong>
-        <div class="muted">{{ $storagePublic }}</div>
-        @if($targetExists)
-            <div class="ok">Target directory exists.</div>
-        @else
-            <div class="warn">Directory missing. Ensure storage/app/public exists and is writable.</div>
-        @endif
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">{{ __('Image & Upload Troubleshoot') }}</h5>
+                </div>
+                <div class="card-body">
+                    @if(session('success'))
+                        <div class="alert alert-success mb-3">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger mb-3">{{ session('error') }}</div>
+                    @endif
+
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="fw-semibold">{{ __('Public storage link') }}</div>
+                                <div class="text-muted small">{{ $publicStorage }}</div>
+                            </div>
+                            @if($linkExists)
+                                <span class="badge bg-success">{{ __('Exists') }}</span>
+                            @else
+                                <span class="badge bg-warning text-dark">{{ __('Missing') }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="fw-semibold">{{ __('Storage public path') }}</div>
+                                <div class="text-muted small">{{ $storagePublic }}</div>
+                            </div>
+                            @if($targetExists)
+                                <span class="badge bg-success">{{ __('Exists') }}</span>
+                            @else
+                                <span class="badge bg-warning text-dark">{{ __('Missing') }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-2">{{ __('If images are not visible, create or repair the symbolic link to public/storage. You can also clear and rebuild Laravel caches so new code and views take effect.') }}</p>
+                    <form action="{{ route('superadmin.troubleshoot.storage-link') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ti ti-link"></i> {{ __('Create/Repair Storage Symlink') }}
+                        </button>
+                    </form>
+
+                    <hr/>
+                    <div class="d-flex gap-2">
+                        <form action="{{ route('superadmin.troubleshoot.cache-clear') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-warning">
+                                <i class="ti ti-broom"></i> {{ __('Clear All Caches') }}
+                            </button>
+                        </form>
+                        <form action="{{ route('superadmin.troubleshoot.cache-build') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success">
+                                <i class="ti ti-rocket"></i> {{ __('Rebuild Caches') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ __('Diagnostics') }}</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ __('.env file present') }}</span>
+                            <span class="badge {{ $envExists ? 'bg-success' : 'bg-danger' }}">{{ $envExists ? __('Yes') : __('No') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ __('APP_KEY set') }}</span>
+                            <span class="badge {{ $appKeySet ? 'bg-success' : 'bg-danger' }}">{{ $appKeySet ? __('Yes') : __('No') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ __('storage/ writable') }}</span>
+                            <span class="badge {{ $writableStorage ? 'bg-success' : 'bg-danger' }}">{{ $writableStorage ? __('Yes') : __('No') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ __('bootstrap/cache writable') }}</span>
+                            <span class="badge {{ $writableBootstrap ? 'bg-success' : 'bg-danger' }}">{{ $writableBootstrap ? __('Yes') : __('No') }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="small text-muted">{{ __('Cache driver') }}</div>
+                            <div class="fw-semibold">{{ $cacheDriver }}</div>
+                            <div>
+                                <span class="badge {{ $cacheOk ? 'bg-success' : 'bg-danger' }}">{{ $cacheOk ? __('Write OK') : __('Write failed') }}</span>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="small text-muted">{{ __('Queue connection') }}</div>
+                            <div class="fw-semibold">{{ $queueConnection }}</div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="small text-muted">{{ __('Session driver') }}</div>
+                            <div class="fw-semibold">{{ $sessionDriver }}</div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="small text-muted">{{ __('Database connectivity') }}</div>
+                            <div>
+                                @if($dbOk)
+                                    <span class="badge bg-success">{{ __('OK') }}</span>
+                                @else
+                                    <span class="badge bg-danger">{{ __('Failed') }}</span>
+                                    <div class="text-muted small mt-1">{{ Str::limit($dbError, 120) }}</div>
+                                @endif
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="mt-3 d-flex gap-2">
+                        <form action="{{ route('superadmin.troubleshoot.permissions-fix') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                <i class="ti ti-shield-check"></i> {{ __('Verify/Set Permissions') }}
+                            </button>
+                        </form>
+                        <form action="{{ route('superadmin.troubleshoot.logs-clear') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="ti ti-trash"></i> {{ __('Clear Log') }}
+                            </button>
+                        </form>
+                    </div>
+
+                    @if(!empty($logTail))
+                        <hr/>
+                        <div class="small text-muted mb-1">{{ __('Last 100 log lines') }}</div>
+                        <pre class="small" style="max-height:240px;overflow:auto;background:#0f172a;color:#e5e7eb;padding:.75rem;border-radius:.5rem;">{{ $logTail }}</pre>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
-
-    <form action="{{ route('superadmin.troubleshoot.storage-link') }}" method="POST">
-        @csrf
-        <button class="btn" type="submit">Create/Repair Storage Symlink</button>
-    </form>
-</div>
-</body>
-</html>
-
+@endsection
