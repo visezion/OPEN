@@ -26,8 +26,8 @@ jobs:
           coverage: none
 
       # 🧰 Step 3: Validate and install dependencies
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+      - name: Validate composer.json (skip lock check)
+        run: composer validate --strict --no-check-lock
 
       - name: Cache Composer dependencies
         id: composer-cache

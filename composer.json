@@ -43,7 +43,7 @@
         "milon/barcode": "^11.0",
         "mollie/mollie-api-php": "^2.50",
         "munafio/chatify": "^1.5",
-        "orhanerday/open-ai": "4.8",
+        "orhanerday/open-ai": "^4.8",
         "paypayopa/php-sdk": "^2.0",
         "php-open-source-saver/jwt-auth": "^2.1",
         "phpoffice/phpspreadsheet": "^1.29",
