@@ -13,11 +13,9 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
-      # 🧩 Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ⚙️ Step 2: Setup PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -25,7 +23,6 @@ jobs:
           extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo
           coverage: none
 
-      # 🧰 Step 3: Validate and install dependencies
       - name: Validate composer.json
         run: composer validate --strict --no-check-lock
 
@@ -41,7 +38,6 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
 
-      # 🧠 Step 4: Prepare Laravel environment for build
       - name: Prepare Laravel environment
         run: |
           if [ -f .env ]; then
@@ -52,13 +48,13 @@ jobs:
             echo "Creating minimal .env for CI..."
             printf "%s\n" \
               "APP_NAME=OPEN" \
-              "APP_ENV=local" \
+              "APP_ENV=testing" \
               "APP_KEY=" \
               "APP_DEBUG=true" \
               "APP_URL=http://localhost" \
               "LOG_CHANNEL=stack" \
               "DB_CONNECTION=sqlite" \
-              "DB_DATABASE=:memory:" \
+              "DB_DATABASE=database/database.sqlite" \
               "CACHE_DRIVER=file" \
               "QUEUE_CONNECTION=sync" \
               "SESSION_DRIVER=array" \
@@ -70,9 +66,12 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
-      # 🧪 Step 5: Run Laravel tests (fixed)
       - name: Run Laravel tests
-        run: php artisan test
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+          php artisan migrate --env=testing --force
+          php artisan test
 
   deploy:
     name: Deploy to Hestia Server
