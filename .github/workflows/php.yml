@@ -9,7 +9,7 @@ on:
       - "main"
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -76,21 +76,43 @@ jobs:
       # - name: Run PHPUnit tests
       #   run: vendor/bin/phpunit --coverage-text
 
-      # 🚀 Step 6: Deploy to server (SSH)
-      - name: Deploy to Production Server
-        if: github.ref == 'refs/heads/main'
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            git pull origin main
-            composer install --no-interaction --prefer-dist --optimize-autoloader
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            sudo systemctl restart nginx
-            echo "✅ Deployment completed successfully!"
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: [self-hosted, Linux, X64]
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - name: Deploy on self-hosted runner
+        shell: bash
+        run: |
+          set -e
+          : "==> Switching to deploy path"
+          cd "${{ secrets.DEPLOY_PATH }}"
+
+          : "==> Updating code from origin/main"
+          git fetch --all --prune
+          # Ensure the working tree matches origin/main exactly
+          git reset --hard origin/main
+
+          : "==> Installing PHP dependencies"
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+
+          : "==> Running database migrations"
+          php artisan migrate --force
+
+          : "==> Caching Laravel config, routes, and views"
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+          : "==> Reloading services (optional via secrets)"
+          if [ -n "${{ secrets.PHP_FPM_SERVICE }}" ]; then
+            sudo systemctl reload "${{ secrets.PHP_FPM_SERVICE }}" || sudo systemctl restart "${{ secrets.PHP_FPM_SERVICE }}" || true
+          fi
+          if [ -n "${{ secrets.WEBSERVER_SERVICE }}" ]; then
+            sudo systemctl reload "${{ secrets.WEBSERVER_SERVICE }}" || sudo systemctl restart "${{ secrets.WEBSERVER_SERVICE }}" || true
+          fi
+
+          echo "✅ Deployment completed successfully!"
