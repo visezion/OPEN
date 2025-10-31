@@ -1,23 +1,23 @@
-name: Laravel CI/CD Pipeline
+name: Laravel CI/CD Pipeline (Hestia Runner)
 
 on:
   push:
     branches:
-      - "main"          # production branch
+      - "main"          # Production branch
   pull_request:
     branches:
       - "main"
 
 jobs:
   build:
+    name: Build and Test
     runs-on: ubuntu-latest
-
     steps:
-      # 🧩 Step 1: Checkout code
-      - name: Checkout repository
+      # 🧩 Step 1: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # ⚙️ Step 2: Setup PHP environment
+      # ⚙️ Step 2: Setup PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -26,7 +26,7 @@ jobs:
           coverage: none
 
       # 🧰 Step 3: Validate and install dependencies
-      - name: Validate composer.json (skip lock check)
+      - name: Validate composer.json
         run: composer validate --strict --no-check-lock
 
       - name: Cache Composer dependencies
@@ -41,16 +41,15 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
 
-      # 🧠 Step 4: Prepare Laravel environment
+      # 🧠 Step 4: Prepare Laravel environment for build
       - name: Prepare Laravel environment
-        shell: bash
         run: |
           if [ -f .env ]; then
             echo ".env already exists"
           elif [ -f .env.example ]; then
             cp .env.example .env
           else
-            echo "No .env.example found; creating a minimal .env for CI"
+            echo "Creating minimal .env for CI..."
             printf "%s\n" \
               "APP_NAME=OPEN" \
               "APP_ENV=local" \
@@ -58,7 +57,6 @@ jobs:
               "APP_DEBUG=true" \
               "APP_URL=http://localhost" \
               "LOG_CHANNEL=stack" \
-              "LOG_LEVEL=debug" \
               "DB_CONNECTION=sqlite" \
               "DB_DATABASE=:memory:" \
               "CACHE_DRIVER=file" \
@@ -72,47 +70,24 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
-      # ✅ Step 5: Run tests (optional)
-      # - name: Run PHPUnit tests
-      #   run: vendor/bin/phpunit --coverage-text
-
   deploy:
+    name: Deploy to Hestia Server
+    runs-on: [self-hosted, hestia]
     if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: [self-hosted, Linux, X64]
-    concurrency:
-      group: deploy-production
-      cancel-in-progress: false
     steps:
-      - name: Deploy on self-hosted runner
-        shell: bash
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Laravel project to Hestia
         run: |
-          set -e
-          : "==> Switching to deploy path"
-          cd "${{ secrets.DEPLOY_PATH }}"
-
-          : "==> Updating code from origin/main"
-          git fetch --all --prune
-          # Ensure the working tree matches origin/main exactly
+          cd /home/oluwasusiv/web/open.vicezion.com/public_html/
+          git fetch --all
           git reset --hard origin/main
-
-          : "==> Installing PHP dependencies"
           composer install --no-interaction --prefer-dist --optimize-autoloader
-
-          : "==> Running database migrations"
           php artisan migrate --force
-
-          : "==> Caching Laravel config, routes, and views"
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
-
-          : "==> Reloading services (optional via secrets)"
-          if [ -n "${{ secrets.PHP_FPM_SERVICE }}" ]; then
-            sudo systemctl reload "${{ secrets.PHP_FPM_SERVICE }}" || sudo systemctl restart "${{ secrets.PHP_FPM_SERVICE }}" || true
-          fi
-          if [ -n "${{ secrets.WEBSERVER_SERVICE }}" ]; then
-            sudo systemctl reload "${{ secrets.WEBSERVER_SERVICE }}" || sudo systemctl restart "${{ secrets.WEBSERVER_SERVICE }}" || true
-          fi
-
+          sudo systemctl reload php8.2-fpm || true
+          sudo systemctl reload nginx || true
           echo "✅ Deployment completed successfully!"
