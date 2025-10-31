@@ -78,18 +78,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup PHP for deploy
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo
-          tools: composer:v2
-          coverage: none
+      - name: Preflight checks (PHP/Composer on runner)
+        run: |
+          set -e
+          if ! command -v php >/dev/null 2>&1; then
+            echo "ERROR: PHP CLI not found on self-hosted runner."
+            echo "Install php8.2-cli (or appropriate version) on the server, then rerun."
+            exit 1
+          fi
+          php -v
+          command -v composer >/dev/null 2>&1 && composer --version || true
 
       - name: Deploy Laravel project to Hestia
         run: |
           cd /home/oluwasusiv/web/open.vicezion.com/public_html/
-          git fetch --all
+          export GIT_TERMINAL_PROMPT=0
+          git fetch --all --prune
           git reset --hard origin/main
           if ! command -v composer >/dev/null 2>&1; then
             echo "Composer not found in PATH, attempting local install..."
