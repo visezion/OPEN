@@ -1,0 +1,74 @@
+name: Laravel CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - "main"          # production branch
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 🧩 Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ⚙️ Step 2: Setup PHP environment
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo
+          coverage: none
+
+      # 🧰 Step 3: Validate and install dependencies
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer dependencies
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      # 🧠 Step 4: Prepare Laravel environment
+      - name: Prepare Laravel environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      # ✅ Step 5: Run tests (optional)
+      # - name: Run PHPUnit tests
+      #   run: vendor/bin/phpunit --coverage-text
+
+      # 🚀 Step 6: Deploy to server (SSH)
+      - name: Deploy to Production Server
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            git pull origin main
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            sudo systemctl restart nginx
+            echo "✅ Deployment completed successfully!"
