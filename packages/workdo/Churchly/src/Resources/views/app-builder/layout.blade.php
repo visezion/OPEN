@@ -84,6 +84,28 @@
             <div class="text-end mt-3">
                 <button class="btn btn-primary" type="submit">{{ __('Save Layout') }}</button>
             </div>
+            <div class="row mt-4">
+                <div class="col-lg-8">
+                    <!-- keep form in this column -->
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header"><h6 class="mb-0">{{ __('Live Preview') }}</h6></div>
+                        <div class="card-body text-center">
+                            <div id="layoutPreview" class="phone-frame mx-auto">
+                                <div class="phone-screen d-flex flex-column">
+                                    <div class="phone-header text-white p-2 fw-bold" id="layoutPreviewHeader">{{ $layout->title ?? 'Home' }}</div>
+                                    <div id="layoutPreviewBody" class="flex-grow-1 overflow-auto p-2" style="background:#3f5be7;">
+                                        <div class="text-white-50 small">{{ __('Widgets will render here as you edit') }}</div>
+                                    </div>
+                                    <div class="phone-nav d-flex justify-content-around p-2"><i class="ti ti-dots text-white-50"></i></div>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">{{ __('Updates live as you change fields and types') }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
 </div>
@@ -93,17 +115,19 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  Sortable.create(document.getElementById('widgetsTable'), { animation: 150 });
+  Sortable.create(document.getElementById('widgetsTable'), { animation: 150, onSort: renderPreview });
 
   const lib = document.getElementById('widgetLibrary');
   lib?.addEventListener('click', function(e){
     const a = e.target.closest('.add-widget'); if(!a) return; e.preventDefault();
     addWidgetRow(a.dataset.type || 'banner_carousel');
+    renderPreview();
   });
 
   document.getElementById('widgetsTable').addEventListener('click', function(e){
     if (e.target.closest('.remove-row')) {
       e.target.closest('tr').remove();
+      renderPreview();
     }
   });
 
@@ -115,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function(){
       const idx = Array.from(tbody.rows).indexOf(tr);
       const cell = tr.querySelector('.settings-cell');
       cell.innerHTML = renderFields(sel.value, idx);
+      renderPreview();
     }
   });
 
@@ -167,6 +192,44 @@ document.addEventListener('DOMContentLoaded', function(){
         return `<textarea class="form-control" rows="3" name="widgets[${idx}][html]" placeholder="&lt;div&gt;...&lt;/div&gt;"></textarea>`;
     }
   }
+
+  function renderPreview(){
+    const body = document.getElementById('layoutPreviewBody');
+    const header = document.getElementById('layoutPreviewHeader');
+    const titleInput = document.querySelector('input[name=title]');
+    if (header && titleInput) header.innerText = titleInput.value || 'Home';
+    const rows = document.querySelectorAll('#widgetsTable tr');
+    let html = '';
+    rows.forEach((row, i)=>{
+      const type = row.querySelector('.widget-type')?.value || 'custom_html';
+      const title = row.querySelector(`input[name="widgets[${i}][title]"]`)?.value || '';
+      const active = row.querySelector(`input[name="widgets[${i}][active]"]`)?.checked;
+      if (!active) return;
+      html += previewBlock(type, title, i, row);
+    });
+    body.innerHTML = html || '<div class="text-white-50 small">No active widgets</div>';
+  }
+
+  function previewBlock(type, title, idx, row){
+    const cardStart = `<div class="card bg-white mb-2"><div class="card-body py-2 px-3">`;
+    const cardEnd = `</div></div>`;
+    switch(type){
+      case 'banner_carousel':
+        return `${cardStart}<div class="fw-semibold">${title||'Banner Carousel'}</div><div class="d-flex gap-2 mt-1">${[1,2,3].map(()=>'<div style=\"width:60px;height:36px;background:#e9eefc;border-radius:6px\"></div>').join('')}</div>${cardEnd}`;
+      case 'quick_links':
+        return `${cardStart}<div class="fw-semibold">${title||'Quick Links'}</div><div class="d-flex justify-content-between text-center mt-1">${[1,2,3,4].map(()=>'<div class=\"small\"><i class=\"ti ti-circle\"></i><br><small>Link</small></div>').join('')}</div>${cardEnd}`;
+      case 'latest_sermons':
+        return `${cardStart}<div class="fw-semibold">${title||'Latest Sermons'}</div><div class="mt-1 text-muted small">Video list preview…</div>${cardEnd}`;
+      case 'upcoming_events':
+        return `${cardStart}<div class="fw-semibold">${title||'Upcoming Events'}</div><div class="mt-1 text-muted small">Events list preview…</div>${cardEnd}`;
+      default:
+        const htmlText = row.querySelector(`textarea[name="widgets[${idx}][html]"]`)?.value || '';
+        return `${cardStart}${title?`<div class=\"fw-semibold\">${title}</div>`:''}<div class="mt-1 small text-muted">Custom HTML</div>${cardEnd}`;
+    }
+  }
+
+  // initial render
+  renderPreview();
 });
 </script>
 @endpush

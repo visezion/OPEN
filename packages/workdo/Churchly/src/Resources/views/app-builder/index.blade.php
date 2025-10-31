@@ -81,7 +81,10 @@
 
                         {{-- Body / Feature area --}}
                         <div class="phone-body flex-grow-1 d-flex align-items-center justify-content-center">
-                            <i class="ti ti-device-mobile text-white-50" style="font-size:64px;"></i>
+                            <div id="previewFeatures" class="w-100 px-2 text-center">
+                                <i class="ti ti-device-mobile text-white-50" style="font-size:64px;"></i>
+                                <div class="mt-2 small text-white-50">{{ __('Toggle features to preview') }}</div>
+                            </div>
                         </div>
 
                         {{-- Bottom Menu --}}
@@ -199,6 +202,19 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         previewMenu.innerHTML = html || '<div class="text-white-50 small w-100 text-center">No menu</div>';
+
+        // features preview (pills)
+        const featureChecks = document.querySelectorAll('#features input[type=checkbox][name^="features"][name$="[enabled]"]');
+        let fhtml = '';
+        featureChecks.forEach((chk, idx) => {
+            const keyInput = chk.parentElement?.querySelector('input[type=hidden][name^="features"][name$="[feature_key]"]');
+            const key = keyInput?.value || '';
+            if (chk.checked && key) {
+                fhtml += `<span class="badge rounded-pill bg-white text-dark m-1">${key}</span>`;
+            }
+        });
+        const feats = document.getElementById('previewFeatures');
+        if (feats) feats.innerHTML = fhtml || '<i class="ti ti-device-mobile text-white-50" style="font-size:64px;"></i><div class="mt-2 small text-white-50">'+"{{ __('Toggle features to preview') }}"+'</div>';
     }
 
     // color and name
@@ -206,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // listen for menu changes (delegation)
     document.addEventListener('input', function(e){
-        if(e.target.closest('#sortableMenu')) updatePreview();
+        if(e.target.closest('#sortableMenu') || e.target.closest('#features')) updatePreview();
     });
 
     updatePreview(); // initial render
