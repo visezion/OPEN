@@ -21,6 +21,7 @@ class ChurchlyServiceProvider extends ServiceProvider
             $this->commands([
                 \Workdo\Churchly\Console\ChurchlyActivate::class,
                 \Workdo\Churchly\Console\Commands\YouTubeSyncCommand::class,
+                \Workdo\Churchly\Console\Commands\ZoomSyncCommand::class,
             ]);
         }
     }
@@ -42,9 +43,13 @@ class ChurchlyServiceProvider extends ServiceProvider
             require_once __DIR__.'/../Helpers/helpers.php';
         }
 
-        // Schedule YouTube sync command globally; per-workspace cadence enforced inside command
+        // Schedule sync commands globally; per-workspace cadence enforced inside command
         $this->app->afterResolving(\Illuminate\Console\Scheduling\Schedule::class, function ($schedule) {
             $schedule->command('churchly:youtube-sync')->everyFiveMinutes();
+            $schedule->command('churchly:zoom-sync')->everyFiveMinutes();
         });
     }
 }
+
+
+

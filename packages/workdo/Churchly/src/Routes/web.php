@@ -336,6 +336,13 @@ Route::middleware(['web','auth'])->group(function() {
     Route::get('churchly/youtube', [\Workdo\Churchly\Http\Controllers\YouTubeSyncController::class,'index'])->name('churchly.youtube.index');
     Route::post('churchly/youtube', [\Workdo\Churchly\Http\Controllers\YouTubeSyncController::class,'save'])->name('churchly.youtube.save');
 });
+// Zoom Integration (admin)
+Route::middleware(['web','auth'])->group(function(){
+    Route::get('churchly/zoom', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'index'])->name('churchly.zoom.index');
+    Route::post('churchly/zoom', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'save'])->name('churchly.zoom.save');
+    Route::get('churchly/zoom/test', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'test'])->name('churchly.zoom.test');
+    Route::get('churchly/zoom/sync', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'syncNow'])->name('churchly.zoom.sync');
+});
 
 // Website CMS (admin)
 Route::middleware(['web','auth'])->prefix('churchly/website')->name('cms.')->group(function(){
