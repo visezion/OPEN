@@ -61,6 +61,8 @@
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#donations">{{ __('Donations') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#attendance">{{ __('Attendance') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#activity">{{ __('Activity') }}</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#care">{{ __('Pastoral Care') }}</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#smart-tags">{{ __('Smart Tags') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#discipleship">{{ __('Discipleship') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#custom">{{ __('Custom Fields') }}</button></li>
         </ul>
@@ -633,6 +635,416 @@
 
 
 
+            <!-- Pastoral Care -->
+            <div class="tab-pane fade" id="care">
+                <div class="row g-3">
+                    <div class="col-xl-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">{{ __('Household & Family') }}</h6>
+                            </div>
+                            <div class="card-body">
+                                @forelse($households as $household)
+                                    <div class="border rounded p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>{{ $household->name }}</strong>
+                                                @if($household->primaryContact && $household->primaryContact->id === $member->id)
+                                                    <span class="badge bg-primary ms-1">{{ __('Primary contact') }}</span>
+                                                @endif
+                                                @if($household->phone)
+                                                    <div class="small text-muted">{{ $household->phone }}</div>
+                                                @endif
+                                                @if($household->email)
+                                                    <div class="small text-muted">{{ $household->email }}</div>
+                                                @endif
+                                            </div>
+                                            <form method="POST" action="{{ route('churchly.households.members.detach', [$household->id, $member->id]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                    <i class="ti ti-unlink"></i> {{ __('Remove') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                        @if($household->members->isNotEmpty())
+                                            <div class="mt-2 small text-muted">
+                                                {{ __('Members:') }}
+                                                @foreach($household->members as $houseMember)
+                                                    <span class="badge bg-light text-dark me-1 mb-1">
+                                                        {{ $houseMember->name }}
+                                                        @if($houseMember->pivot && $houseMember->pivot->relationship)
+                                                            <span class="text-muted">({{ $houseMember->pivot->relationship }})</span>
+                                                        @endif
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <p class="text-muted">{{ __('Not yet linked to a household.') }}</p>
+                                @endforelse
+
+                                <hr class="my-3">
+                                <form method="POST" action="{{ route('churchly.households.members.attach-form') }}">
+                                    @csrf
+                                    <input type="hidden" name="member_id" value="{{ $member->id }}">
+                                    <div class="mb-2">
+                                        <label class="form-label">{{ __('Attach to an existing household') }}</label>
+                                        <div class="input-group">
+                                            <select class="form-select" name="household_id" required>
+                                                <option value="">{{ __('Select household') }}</option>
+                                                @foreach($availableHouseholds as $availableHousehold)
+                                                    <option value="{{ $availableHousehold->id }}">{{ $availableHousehold->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button class="btn btn-outline-primary" type="submit">{{ __('Attach') }}</button>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <input type="text" name="relationship" class="form-control" placeholder="{{ __('Relationship label (optional)') }}">
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input type="checkbox" class="form-check-input" id="household-primary" name="is_primary" value="1">
+                                        <label class="form-check-label" for="household-primary">{{ __('Set as primary contact') }}</label>
+                                    </div>
+                                </form>
+
+                                <hr class="my-3">
+                                <form method="POST" action="{{ route('churchly.households.store') }}">
+                                    @csrf
+                                    <input type="hidden" name="primary_contact_id" value="{{ $member->id }}">
+                                    <div class="mb-2">
+                                        <label class="form-label">{{ __('Create new household') }}</label>
+                                        <input type="text" name="name" class="form-control" required>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-md-6">
+                                            <input type="text" name="phone" class="form-control" placeholder="{{ __('Phone') }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="email" name="email" class="form-control" placeholder="{{ __('Email') }}">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <textarea name="notes" class="form-control" rows="2" placeholder="{{ __('Notes (optional)') }}"></textarea>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button class="btn btn-primary btn-sm">{{ __('Save Household') }}</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ __('Follow-up Workflow') }}</h6>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ route('members.followups.store', $member->id) }}" class="row g-2 mb-3">
+                                    @csrf
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ __('Subject') }}</label>
+                                        <input type="text" name="subject" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ __('Assign to') }}</label>
+                                        <select name="assigned_to" class="form-select">
+                                            <option value="">{{ __('Unassigned') }}</option>
+                                            @foreach($careTeamUsers as $careUser)
+                                                <option value="{{ $careUser->id }}">{{ $careUser->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">{{ __('Due date') }}</label>
+                                        <input type="date" name="due_at" class="form-control">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label">{{ __('Notes') }}</label>
+                                        <textarea name="description" class="form-control" rows="1" placeholder="{{ __('Context or instructions') }}"></textarea>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">{{ __('Status') }}</label>
+                                        <select name="status" class="form-select">
+                                            <option value="open">{{ __('Open') }}</option>
+                                            <option value="in_progress">{{ __('In progress') }}</option>
+                                            <option value="completed">{{ __('Completed') }}</option>
+                                            <option value="cancelled">{{ __('Cancelled') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-8 d-flex align-items-end justify-content-end">
+                                        <button class="btn btn-primary">{{ __('Create Follow-up') }}</button>
+                                    </div>
+                                </form>
+
+                                <hr class="my-3">
+                                @forelse($memberFollowUps as $followUp)
+                                    <div class="border rounded p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>{{ $followUp->subject }}</strong>
+                                                <span class="badge bg-secondary ms-2 text-uppercase">{{ __($followUp->status) }}</span>
+                                                @if($followUp->due_at)
+                                                    <div class="small text-muted">{{ __('Due') }}: {{ $followUp->due_at->format('M d, Y') }}</div>
+                                                @endif
+                                                @if($followUp->assignee)
+                                                    <div class="small text-muted">{{ __('Assigned to') }}: {{ $followUp->assignee->name }}</div>
+                                                @endif
+                                            </div>
+                                            <form method="POST" action="{{ route('members.followups.destroy', [$member->id, $followUp->id]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger" type="submit"><i class="ti ti-trash"></i></button>
+                                            </form>
+                                        </div>
+                                        @if($followUp->description)
+                                            <p class="small mt-2 mb-2">{{ $followUp->description }}</p>
+                                        @endif
+                                        <form method="POST" action="{{ route('members.followups.update', [$member->id, $followUp->id]) }}" class="row g-2">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="subject" value="{{ $followUp->subject }}">
+                                            <input type="hidden" name="description" value="{{ $followUp->description }}">
+                                            <div class="col-md-4">
+                                                <label class="form-label">{{ __('Status') }}</label>
+                                                <select name="status" class="form-select form-select-sm">
+                                                    @foreach(['open','in_progress','completed','cancelled'] as $status)
+                                                        <option value="{{ $status }}" @selected($followUp->status === $status)>{{ __(ucwords(str_replace('_',' ', $status))) }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">{{ __('Due date') }}</label>
+                                                <input type="date" name="due_at" value="{{ optional($followUp->due_at)->format('Y-m-d') }}" class="form-control form-control-sm">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">{{ __('Assign to') }}</label>
+                                                <select name="assigned_to" class="form-select form-select-sm">
+                                                    <option value="">{{ __('Unassigned') }}</option>
+                                                    @foreach($careTeamUsers as $careUser)
+                                                        <option value="{{ $careUser->id }}" @selected($followUp->assigned_to === $careUser->id)>{{ $careUser->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-12 d-flex justify-content-end">
+                                                <button class="btn btn-sm btn-outline-primary">{{ __('Update') }}</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @empty
+                                    <p class="text-muted">{{ __('No follow-ups recorded yet.') }}</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">{{ __('Pastoral Notes') }}</h6>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ route('members.notes.store', $member->id) }}" class="mb-3">
+                                    @csrf
+                                    <div class="mb-2">
+                                        <input type="text" name="title" class="form-control" placeholder="{{ __('Title (optional)') }}">
+                                    </div>
+                                    <div class="mb-2">
+                                        <textarea name="body" class="form-control" rows="3" placeholder="{{ __('Add a confidential note for the pastoral team') }}" required></textarea>
+                                    </div>
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Visibility') }}</label>
+                                            <select name="visibility" class="form-select">
+                                                <option value="staff">{{ __('Staff') }}</option>
+                                                <option value="pastoral">{{ __('Pastoral team') }}</option>
+                                                <option value="leaders">{{ __('Leaders') }}</option>
+                                                <option value="private">{{ __('Only me') }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 form-check mt-4">
+                                            <input type="checkbox" class="form-check-input" id="requires-attention" name="requires_attention" value="1">
+                                            <label class="form-check-label" for="requires-attention">{{ __('Flag for attention') }}</label>
+                                        </div>
+                                        <div class="col-md-2 d-flex justify-content-end mt-4">
+                                            <button class="btn btn-primary">{{ __('Save') }}</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="list-group">
+                                    @forelse($memberNotes as $note)
+                                        <div class="list-group-item list-group-item-action mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong>{{ $note->title ?? __('Note') }}</strong>
+                                                    <span class="badge bg-secondary ms-2 text-uppercase">{{ __($note->visibility) }}</span>
+                                                    <div class="small text-muted">{{ optional($note->author)->name }} · {{ $note->created_at->diffForHumans() }}</div>
+                                                </div>
+                                                <form method="POST" action="{{ route('members.notes.destroy', [$member->id, $note->id]) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
+                                                </form>
+                                            </div>
+                                            <p class="mb-0 mt-2">{{ $note->body }}</p>
+                                        </div>
+                                    @empty
+                                        <p class="text-muted">{{ __('No notes yet.') }}</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">{{ __('Communication Log') }}</h6>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ route('members.communications.store', $member->id) }}" class="row g-2 mb-3">
+                                    @csrf
+                                    <div class="col-md-4">
+                                        <label class="form-label">{{ __('Channel') }}</label>
+                                        <select name="channel" class="form-select" required>
+                                            <option value="email">{{ __('Email') }}</option>
+                                            <option value="sms">{{ __('SMS') }}</option>
+                                            <option value="call">{{ __('Call') }}</option>
+                                            <option value="visit">{{ __('Visit') }}</option>
+                                            <option value="other">{{ __('Other') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">{{ __('Date') }}</label>
+                                        <input type="date" name="sent_at" class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">{{ __('Subject') }}</label>
+                                        <input type="text" name="subject" class="form-control" placeholder="{{ __('Subject / summary') }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <textarea name="body" class="form-control" rows="2" placeholder="{{ __('Message summary or call notes') }}"></textarea>
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-end">
+                                        <button class="btn btn-primary">{{ __('Log Communication') }}</button>
+                                    </div>
+                                </form>
+
+                                <div class="list-group">
+                                    @forelse($memberCommunications as $communication)
+                                        <div class="list-group-item mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong class="text-uppercase">{{ __($communication->channel) }}</strong>
+                                                    @if($communication->subject)
+                                                        <span class="ms-2">{{ $communication->subject }}</span>
+                                                    @endif
+                                                    <div class="small text-muted">
+                                                        {{ optional($communication->sent_at ?? $communication->created_at)->format('M d, Y H:i') }}
+                                                        @if($communication->sender)
+                                                            · {{ __('By') }} {{ $communication->sender->name }}
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if($communication->body)
+                                                <p class="mb-0 mt-2">{{ $communication->body }}</p>
+                                            @endif
+                                        </div>
+                                    @empty
+                                        <p class="text-muted">{{ __('No communications logged yet.') }}</p>
+                                    @endforelse
+                                </div>
+
+                                <hr class="my-3">
+                                <h6>{{ __('Giving Snapshot') }}</h6>
+                                @php
+                                    $totalContributions = $memberContributions->sum('amount');
+                                    $lastContribution = $memberContributions->first();
+                                @endphp
+                                <p class="small text-muted mb-1">
+                                    {{ __('Total recorded gifts: :amount', ['amount' => number_format($totalContributions, 2)]) }}
+                                </p>
+                                <p class="small text-muted">
+                                    {{ __('Last gift:') }}
+                                    @if($lastContribution)
+                                        {{ $lastContribution->received_at?->format('M d, Y') }} · {{ number_format($lastContribution->amount, 2) }} {{ $lastContribution->currency }}
+                                    @else
+                                        {{ __('No gifts recorded') }}
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Tags -->
+            <div class="tab-pane fade" id="smart-tags">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">{{ __('Smart Tags Automation') }}</h6>
+                        <a href="{{ route('churchly.smart-tags.index') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="ti ti-settings"></i> {{ __('Manage Tags') }}
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        @php $matchedTagIds = $member->smartTags->pluck('id')->all(); @endphp
+                        <div class="mb-4">
+                            <h6>{{ __('Current matches') }}</h6>
+                            @forelse($member->smartTags as $tag)
+                                <span class="badge bg-success me-1 mb-1">{{ $tag->name }}</span>
+                            @empty
+                                <p class="text-muted">{{ __('No smart tags currently match this profile.') }}</p>
+                            @endforelse
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('Tag') }}</th>
+                                        <th>{{ __('Status') }}</th>
+                                        <th>{{ __('Last run') }}</th>
+                                        <th>{{ __('Matches') }}</th>
+                                        <th class="text-end">{{ __('Actions') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($availableSmartTags as $smartTag)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $smartTag->name }}</strong>
+                                                @if($smartTag->description)
+                                                    <div class="small text-muted">{{ $smartTag->description }}</div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge {{ $smartTag->is_active ? 'bg-success' : 'bg-secondary' }}">
+                                                    {{ $smartTag->is_active ? __('Active') : __('Disabled') }}
+                                                </span>
+                                                @if(in_array($smartTag->id, $matchedTagIds))
+                                                    <span class="badge bg-primary ms-1">{{ __('Matches this member') }}</span>
+                                                @endif
+                                            </td>
+                                            <td class="small text-muted">
+                                                {{ $smartTag->last_run_at ? $smartTag->last_run_at->diffForHumans() : __('Never') }}
+                                            </td>
+                                            <td>{{ $smartTag->members_count ?? $smartTag->members()->count() }}</td>
+                                            <td class="text-end">
+                                                <form method="POST" action="{{ route('churchly.smart-tags.run', $smartTag->id) }}" class="d-inline">
+                                                    @csrf
+                                                    <button class="btn btn-sm btn-outline-primary" type="submit">{{ __('Run') }}</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Custom Fields -->
             <div class="tab-pane fade" id="custom">
                 <div class="card p-3 shadow-sm border-0">
@@ -654,6 +1066,21 @@
 </div>
 @endsection
 @push('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var attachForm = document.querySelector('#household-attach-form');
+    if (attachForm) {
+        attachForm.addEventListener('submit', function (event) {
+            var select = attachForm.querySelector('select[name="household_id"]');
+            if (select && !select.value) {
+                event.preventDefault();
+                alert('{{ __("Select a household before attaching.") }}');
+            }
+        });
+    }
+});
+</script>
 
 
 {{-- Donations Chart --}}

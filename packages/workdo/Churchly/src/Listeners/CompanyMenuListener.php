@@ -101,7 +101,7 @@ class CompanyMenuListener
             'permission' => 'church_settings manage'
         ]);
 
-         $menu->add([
+        $menu->add([
             'category' => 'Church',
             'title' => __('Event Stage Timer'),
             'icon' => '',
@@ -114,7 +114,135 @@ class CompanyMenuListener
             'module' => $module,
             'permission' => 'church_program_timer manage'
         ]);
-        
+
+        // Volunteer Management
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Volunteer Management'),
+            'icon' => 'ti ti-users-group',
+            'name' => 'churchly-volunteers',
+            'parent' => null,
+            'order' => 30,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => '',
+            'module' => $module,
+            'permission' => 'church_volunteer manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Volunteers'),
+            'icon' => '',
+            'name' => 'churchly-volunteers-list',
+            'parent' => 'churchly-volunteers',
+            'order' => 1,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchly.volunteers.index',
+            'module' => $module,
+            'permission' => 'church_volunteer manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Skills Library'),
+            'icon' => '',
+            'name' => 'churchly-volunteers-skills',
+            'parent' => 'churchly-volunteers',
+            'order' => 2,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchly.volunteer-skills.index',
+            'module' => $module,
+            'permission' => 'church_volunteer manage',
+        ]);
+
+        // Pastoral Care
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Pastoral Care'),
+            'icon' => 'ti ti-heart',
+            'name' => 'churchly-care',
+            'parent' => null,
+            'order' => 35,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => '',
+            'module' => $module,
+            'permission' => 'church_household manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Households'),
+            'icon' => '',
+            'name' => 'churchly-households',
+            'parent' => 'churchly-care',
+            'order' => 1,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchly.households.index',
+            'module' => $module,
+            'permission' => 'church_household manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Smart Tags'),
+            'icon' => '',
+            'name' => 'churchly-smart-tags',
+            'parent' => 'churchly-care',
+            'order' => 2,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchly.smart-tags.index',
+            'module' => $module,
+            'permission' => 'church_smart_tag manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Follow-up Workflows'),
+            'icon' => '',
+            'name' => 'follow-up-workflowss',
+            'parent' => 'churchly-care',
+            'order' => 2,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchly.care.followups.index', // ✅ fixed
+            'module' => $module,
+            'permission' => 'church_smart_tag manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Communication Logs'),
+            'icon' => '',
+            'name' => 'communication-logs',
+            'parent' => 'churchly-care',
+            'order' => 2,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchly.care.communications.index', // ✅ fixed
+            'module' => $module,
+            'permission' => 'church_member_communication manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Pastoral Notes (Confidential)'),
+            'icon' => '',
+            'name' => 'care-notes',
+            'parent' => 'churchly-care',
+            'order' => 3,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchly.care.notes.index', // ✅ fixed
+            'module' => $module,
+            'permission' => 'church_member_note manage',
+        ]);
+
 
 
         $menu->add([
@@ -348,6 +476,7 @@ class CompanyMenuListener
         ]);
     }
 }
+
 
 
 

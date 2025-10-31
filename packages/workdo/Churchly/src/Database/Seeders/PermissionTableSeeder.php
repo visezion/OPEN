@@ -61,6 +61,49 @@ class PermissionTableSeeder extends Seeder
             'church_member manage',
             'church_member show',
 
+            // Volunteer Management
+            // Volunteer Management (granular)
+            'church_volunteer edit',
+            'church_volunteer delete',
+
+            // Volunteer Skills
+            'church_volunteer_skill manage',
+            'church_volunteer_skill create',
+            'church_volunteer_skill edit',
+            'church_volunteer_skill delete',
+
+            // Households & Care (granular)
+            'church_household create',
+            'church_household edit',
+            'church_household delete',
+
+            'church_member_note create',
+            'church_member_note edit',
+            'church_member_note delete',
+
+            'church_member_followup create',
+            'church_member_followup edit',
+            'church_member_followup delete',
+
+            'church_member_communication create',
+            'church_member_communication edit',
+            'church_member_communication delete',
+
+            // Smart Tags
+            'church_smart_tag create',
+            'church_smart_tag edit',
+            'church_smart_tag delete',
+            'church_smart_tag run',
+            'church_volunteer manage',
+            'church_volunteer create',
+
+            // Household & care records
+            'church_household manage',
+            'church_member_note manage',
+            'church_member_followup manage',
+            'church_member_communication manage',
+            'church_smart_tag manage',
+
             // ⏱ Program Timer
             'church_program_timer manage',
             'church_program_timer show',
@@ -150,3 +193,4 @@ class PermissionTableSeeder extends Seeder
         $this->command->info('✅ Churchly modular permissions seeded and linked to company role successfully.');
     }
 }
+

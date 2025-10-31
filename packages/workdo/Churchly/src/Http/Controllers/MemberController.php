@@ -25,6 +25,12 @@ use Workdo\Churchly\Entities\ChurchMemberField;
 use Workdo\Churchly\Entities\ChurchMemberCustomValue;
 use Workdo\Churchly\Entities\ChurchActivityLog;
 use Workdo\Churchly\Entities\DiscipleshipStage;
+use Workdo\Churchly\Entities\Household;
+use Workdo\Churchly\Entities\MemberNote;
+use Workdo\Churchly\Entities\MemberFollowUp;
+use Workdo\Churchly\Entities\MemberCommunication;
+use Workdo\Churchly\Entities\MemberContribution;
+use Workdo\Churchly\Entities\SmartTag;
 
 
 
@@ -250,6 +256,39 @@ public function show($id)
         return redirect()->back()->with('error', __('Member Not Found.'));
     }
 
+    $member->load([
+        'households.members',
+        'notes.author',
+        'followUps.assignee',
+        'communications.sender',
+        'smartTags',
+        'contributions',
+    ]);
+
+    $households = $member->households;
+    $availableHouseholds = Household::forWorkspace()->orderBy('name')->get();
+    $memberNotes = MemberNote::where('member_id', $member->id)
+        ->with('author')
+        ->orderByDesc('created_at')
+        ->take(20)
+        ->get();
+    $memberFollowUps = MemberFollowUp::where('member_id', $member->id)
+        ->with('assignee')
+        ->orderByRaw("FIELD(status,'open','in_progress','completed','cancelled')")
+        ->orderByDesc('created_at')
+        ->get();
+    $memberCommunications = MemberCommunication::where('member_id', $member->id)
+        ->with('sender')
+        ->orderByDesc(\DB::raw('COALESCE(sent_at, created_at)'))
+        ->take(25)
+        ->get();
+    $memberContributions = MemberContribution::where('member_id', $member->id)
+        ->orderByDesc('received_at')
+        ->take(12)
+        ->get();
+    $availableSmartTags = SmartTag::forWorkspace()->orderBy('name')->withCount('members')->get();
+    $careTeamUsers = User::select('id', 'name')->orderBy('name')->get();
+
     // ✅ Family group
     $familyMembers = ChurchMember::where('family_id', $member->family_id)
         ->with('spouse')
@@ -403,7 +442,15 @@ public function show($id)
         'nodes',
         'links',
         'workspaceName',
-        'stages'
+        'stages',
+        'households',
+        'availableHouseholds',
+        'memberNotes',
+        'memberFollowUps',
+        'memberCommunications',
+        'memberContributions',
+        'availableSmartTags',
+        'careTeamUsers'
     ));
 }
 
@@ -1302,3 +1349,5 @@ private function validateCsvColumns(array $headers)
     }
 }
 }
+
+

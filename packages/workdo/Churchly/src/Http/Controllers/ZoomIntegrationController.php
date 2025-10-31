@@ -9,7 +9,8 @@ use Workdo\Churchly\Services\ZoomSyncService;
 
 class ZoomIntegrationController extends Controller
 {
-    public function index()
+    
+public function index()
     {
         $setting = ZoomSyncSetting::firstOrNew(['workspace_id'=>getActiveWorkSpace()]);
         $recentEvents = AttendanceEvent::where('workspace_id', getActiveWorkSpace())
@@ -52,4 +53,12 @@ class ZoomIntegrationController extends Controller
         return back()->with('success', "Synced {$count} participant rows.");
     }
 }
+
+
+
+
+
+
+
+
 

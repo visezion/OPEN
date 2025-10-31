@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +21,16 @@ use Workdo\Churchly\Http\Controllers\AttendanceEventController;
 use Workdo\Churchly\Http\Controllers\AttendanceRecordController;
 use Workdo\Churchly\Http\Controllers\AttendanceReportController;
 use Workdo\Churchly\Http\Controllers\AppBuilderController;
+use Workdo\Churchly\Http\Controllers\VolunteerController;
+use Workdo\Churchly\Http\Controllers\VolunteerSkillController;
+use Workdo\Churchly\Http\Controllers\VolunteerTrainingController;
+use Workdo\Churchly\Http\Controllers\VolunteerAvailabilityController;
+use Workdo\Churchly\Http\Controllers\VolunteerAssignmentController;
+use Workdo\Churchly\Http\Controllers\HouseholdController;
+use Workdo\Churchly\Http\Controllers\MemberNoteController;
+use Workdo\Churchly\Http\Controllers\MemberFollowUpController;
+use Workdo\Churchly\Http\Controllers\MemberCommunicationController;
+use Workdo\Churchly\Http\Controllers\SmartTagController;
 
 
 Route::middleware(['web', 'auth'])->group(function () {
@@ -51,8 +61,60 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     Route::post('/members/{id}/generate-qr', [MemberController::class, 'generateQr'])
         ->name('churchly.members.generate_qr');
+
+    // Volunteer Management
+    Route::prefix('churchly')->name('churchly.')->group(function () {
+        Route::resource('volunteers', VolunteerController::class);
+        Route::resource('volunteer-skills', VolunteerSkillController::class)->except(['show']);
+        Route::post('volunteers/{volunteer}/trainings', [VolunteerTrainingController::class, 'store'])
+            ->name('volunteers.trainings.store');
+        Route::put('volunteers/{volunteer}/trainings/{training}', [VolunteerTrainingController::class, 'update'])
+            ->name('volunteers.trainings.update');
+        Route::delete('volunteers/{volunteer}/trainings/{training}', [VolunteerTrainingController::class, 'destroy'])
+            ->name('volunteers.trainings.destroy');
+
+        Route::post('volunteers/{volunteer}/availability', [VolunteerAvailabilityController::class, 'store'])
+            ->name('volunteers.availability.store');
+        Route::put('volunteers/{volunteer}/availability/{availability}', [VolunteerAvailabilityController::class, 'update'])
+            ->name('volunteers.availability.update');
+        Route::delete('volunteers/{volunteer}/availability/{availability}', [VolunteerAvailabilityController::class, 'destroy'])
+            ->name('volunteers.availability.destroy');
+
+        Route::post('volunteers/{volunteer}/assignments', [VolunteerAssignmentController::class, 'store'])
+            ->name('volunteers.assignments.store');
+        Route::put('volunteers/{volunteer}/assignments/{assignment}', [VolunteerAssignmentController::class, 'update'])
+            ->name('volunteers.assignments.update');
+        Route::delete('volunteers/{volunteer}/assignments/{assignment}', [VolunteerAssignmentController::class, 'destroy'])
+            ->name('volunteers.assignments.destroy');
+
+        Route::resource('households', HouseholdController::class)->except(['show']);
+        Route::post('households/{household}/members', [HouseholdController::class, 'attachMember'])->name('households.members.attach');
+        Route::post('households/link-member', [HouseholdController::class, 'attachMemberFromForm'])->name('households.members.attach-form');
+        Route::delete('households/{household}/members/{member}', [HouseholdController::class, 'detachMember'])->name('households.members.detach');
+
+        Route::resource('smart-tags', SmartTagController::class)->except(['show']);
+        Route::post('smart-tags/{smart_tag}/run', [SmartTagController::class, 'run'])->name('smart-tags.run');
+    });
+
+    Route::post('members/{member}/notes', [MemberNoteController::class, 'store'])->name('members.notes.store');
+    Route::put('members/{member}/notes/{note}', [MemberNoteController::class, 'update'])->name('members.notes.update');
+    Route::delete('members/{member}/notes/{note}', [MemberNoteController::class, 'destroy'])->name('members.notes.destroy');
+
+    Route::post('members/{member}/follow-ups', [MemberFollowUpController::class, 'store'])->name('members.followups.store');
+    Route::put('members/{member}/follow-ups/{followUp}', [MemberFollowUpController::class, 'update'])->name('members.followups.update');
+    Route::delete('members/{member}/follow-ups/{followUp}', [MemberFollowUpController::class, 'destroy'])->name('members.followups.destroy');
+
+    Route::prefix('churchly')->name('churchly.')->group(function () {
+    // Care lists
+        Route::get('care/notes', [MemberNoteController::class, 'index'])->name('care.notes.index');
+        Route::get('care/followups', [MemberFollowUpController::class, 'index'])->name('care.followups.index');
+        Route::get('care/communications', [MemberCommunicationController::class, 'index'])->name('care.communications.index');
         
-        
+        Route::post('care/notes', [MemberNoteController::class, 'storeGlobal'])->name('care.notes.store');
+        Route::post('care/followups', [MemberFollowUpController::class, 'storeGlobal'])->name('care.followups.store');
+        Route::post('care/communications', [MemberCommunicationController::class, 'storeGlobal'])->name('care.communications.store');
+    });  
+
 // routes/web.php
 Route::get('/birthday-card/{member}', [BirthdayCardController::class, 'generate'])
     ->name('birthday.card')
@@ -367,3 +429,6 @@ Route::middleware(['web','auth'])->prefix('churchly/website')->name('cms.')->gro
 // Public site preview (SSR)
 Route::get('{workspace}/site', [\Workdo\Churchly\Http\Controllers\SitePublicController::class,'home'])->name('site.home');
 Route::get('{workspace}/site/{slug}', [\Workdo\Churchly\Http\Controllers\SitePublicController::class,'page'])->name('site.page');
+
+
+

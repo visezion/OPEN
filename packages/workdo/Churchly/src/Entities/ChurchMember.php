@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Storage;
 
 // ✅ Correct imports for BaconQrCode v3.0.0
 use BaconQrCode\Writer;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Renderer\Image\GdImageBackEnd; // Works perfectly on XAMPP
+use BaconQrCodeenderer\ImageRenderer;
+use BaconQrCodeendererendererStyleendererStyle;
+use BaconQrCodeenderer\Image\GdImageBackEnd; // Works perfectly on XAMPP
 
 class ChurchMember extends Model
 {
@@ -109,6 +109,48 @@ class ChurchMember extends Model
         return $this->hasMany(DiscipleshipMemberProgress::class, 'member_id');
     }
 
+    public function households()
+    {
+        return $this->belongsToMany(
+            Household::class,
+            'church_household_members',
+            'member_id',
+            'household_id'
+        )->withPivot(['relationship', 'is_primary', 'joined_at'])
+         ->withTimestamps();
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(MemberNote::class, 'member_id')->latest();
+    }
+
+    public function followUps()
+    {
+        return $this->hasMany(MemberFollowUp::class, 'member_id')->latest();
+    }
+
+    public function communications()
+    {
+        return $this->hasMany(MemberCommunication::class, 'member_id')->latest();
+    }
+
+    public function contributions()
+    {
+        return $this->hasMany(MemberContribution::class, 'member_id')->latest();
+    }
+
+    public function smartTags()
+    {
+        return $this->belongsToMany(
+            SmartTag::class,
+            'church_smart_tag_members',
+            'member_id',
+            'smart_tag_id'
+        )->withPivot(['matched_at'])
+         ->withTimestamps();
+    }
+
     public function discipleshipReviews()
     {
         return $this->hasMany(DiscipleshipMemberProgress::class, 'reviewed_by');
@@ -192,9 +234,9 @@ class ChurchMember extends Model
     }
 
     $writer = new \BaconQrCode\Writer(
-        new \BaconQrCode\Renderer\ImageRenderer(
-            new \BaconQrCode\Renderer\RendererStyle\RendererStyle(300),
-            new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+        new \BaconQrCodeenderer\ImageRenderer(
+            new \BaconQrCodeendererendererStyleendererStyle(300),
+            new \BaconQrCodeenderer\Image\SvgImageBackEnd()
         )
     );
 
@@ -241,3 +283,10 @@ class ChurchMember extends Model
         });
     }
 }
+
+
+
+
+
+
+
