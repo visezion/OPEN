@@ -3,6 +3,9 @@ name: Laravel CI/CD Pipeline (Hestia Runner)
 on:
   push:
     branches:
+      - "main"          # Production branch
+  pull_request:
+    branches:
       - "main"
 
 jobs:
@@ -10,9 +13,11 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      # 🧩 Step 1: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
+      # ⚙️ Step 2: Setup PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -20,30 +25,54 @@ jobs:
           extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo
           coverage: none
 
+      # 🧰 Step 3: Validate and install dependencies
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-lock
+
+      - name: Cache Composer dependencies
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
 
-      - name: Prepare application environment
+      # 🧠 Step 4: Prepare Laravel environment for build
+      - name: Prepare Laravel environment
         run: |
-          cp .env.example .env
-          php artisan key:generate
-          mkdir -p database
-          touch database/database.sqlite
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
+          if [ -f .env ]; then
+            echo ".env already exists"
+          elif [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            echo "Creating minimal .env for CI..."
+            printf "%s\n" \
+              "APP_NAME=OPEN" \
+              "APP_ENV=local" \
+              "APP_KEY=" \
+              "APP_DEBUG=true" \
+              "APP_URL=http://localhost" \
+              "LOG_CHANNEL=stack" \
+              "DB_CONNECTION=sqlite" \
+              "DB_DATABASE=:memory:" \
+              "CACHE_DRIVER=file" \
+              "QUEUE_CONNECTION=sync" \
+              "SESSION_DRIVER=array" \
+              "SESSION_LIFETIME=120" \
+              > .env
+          fi
+          php artisan key:generate --force
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
 
-      - name: Run database migrations
-        run: php artisan migrate --force
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-
+      # 🧪 Step 5: Run Laravel tests (fixed)
       - name: Run Laravel tests
         run: php artisan test
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
 
   deploy:
     name: Deploy to Hestia Server
@@ -57,50 +86,49 @@ jobs:
       - name: Preflight checks (PHP/Composer on runner)
         run: |
           set -e
-          command -v php >/dev/null 2>&1 || { echo "PHP CLI not found on runner"; exit 1; }
-          php -v
-          if command -v composer >/dev/null 2>&1; then
-            composer --version
-          else
-            echo "Composer not found in PATH; a local composer.phar will be used."
+          if ! command -v php >/dev/null 2>&1; then
+            echo "❌ ERROR: PHP CLI not found on self-hosted runner."
+            exit 1
           fi
+          php -v
+          composer --version || echo "⚠️ Composer missing; will install locally."
 
       - name: Deploy Laravel project to Hestia
-        env:
-          DEPLOY_PATH: /home/oluwasusiv/web/open.vicezion.com/public_html
-          REPO_URL: https://github.com/visezion/OPEN.git
         run: |
-          set -e
-          echo "Starting deployment on $(hostname)"
-          cd "$DEPLOY_PATH"
+          echo "🚀 Starting deployment on $(hostname)"
+          cd /home/oluwasusiv/web/open.vicezion.com/public_html/
 
-          export GIT_TERMINAL_PROMPT=0
-
+          # Ensure this folder is a valid git repo
           if [ ! -d .git ]; then
-            echo "Initializing git repository..."
+            echo "⚙️ Initializing git repository..."
             git init
-            git remote add origin "$REPO_URL"
+            git remote add origin https://github.com/visezion/OPEN.git
+            git fetch origin main
+            git checkout -B main origin/main
+          else
+            echo "🔄 Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
           fi
 
-          git fetch origin main
-          git checkout -B main origin/main
-          git reset --hard origin/main
-
-          if command -v composer >/dev/null 2>&1; then
-            composer install --no-interaction --prefer-dist --optimize-autoloader
-          else
+          echo "🧩 Installing dependencies..."
+          if ! command -v composer >/dev/null 2>&1; then
             php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-            php composer-setup.php --quiet --install-dir=. --filename=composer.phar
+            php composer-setup.php --quiet
             rm composer-setup.php
             php composer.phar install --no-interaction --prefer-dist --optimize-autoloader
+          else
+            composer install --no-interaction --prefer-dist --optimize-autoloader
           fi
 
+          echo "🧠 Optimizing Laravel..."
           php artisan migrate --force || true
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
 
+          echo "🔁 Reloading services..."
           sudo systemctl reload php8.2-fpm || true
           sudo systemctl reload nginx || true
 
-          echo "Deployment completed successfully."
+          echo "✅ Deployment completed successfully!"
