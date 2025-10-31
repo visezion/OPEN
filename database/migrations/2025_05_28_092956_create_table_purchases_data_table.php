@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -10,12 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('vendors') && Schema::hasTable('purchases')) {
-            \DB::statement("
-                UPDATE purchases
-                JOIN vendors ON purchases.user_id = vendors.user_id
-                SET purchases.vender_id = vendors.id
-            ");
+        if (!Schema::hasTable('vendors') || !Schema::hasTable('purchases')) {
+            return;
+        }
+
+        $rows = DB::table('purchases')
+            ->select('purchases.id', 'vendors.id as vendor_id')
+            ->join('vendors', 'purchases.user_id', '=', 'vendors.user_id')
+            ->whereNull('purchases.vender_id')
+            ->get();
+
+        foreach ($rows as $row) {
+            DB::table('purchases')
+                ->where('id', $row->id)
+                ->update(['vender_id' => $row->vendor_id]);
         }
     }
 
@@ -24,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_purchases_data');
+        // No-op: data migration only.
     }
 };
