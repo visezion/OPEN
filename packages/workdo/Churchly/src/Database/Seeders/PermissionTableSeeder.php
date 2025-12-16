@@ -25,6 +25,25 @@ class PermissionTableSeeder extends Seeder
             'churchly asset edit',
             'churchly asset manage',
             'churchly asset show',
+            // Maintenance
+            'maintenance schedule create',
+            'maintenance schedule edit',
+            'maintenance schedule delete',
+            'maintenance schedule manage',
+            'maintenance log manage',
+            'maintenance log update',
+
+            // Asset Inventory
+            'asset inventory create',
+            'asset inventory edit',
+            'asset inventory delete',
+            'asset inventory manage',
+            'asset inventory view',
+            'asset movement manage',
+            'asset movement record',
+            'asset inspection manage',
+            'asset inspection create',
+            'asset notification manage',
 
             // 🌿 Branches
             'church_branch create',
@@ -193,4 +212,3 @@ class PermissionTableSeeder extends Seeder
         $this->command->info('✅ Churchly modular permissions seeded and linked to company role successfully.');
     }
 }
-

@@ -236,18 +236,22 @@ if (!function_exists('getAdminAllSetting')) {
 }
 
 if (!function_exists('getCompanyAllSetting')) {
-    function getCompanyAllSetting($user_id = null, $workspace = null)
-    {
-        if (!empty($user_id)) {
-            $user = User::find($user_id);
-        } else {
-            $user =  auth()->user();
+function getCompanyAllSetting($user_id = null, $workspace = null)
+{
+    if (!empty($user_id)) {
+        $user = User::find($user_id);
+    } else {
+        $user = auth()->user();
+    }
+
+        $workspace = $workspace ?? ($user->active_workspace ?? 0);
+
+        if (empty($user)) {
+            $workspace = $workspace ?? 0;
         }
 
-        $workspace = $workspace ?? $user->active_workspace;
-
         // Check if the user is not 'company' or 'super admin' and find the creator
-        if (!in_array($user->type, ['company', 'super admin'])) {
+        if (!empty($user) && !in_array($user->type, ['company', 'super admin'])) {
             $user = User::find($user->created_by);
         }
 
@@ -412,11 +416,16 @@ if (!function_exists('getWorkspace')) {
 if (!function_exists('creatorId')) {
     function creatorId()
     {
-        if (Auth::user()->type == 'super admin' || Auth::user()->type == 'company') {
-            return Auth::user()->id;
-        } else {
-            return Auth::user()->created_by;
+        $user = Auth::user();
+        if (! $user) {
+            return 0;
         }
+
+        if ($user->type == 'super admin' || $user->type == 'company') {
+            return $user->id;
+        }
+
+        return $user->created_by;
     }
 }
 
@@ -863,14 +872,15 @@ if (!function_exists('check_file')) {
 
         if (!empty($path)) {
 
-            $storage_settings = getAdminAllSetting();
+            $storage_settings = getAdminAllSetting() ?? [];
+            $storage_setting = $storage_settings['storage_setting'] ?? 'local';
 
-            if ($storage_settings['storage_setting'] == null || $storage_settings['storage_setting'] == 'local') {
+            if ($storage_setting === 'local') {
 
                 return file_exists(base_path($path));
             } else {
 
-                if (isset($storage_settings['storage_setting']) && $storage_settings['storage_setting'] == 's3') {
+                if ($storage_setting === 's3') {
                     config(
                         [
                             'filesystems.disks.s3.key' => $storage_settings['s3_key'],

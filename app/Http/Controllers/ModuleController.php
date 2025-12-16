@@ -11,6 +11,7 @@ use App\Facades\ModuleFacade as Module;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Session;
@@ -25,7 +26,12 @@ class ModuleController extends Controller
         if (Auth::user()->isAbleTo('module manage')) {
             try {
                 $modules = Module::allModules();
-                $category_wise_add_ons = json_decode(file_get_contents("https://dash-demo.workdo.io/cronjob/dash-addon.json"), true);
+                $category_wise_add_ons = [];
+                try {
+                    $category_wise_add_ons = json_decode(file_get_contents("https://dash-demo.workdo.io/cronjob/dash-addon.json"), true) ?? [];
+                } catch (\Throwable $th) {
+                    Log::warning('Unable to load add-on catalog: ' . $th->getMessage());
+                }
 
                 $path = base_path('packages/workdo');
                 $devPackagePath = \Illuminate\Support\Facades\File::directories($path);
@@ -44,6 +50,11 @@ class ModuleController extends Controller
                 $index = 0;
                 foreach($devPackages as $devPackage){
                     $moduleFilePath = "{$path}/{$devPackage}/module.json";
+
+                    if (!file_exists($moduleFilePath)) {
+                        Log::warning("module.json missing for dev package {$devPackage}.");
+                        continue;
+                    }
 
                     $devPackageFileContent = file_get_contents($moduleFilePath);
                     $devPackageArr = json_decode($devPackageFileContent);
@@ -106,16 +117,20 @@ class ModuleController extends Controller
                     Artisan::call('package:seed ' . $request->name);
 
                     $filePath = base_path('packages/workdo/' . $request->name . '/module.json');
-                    $jsonContent = file_get_contents($filePath);
-                    $data = json_decode($jsonContent, true);
-
+                    $data = [];
+                    if (file_exists($filePath)) {
+                        $jsonContent = file_get_contents($filePath);
+                        $data = json_decode($jsonContent, true) ?? [];
+                    } else {
+                        Log::warning("module.json missing while enabling {$request->name}.");
+                    }
 
                     $addon = new AddOn;
-                    $addon->module = $data['name'];
-                    $addon->name = $data['alias'];
+                    $addon->module = $data['name'] ?? $request->name;
+                    $addon->name = $data['alias'] ?? $request->name;
                     $addon->monthly_price = $data['monthly_price'] ?? 0;
                     $addon->yearly_price = $data['yearly_price'] ?? 0;
-                    $addon->package_name = $data['package_name'];
+                    $addon->package_name = $data['package_name'] ?? null;
                     $addon->save();
                     Module::moduleCacheForget($request->name);
                 }

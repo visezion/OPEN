@@ -18,7 +18,7 @@ return new class extends Migration
         $table->timestamps();
 
         $table->foreign('stage_id')->references('id')->on('discipleship_stages')->onDelete('cascade');
-        $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+        $table->foreign('event_id')->references('id')->on('church_events')->onDelete('cascade');
 });
 
     }

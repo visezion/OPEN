@@ -209,12 +209,17 @@ class HomeController extends Controller
         $modules = [];
         if(count($modules_all) > 0)
         {
+            $pick = min(6, count($modules_all));
+            $randomKeys = array_rand($modules_all, $pick);
+
+            if (!is_array($randomKeys)) {
+                $randomKeys = [$randomKeys];
+            }
 
             $modules = array_intersect_key(
-                $modules_all,  // the array with all keys
-                array_flip(array_rand($modules_all,(count($modules_all) <  6) ? count($modules_all) : 6 )) // keys to be extracted
+                $modules_all,
+                array_flip($randomKeys)
             );
-
         }
         $plan = Plan::first();
         $addon = AddOn::where('name',$slug)->first();

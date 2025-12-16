@@ -272,6 +272,116 @@ class CompanyMenuListener
             'module' => $module,
             'permission' => 'church_settings manage'
         ]);
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Maintenance'),
+            'icon' => 'tools',
+            'name' => 'maintenance',
+            'parent' => null,
+            'order' => 260,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => '',
+            'module' => $module,
+            'permission' => 'maintenance schedule manage'
+        ]);
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Maintenance Page'),
+            'icon' => '',
+            'name' => 'maintenance-page',
+            'parent' => 'maintenance',
+            'order' => 5,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'maintenance.index',
+            'module' => $module,
+            'permission' => 'maintenance schedule manage'
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Maintenance Settings'),
+            'icon' => 'settings',
+            'name' => 'maintenance-settings',
+            'parent' => 'maintenance',
+            'order' => 5,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'maintenance.settings.index',
+            'module' => $module,
+            'permission' => 'maintenance schedule manage'
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Asset Inventory'),
+            'icon' => 'ti ti-packages',
+            'name' => 'asset-inventory',
+            'parent' => null,
+            'order' => 270,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => '',
+            'module' => $module,
+            'permission' => 'asset inventory manage'
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Inventory'),
+            'icon' => '',
+            'name' => 'asset-inventory-list',
+            'parent' => 'asset-inventory',
+            'order' => 1,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'assets.index',
+            'module' => $module,
+            'permission' => 'asset inventory view'
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Asset Dashboard'),
+            'icon' => '',
+            'name' => 'asset-inventory-dashboard',
+            'parent' => 'asset-inventory',
+            'order' => 2,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'assets.dashboard',
+            'module' => $module,
+            'permission' => 'asset inventory manage'
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Asset Reports'),
+            'icon' => '',
+            'name' => 'asset-inventory-reports',
+            'parent' => 'asset-inventory',
+            'order' => 3,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'assets.reports',
+            'module' => $module,
+            'permission' => 'asset inventory manage'
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Asset Settings'),
+            'icon' => 'settings',
+            'name' => 'asset-inventory-settings',
+            'parent' => 'asset-inventory',
+            'order' => 4,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'assets.settings.index',
+            'module' => $module,
+            'permission' => 'asset notification manage'
+        ]);
 ////////////////////////////// Discipleship Management/////////////////////////
 
         $menu->add([
@@ -388,6 +498,7 @@ class CompanyMenuListener
             'permission' => 'church_settings manage'
         ]);
 
+        
         $menu->add([
             'category' => 'Church',
             'title' => __('Church Settings'),
@@ -476,8 +587,6 @@ class CompanyMenuListener
         ]);
     }
 }
-
-
 
 
 

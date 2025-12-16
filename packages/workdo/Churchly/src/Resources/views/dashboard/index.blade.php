@@ -123,16 +123,7 @@
 					<i class="fas fa-arrow-right float-right pt-1"></i>
 				</a>
                 	
-                <a id="trial-getting-started" target="_blank" href="#" class="text-primary card mb-3 px-3 py-2 d-flex flex-row align-items-center no-underline shadow-sm">
-					<div class="rounded bg-dark-primary mr-3 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
-						<i class="ti ti-settings white fa-lg"></i>		
-					</div>
-					<div class="flex-grow-1" data-lang="learn_churchtrac">
-						<b>Configure Admin Settings</b><br>
-						Set up global options and settings
-					</div>
-					<i class="fas fa-arrow-right float-right pt-1"></i>
-				</a>
+                
 
                 
 		    </div>						

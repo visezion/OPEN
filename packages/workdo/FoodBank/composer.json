@@ -1,0 +1,17 @@
+{
+    "name": "workdo/food-bank",
+    "description": "Workdo Food Bank module",
+    "autoload": {
+        "psr-4": {
+            "Workdo\\FoodBank\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\FoodBank\\Providers\\FoodBankServiceProvider"
+            ]
+        }
+    },
+    "require": {}
+}

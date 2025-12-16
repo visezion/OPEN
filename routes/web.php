@@ -37,7 +37,12 @@ use App\Http\Controllers\WarehouseTransferController;
 use App\Http\Controllers\WorkSpaceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReferralProgramController;
+use Workdo\FoodBank\Http\Controllers\PublicController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+
+Route::get('/', function () {
+    return redirect()->route('dashboard');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -55,11 +60,11 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 require __DIR__ . '/auth.php';
 
 // Root route (available regardless of domain-check)
-Route::match(['GET','HEAD'], '/', [HomeController::class, 'index'])->name('start');
 
 // custom domain code
-Route::middleware('domain-check')->group(function () {
-    Route::get('/register/{lang?}', [RegisteredUserController::class, 'create'])->name('register');
+    Route::middleware('domain-check')->group(function () {
+        Route::get('start', [HomeController::class, 'Software'])->name('start');
+        Route::get('/register/{lang?}', [RegisteredUserController::class, 'create'])->name('register');
     Route::get('/login/{lang?}', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::get('/forgot-password/{lang?}', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::get('/verify-email/{lang?}', [EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
@@ -228,12 +233,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('troubleshoot/storage-link', [TroubleshootController::class, 'storageLink'])->name('superadmin.troubleshoot.storage-link');
         Route::post('troubleshoot/cache/clear', [TroubleshootController::class, 'clearCaches'])->name('superadmin.troubleshoot.cache-clear');
         Route::post('troubleshoot/cache/build', [TroubleshootController::class, 'buildCaches'])->name('superadmin.troubleshoot.cache-build');
+        Route::post('troubleshoot/run-seeders', [TroubleshootController::class, 'runSeeders'])->name('superadmin.troubleshoot.run-seeders');
         Route::post('troubleshoot/permissions/fix', [TroubleshootController::class, 'fixPermissions'])->name('superadmin.troubleshoot.permissions-fix');
         Route::post('troubleshoot/logs/clear', [TroubleshootController::class, 'clearLog'])->name('superadmin.troubleshoot.logs-clear');
 
         // CI/CD status + manual dispatch
         Route::get('cicd', [CiCdController::class, 'index'])->name('superadmin.cicd.index');
         Route::post('cicd/dispatch', [CiCdController::class, 'dispatch'])->name('superadmin.cicd.dispatch');
+        Route::get('system-analytics', [\App\Http\Controllers\SuperAdmin\SystemAnalyticsController::class, 'index'])
+            ->name('superadmin.system.analytics');
+        Route::get('system-analytics/map', [\App\Http\Controllers\SuperAdmin\SystemAnalyticsController::class, 'map'])
+            ->name('superadmin.system.analytics.map');
     });
 
 
@@ -421,6 +431,13 @@ Route::post('/bank/transfer/invoice', [BanktransferController::class, 'invoicePa
 
 // proposal
 Route::get('/proposal/pay/{proposal}', [ProposalController::class, 'payproposal'])->name('pay.proposalpay');
+
+Route::prefix('foodbank')->name('foodbank.public.')->group(function () {
+    Route::get('public/request/{token?}', [PublicController::class, 'requestForm'])->name('request');
+    Route::post('public/request/{token?}', [PublicController::class, 'submitRequest'])->name('request.submit');
+    Route::get('public/donate/{token?}', [PublicController::class, 'donateForm'])->name('donate');
+    Route::post('public/donate/{token?}', [PublicController::class, 'submitDonate'])->name('donate.submit');
+});
 Route::get('proposal/pdf/{id}', [ProposalController::class, 'proposal'])->name('proposal.pdf');
 
 

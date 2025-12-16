@@ -38,6 +38,40 @@
 
 @section('content')
     <div class="row">
+        
+        <div class="col-12 mt-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ __('Seeder Helpers') }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">{{ __('Re-run seeders to restore menu entries, permissions, or the full data bundle when troubleshooting access issues.') }}</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <form action="{{ route('superadmin.troubleshoot.run-seeders') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="preset" value="menu">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="ti ti-sparkles"></i> {{ __('Seed Menu + Defaults') }}
+                            </button>
+                        </form>
+                        <form action="{{ route('superadmin.troubleshoot.run-seeders') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="preset" value="permissions">
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="ti ti-key"></i> {{ __('Seed Permissions') }}
+                            </button>
+                        </form>
+                        <form action="{{ route('superadmin.troubleshoot.run-seeders') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="preset" value="full">
+                            <button type="submit" class="btn btn-outline-warning">
+                                <i class="ti ti-database"></i> {{ __('Run Full Database Seeder') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-xl-8">
             <div class="card">
                 <div class="card-header d-flex align-items-center justify-content-between">
@@ -105,6 +139,7 @@
                 </div>
             </div>
         </div>
+
 
         <div class="col-xl-4">
             <div class="card">

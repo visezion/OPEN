@@ -80,7 +80,8 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
-             "workdo\\": "packages/workdo/"
+             "workdo\\": "packages/workdo/",
+            "Workdo\\": "packages/workdo/"
         }
     },
     "autoload-dev": {

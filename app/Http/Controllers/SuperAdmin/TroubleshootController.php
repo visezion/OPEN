@@ -153,6 +153,39 @@ class TroubleshootController extends Controller
         }
     }
 
+    public function runSeeders(Request $request)
+    {
+        if (!Auth::user() || !Auth::user()->isAbleTo('setting manage')) {
+            return redirect()->back()->with('error', __('Permission denied.'));
+        }
+
+        $preset = $request->input('preset', 'menu');
+        $map = [
+            'menu' => ['Database\\Seeders\\DefultSetting'],
+            'permissions' => ['Database\\Seeders\\PermissionTableSeeder'],
+            'full' => ['Database\\Seeders\\DatabaseSeeder'],
+        ];
+        $classes = $map[$preset] ?? $map['menu'];
+        $results = [];
+
+        foreach ($classes as $class) {
+            if (!class_exists($class)) {
+                $results[] = "{$class} not found";
+                continue;
+            }
+
+            try {
+                Artisan::call('db:seed', ['--class' => $class]);
+                $results[] = "{$class} seeded";
+            } catch (\Throwable $e) {
+                $results[] = "{$class} failed: " . $e->getMessage();
+            }
+        }
+
+        $message = implode('; ', $results);
+        return redirect()->back()->with('success', __('Seeder run results: :result', ['result' => $message]));
+    }
+
     public function clearLog(Request $request)
     {
         if (!Auth::user() || !Auth::user()->isAbleTo('setting manage')) {

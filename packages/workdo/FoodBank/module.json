@@ -1,0 +1,11 @@
+{
+  "name": "FoodBank",
+  "alias": "Food Bank",
+  "module_version": "1.0",
+  "monthly_price": 0,
+  "yearly_price": 0,
+  "package_name": "FoodBank",
+  "is_active": 1,
+  "menu": "foodbank",
+  "description": ""
+}

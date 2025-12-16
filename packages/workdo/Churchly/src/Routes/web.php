@@ -31,6 +31,11 @@ use Workdo\Churchly\Http\Controllers\MemberNoteController;
 use Workdo\Churchly\Http\Controllers\MemberFollowUpController;
 use Workdo\Churchly\Http\Controllers\MemberCommunicationController;
 use Workdo\Churchly\Http\Controllers\SmartTagController;
+use Workdo\Churchly\Http\Controllers\MaintenanceScheduleController;
+use Workdo\Churchly\Http\Controllers\MaintenanceLogController;
+use Workdo\Churchly\Http\Controllers\MaintenanceSettingController;
+use Workdo\Churchly\Http\Controllers\AssetInventoryController;
+use Workdo\Churchly\Http\Controllers\AssetSettingController;
 
 
 Route::middleware(['web', 'auth'])->group(function () {
@@ -168,6 +173,50 @@ Route::get('/birthday-card/{member}', [BirthdayCardController::class, 'generate'
 
 
     Route::resource('churchdesignation', ChurchDesignationController::class);
+
+    Route::prefix('maintenance')->name('maintenance.')->middleware('verified')->group(function () {
+        Route::get('/', [MaintenanceScheduleController::class, 'index'])->name('index');
+        Route::get('/create', [MaintenanceScheduleController::class, 'create'])->name('create');
+        Route::post('/', [MaintenanceScheduleController::class, 'store'])->name('store');
+        Route::get('export/{format?}', [MaintenanceScheduleController::class, 'export'])->name('export');
+        Route::get('print', [MaintenanceScheduleController::class, 'print'])->name('print');
+        Route::get('/calendar', [MaintenanceScheduleController::class, 'calendar'])->name('calendar');
+
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [MaintenanceSettingController::class, 'index'])->name('index');
+            Route::post('/', [MaintenanceSettingController::class, 'update'])->name('update');
+            Route::post('/categories', [MaintenanceSettingController::class, 'storeCategory'])->name('categories');
+            Route::delete('/categories/{category}', [MaintenanceSettingController::class, 'destroyCategory'])->name('categories.destroy');
+        });
+
+        Route::get('/{schedule}', [MaintenanceScheduleController::class, 'show'])->name('show');
+        Route::get('/{schedule}/edit', [MaintenanceScheduleController::class, 'edit'])->name('edit');
+        Route::put('/{schedule}', [MaintenanceScheduleController::class, 'update'])->name('update');
+        Route::delete('/{schedule}', [MaintenanceScheduleController::class, 'destroy'])->name('destroy');
+
+        Route::post('/{schedule}/logs', [MaintenanceLogController::class, 'store'])->name('logs.store');
+        Route::put('/logs/{log}/status', [MaintenanceLogController::class, 'updateStatus'])->name('logs.updateStatus');
+        Route::get('/logs/{log}', [MaintenanceLogController::class, 'show'])->name('logs.show');
+    });
+
+    Route::prefix('assets')->name('assets.')->middleware('verified')->group(function () {
+        Route::get('/dashboard', [AssetInventoryController::class, 'dashboard'])->name('dashboard');
+        Route::get('/reports', [AssetInventoryController::class, 'reports'])->name('reports');
+        Route::get('/export/{format?}', [AssetInventoryController::class, 'export'])->name('export');
+        Route::get('/print', [AssetInventoryController::class, 'print'])->name('print');
+        Route::get('/settings', [AssetSettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [AssetSettingController::class, 'update'])->name('settings.update');
+
+        Route::get('/', [AssetInventoryController::class, 'index'])->name('index');
+        Route::get('/create', [AssetInventoryController::class, 'create'])->name('create');
+        Route::post('/', [AssetInventoryController::class, 'store'])->name('store');
+        Route::get('/{assetInventory}', [AssetInventoryController::class, 'show'])->name('show');
+        Route::post('/{assetInventory}/movements', [AssetInventoryController::class, 'storeMovement'])->name('movements.store');
+        Route::post('/{assetInventory}/inspections', [AssetInventoryController::class, 'storeInspection'])->name('inspections.store');
+        Route::get('/{assetInventory}/edit', [AssetInventoryController::class, 'edit'])->name('edit');
+        Route::put('/{assetInventory}', [AssetInventoryController::class, 'update'])->name('update');
+        Route::delete('/{assetInventory}', [AssetInventoryController::class, 'destroy'])->name('destroy');
+    });
 
   
 
@@ -429,6 +478,3 @@ Route::middleware(['web','auth'])->prefix('churchly/website')->name('cms.')->gro
 // Public site preview (SSR)
 Route::get('{workspace}/site', [\Workdo\Churchly\Http\Controllers\SitePublicController::class,'home'])->name('site.home');
 Route::get('{workspace}/site/{slug}', [\Workdo\Churchly\Http\Controllers\SitePublicController::class,'page'])->name('site.page');
-
-
-

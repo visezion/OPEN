@@ -128,8 +128,12 @@
                                 <p class="text-muted text-sm mb-0">
                                     {{  $devModule['description'] ?? '' }}
                                 </p>
-                                <a href="{{ route('software.details', $devModule['alias']) }}" target="_new"
-                                    class="btn  btn-outline-secondary w-100 mt-2">{{ __('How To Register') }}</a>
+                                @if(!empty($devModule['alias']))
+                                    <a href="{{ route('software.details', $devModule['alias']) }}" target="_new"
+                                        class="btn  btn-outline-secondary w-100 mt-2">{{ __('How To Register') }}</a>
+                                @else
+                                    <button type="button" class="btn btn-outline-secondary w-100 mt-2" disabled>{{ __('How To Register') }}</button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -194,8 +198,12 @@
                                 <p class="text-muted text-sm mb-0">
                                     {{  $module->description ?? '' }}
                                 </p>
-                                <a href="{{ route('software.details', $module->alias) }}" target="_new"
-                                    class="btn  btn-outline-secondary w-100 mt-2">{{ __('View Details') }}</a>
+                                @if(!empty($module->alias))
+                                    <a href="{{ route('software.details', $module->alias) }}" target="_new"
+                                        class="btn  btn-outline-secondary w-100 mt-2">{{ __('View Details') }}</a>
+                                @else
+                                    <button type="button" class="btn  btn-outline-secondary w-100 mt-2" disabled>{{ __('View Details') }}</button>
+                                @endif
                             </div>
                         </div>
                     </div>
