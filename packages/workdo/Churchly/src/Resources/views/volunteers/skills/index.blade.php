@@ -5,7 +5,6 @@
 @endsection
 
 @section('page-breadcrumb')
-    <a href="{{ route('churchly.volunteers.index') }}">{{ __('Volunteers') }}</a> /
     {{ __('Skills Library') }}
 @endsection
 

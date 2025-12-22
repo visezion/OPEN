@@ -96,7 +96,11 @@ class Module
     public function allEnabled(): array
     {
 
-        return AddOn::where('is_enable', 1)->pluck('module')->toArray() ?? [];
+        return AddOn::where('is_enable', 1)
+            ->whereNotNull('module')
+            ->where('module', '<>', '')
+            ->pluck('module')
+            ->toArray() ?? [];
 
     }
 

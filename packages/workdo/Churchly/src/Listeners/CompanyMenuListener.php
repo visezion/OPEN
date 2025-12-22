@@ -119,7 +119,7 @@ class CompanyMenuListener
         $menu->add([
             'category' => 'Church',
             'title' => __('Volunteer Management'),
-            'icon' => 'ti ti-users-group',
+            'icon' => 'ti ti-walk',
             'name' => 'churchly-volunteers',
             'parent' => null,
             'order' => 30,
@@ -316,7 +316,7 @@ class CompanyMenuListener
         $menu->add([
             'category' => 'Church',
             'title' => __('Asset Inventory'),
-            'icon' => 'ti ti-packages',
+            'icon' => 'ti ti-calculator',
             'name' => 'asset-inventory',
             'parent' => null,
             'order' => 270,
