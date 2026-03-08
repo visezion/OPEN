@@ -9,7 +9,6 @@
 /bootstrap/cache/*
 /.idea
 /.vscode
-composer.lock
 npm-debug.log
 yarn-error.log
 .DS_Store

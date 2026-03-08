@@ -22,12 +22,12 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo
+          extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo, sodium
           coverage: none
 
       # 🧰 Step 3: Validate and install dependencies
       - name: Validate composer.json
-        run: composer validate --strict --no-check-lock
+        run: composer validate --strict
 
       - name: Cache Composer dependencies
         id: composer-cache
@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+        run: composer install --prefer-dist --no-progress --no-interaction
 
       # 🧠 Step 4: Prepare Laravel environment for build
       - name: Prepare Laravel environment
