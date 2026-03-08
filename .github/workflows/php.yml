@@ -137,11 +137,12 @@ jobs:
             --exclude '.git/' \
             --exclude '.github/' \
             --exclude '.env' \
+            --exclude 'node_modules/' \
             --exclude 'storage/' \
             --exclude 'bootstrap/cache/' \
             deploy-package/ "$DEPLOY_PATH"/
           cd "$DEPLOY_PATH"
-          php artisan migrate --force
+          php artisan migrate --force --graceful
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
