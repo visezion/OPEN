@@ -200,7 +200,8 @@ Route::get('/birthday-card/{member}', [BirthdayCardController::class, 'generate'
         Route::get('/logs/{log}', [MaintenanceLogController::class, 'show'])->name('logs.show');
     });
 
-    Route::prefix('assets')->name('assets.')->middleware('verified')->group(function () {
+    // Avoid colliding with the public/assets static directory on production.
+    Route::prefix('asset-inventory')->name('assets.')->middleware('verified')->group(function () {
         Route::get('/dashboard', [AssetInventoryController::class, 'dashboard'])->name('dashboard');
         Route::get('/reports', [AssetInventoryController::class, 'reports'])->name('reports');
         Route::get('/export/{format?}', [AssetInventoryController::class, 'export'])->name('export');
