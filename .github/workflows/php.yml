@@ -88,6 +88,10 @@ jobs:
             echo "Install php8.2-cli (or appropriate version) on the server, then rerun."
             exit 1
           fi
+          if ! command -v rsync >/dev/null 2>&1; then
+            echo "ERROR: rsync not found on self-hosted runner."
+            exit 1
+          fi
           php -v
           command -v composer >/dev/null 2>&1 && composer --version || true
 
@@ -97,10 +101,16 @@ jobs:
             echo "ERROR: Deploy path not found: $DEPLOY_PATH"
             exit 1
           fi
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.env' \
+            --exclude 'node_modules/' \
+            --exclude 'vendor/' \
+            --exclude 'storage/' \
+            --exclude 'bootstrap/cache/' \
+            ./ "$DEPLOY_PATH"/
           cd "$DEPLOY_PATH"
-          export GIT_TERMINAL_PROMPT=0
-          git fetch --all --prune
-          git reset --hard origin/main
           if ! command -v composer >/dev/null 2>&1; then
             echo "Composer not found in PATH, attempting local install..."
             php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
