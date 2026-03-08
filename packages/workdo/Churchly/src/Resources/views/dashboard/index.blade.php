@@ -4,6 +4,36 @@
     {{ __('Dashboard') }}
 @endsection
 
+@push('scripts')
+<script>
+document.addEventListener('click', function (event) {
+    const button = event.target.closest('.copy-link');
+    if (!button) {
+        return;
+    }
+
+    const link = button.dataset.link || button.closest('.input-group')?.querySelector('input')?.value;
+    if (!link) {
+        return;
+    }
+
+    navigator.clipboard.writeText(link).then(() => {
+        const original = button.innerHTML;
+        button.innerHTML = '<i class="ti ti-check"></i>';
+        setTimeout(() => {
+            button.innerHTML = original;
+        }, 1400);
+    }).catch(() => {
+        const original = button.innerHTML;
+        button.innerHTML = '<i class="ti ti-alert-circle text-warning"></i>';
+        setTimeout(() => {
+            button.innerHTML = original;
+        }, 1400);
+    });
+});
+</script>
+@endpush
+
 @section('page-breadcrumb')
     {{ __('Church') }}
 @endsection
@@ -12,11 +42,22 @@
 
 @section('content')
 
+    @php
+        $activeWorkspace = \App\Models\WorkSpace::find(getActiveWorkSpace());
+        $workspaceKey = $activeWorkspace?->slug ?: getActiveWorkSpace();
+        $feedbackFormUrl = $workspaceKey ? route('churchly.feedback.form', ['workspace' => $workspaceKey]) : '#';
+        $feedbackSubmitUrl = $workspaceKey ? route('churchly.feedback.submit', ['workspace' => $workspaceKey]) : '#';
+        $selfServiceUrl = $workspaceKey ? route('churchly.self.register', ['workspace' => $workspaceKey]) : '#';
+    @endphp
+
     @if (session('status'))
         <div class="alert alert-success" role="alert">
             {{ session('status') }}
         </div>
     @endif
+
+    
+
 <div class="row row-gap mb-4">
     <!-- LEFT SECTION (Main Dashboard) -->
     <div class="col-xl-9 col-12">
@@ -195,15 +236,42 @@
         <!-- Tasks & Project Chart -->
         <div class="col-xxl-6">
             <!-- Tasks Overview -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>{{ __('Comıng Up') }}</h5>
+           <div class="row mb-4">
+    
+            <div class="card p-3 shadow-sm border-0">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h6 class="mb-0">{{ __('Shareable Links') }}</h6>
+                        <small class="text-muted">{{ __('Give staff quick access to the feedback form and member signup page.') }}</small>
+                    </div>
+                    <span class="badge bg-soft-primary text-primary">{{ __('Copy to clipboard') }}</span>
                 </div>
-                <div class="card-body p-2">
-                    <div id="task-area-chart"></div>
-                    Something coming soon
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ __('Public feedback form') }}</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" readonly value="{{ $feedbackFormUrl }}">
+                            <button class="btn btn-outline-secondary copy-link" type="button" data-link="{{ $feedbackFormUrl }}">
+                                <i class="ti ti-clipboard"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">{{ __('Share this URL so anyone can leave praise or concerns anonymously.') }}</small>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">{{ __('Self-service member signup') }}</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" readonly value="{{ $selfServiceUrl }}">
+                            <button class="btn btn-outline-secondary copy-link" type="button" data-link="{{ $selfServiceUrl }}">
+                                <i class="ti ti-clipboard"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">{{ __('Invite volunteers to register themselves quickly.') }}</small>
+                    </div>
                 </div>
             </div>
+        </div>
+ 
 
             <!-- Project Status -->
             <div class="card">

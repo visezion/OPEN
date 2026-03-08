@@ -294,92 +294,96 @@ public function show($id)
         ->with('spouse')
         ->get();
 
-    // ✅ All church members with branch + department
-    $allMembers = \DB::table('church_members')
-        ->leftJoin('church_branches', 'church_members.branch_id', '=', 'church_branches.id')
-        ->leftJoin('church_member_department', 'church_members.id', '=', 'church_member_department.church_member_id')
-        ->leftJoin('church_departments', 'church_member_department.department_id', '=', 'church_departments.id')
-        ->leftJoin('church_designations', 'church_member_department.designation_id', '=', 'church_designations.id')
-        ->where('church_members.workspace', getActiveWorkSpace())
-        ->select(
-            'church_members.id',
-            'church_members.name',
-            'church_members.branch_id',
-            'church_branches.name as branch',
-            'church_departments.id as department_id',
-            'church_departments.name as department',
-            'church_departments.branch_id as dept_branch_id',   // ✅ department's true branch
-            'church_designations.name as designation',
-            'church_members.profile_photo'
-        )
-        ->get();
-
     //-----------------------------------------
-    // ✅ Build nodes + links
-    // Hierarchy: member → department → branch → workspace → GOD
+    // ✅ Build member-specific tree nodes & links
     //-----------------------------------------
-    $nodes = [];
+    $nodeIndex = [];
     $links = [];
 
-    // GOD + Workspace
-    $nodes[] = ['id' => 'GOD', 'name' => 'GOD', 'type' => 'god'];
-    $nodes[] = ['id' => 'WORKSPACE', 'name' => $workspaceName, 'type' => 'workspace'];
+    $nodeIndex['GOD'] = ['id' => 'GOD', 'name' => 'GOD', 'type' => 'god'];
+    $nodeIndex['WORKSPACE'] = ['id' => 'WORKSPACE', 'name' => $workspaceName, 'type' => 'workspace'];
     $links[] = ['source' => 'WORKSPACE', 'target' => 'GOD', 'type' => 'god'];
 
-    // Branch nodes
-    $branches = $allMembers->whereNotNull('branch_id')->unique('branch_id');
-    foreach ($branches as $b) {
-        $nodes[] = [
-            'id' => 'branch-'.$b->branch_id,
-            'name' => $b->branch,
-            'type' => 'branch'
-        ];
-        $links[] = ['source' => 'branch-'.$b->branch_id, 'target' => 'WORKSPACE', 'type' => 'workspace'];
+    $branchIds = collect();
+    if ($member->branch_id) {
+        $branchIds->push($member->branch_id);
     }
+    $member->departments->each(function ($department) use (&$branchIds, $member) {
+        $branchIds->push($department->pivot->branch_id ?? $department->branch_id ?? $member->branch_id);
+    });
+    $branchIds = $branchIds->filter()->unique()->values()->all();
+    $branchRecords = $branchIds ? ChurchBranch::whereIn('id', $branchIds)->get()->keyBy('id') : collect();
 
-    // Department nodes (scoped by dept + branch)
-    $departments = $allMembers->whereNotNull('department_id')
-        ->unique(fn($d) => $d->department_id.'-'.$d->dept_branch_id);
-
-    foreach ($departments as $d) {
-        $deptKey = 'dept-'.$d->department_id.'-branch-'.$d->dept_branch_id;
-
-        $nodes[] = [
-            'id'   => $deptKey,
-            'name' => $d->department,
-            'type' => 'department',
-            'branch_id' => $d->dept_branch_id,
-        ];
-
-        // Connect dept → branch
-        $links[] = [
-            'source' => $deptKey,
-            'target' => 'branch-'.$d->dept_branch_id,
-            'type'   => 'branch'
-        ];
-    }
-
-    // Member nodes
-    foreach ($allMembers as $m) {
-        $nodes[] = [
-            'id'   => 'member-'.$m->id,   // ✅ prefixed
-            'name' => $m->name,
-            'branch' => $m->branch,
-            'department' => $m->department,
-            'designation' => $m->designation,
-            'photo' => $m->profile_photo
-                ? asset('storage/'.$m->profile_photo)
-                : 'https://ui-avatars.com/api/?name='.urlencode($m->name),
-            'type' => 'member'
-        ];
-
-        if ($m->department_id && $m->dept_branch_id) {
-            $deptKey = 'dept-'.$m->department_id.'-branch-'.$m->dept_branch_id;
-            $links[] = ['source' => 'member-'.$m->id, 'target' => $deptKey, 'type' => 'department'];
-        } elseif ($m->branch_id) {
-            $links[] = ['source' => 'member-'.$m->id, 'target' => 'branch-'.$m->branch_id, 'type' => 'branch'];
+    $ensureBranch = function (?int $branchId) use (&$nodeIndex, &$links, $branchRecords) {
+        if (!$branchId) {
+            return null;
         }
+
+        $branchKey = 'branch-'.$branchId;
+        if (!isset($nodeIndex[$branchKey])) {
+            $branchName = $branchRecords[$branchId]->name ?? __('Branch');
+            $nodeIndex[$branchKey] = [
+                'id'   => $branchKey,
+                'name' => $branchName,
+                'type' => 'branch',
+            ];
+            $links[] = ['source' => $branchKey, 'target' => 'WORKSPACE', 'type' => 'workspace'];
+        }
+
+        return $branchKey;
+    };
+
+    $departmentKeys = [];
+    foreach ($member->departments as $department) {
+        $deptBranchId = $department->pivot->branch_id ?? $department->branch_id ?? $member->branch_id;
+        $branchKey = $ensureBranch($deptBranchId);
+        $branchSegment = $deptBranchId ?: 'workspace';
+        $deptKey = 'dept-'.$department->id.'-branch-'.$branchSegment;
+
+        if (!isset($nodeIndex[$deptKey])) {
+            $nodeIndex[$deptKey] = [
+                'id'   => $deptKey,
+                'name' => $department->name,
+                'type' => 'department',
+                'branch_id' => $deptBranchId,
+            ];
+            if ($branchKey) {
+                $links[] = ['source' => $deptKey, 'target' => $branchKey, 'type' => 'branch'];
+            } else {
+                $links[] = ['source' => $deptKey, 'target' => 'WORKSPACE', 'type' => 'workspace'];
+            }
+        }
+
+        $departmentKeys[] = $deptKey;
     }
+
+    $memberKey = 'member-'.$member->id;
+    $nodeIndex[$memberKey] = [
+        'id' => $memberKey,
+        'name' => $member->name,
+        'type' => 'member',
+        'branch' => $member->branch?->name,
+        'photo' => $member->profile_photo
+            ? asset('storage/'.$member->profile_photo)
+            : 'https://ui-avatars.com/api/?name='.urlencode($member->name),
+    ];
+
+    if ($departmentKeys) {
+        foreach ($departmentKeys as $deptKey) {
+            $links[] = ['source' => $memberKey, 'target' => $deptKey, 'type' => 'department'];
+        }
+    } elseif ($memberBranchKey = $ensureBranch($member->branch_id)) {
+        $links[] = ['source' => $memberKey, 'target' => $memberBranchKey, 'type' => 'branch'];
+    } else {
+        $links[] = ['source' => $memberKey, 'target' => 'WORKSPACE', 'type' => 'workspace'];
+    }
+
+    $links = collect($links)
+        ->unique(fn($link) => $link['source'].'|'.$link['target'].'|'.$link['type'])
+        ->values()
+        ->all();
+
+    $nodes = array_values($nodeIndex);
 
     //-----------------------------------------
     // ✅ Other sections (teams, donations, activities, profile completion, etc.)

@@ -161,6 +161,34 @@
 
 
 @push('scripts')
+    {{-- Clipboard helper --}}
+    <script>
+        document.addEventListener('click', function (event) {
+            const target = event.target.closest('.copy-link');
+            if (!target) {
+                return;
+            }
+
+            const link = target.dataset.link || target.closest('.input-group')?.querySelector('input')?.value;
+            if (!link) {
+                return;
+            }
+
+            navigator.clipboard.writeText(link).then(() => {
+                const original = target.innerHTML;
+                target.innerHTML = '<i class="ti ti-check"></i>';
+                setTimeout(() => {
+                    target.innerHTML = original;
+                }, 1400);
+            }).catch(() => {
+                const original = target.innerHTML;
+                target.innerHTML = '<i class="ti ti-alert-circle text-warning"></i>';
+                setTimeout(() => {
+                    target.innerHTML = original;
+                }, 1400);
+            });
+        });
+    </script>
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -227,4 +255,3 @@
 
     </script>
 @endpush
-

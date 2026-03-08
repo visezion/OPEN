@@ -337,18 +337,23 @@ class ChurchFeedbackController extends Controller
     /**
      * Show public feedback form.
      */
-    public function createPublic()
+    public function createPublic($workspaceSlug)
     {
         $branches = ChurchBranch::all();
         $departments = ChurchDepartment::all();
 
-        return view('churchly::feedback.public_form', compact('branches', 'departments'));
+        $workspace = Workspace::where('slug', $workspaceSlug)
+            ->orWhere('domain', $workspaceSlug)
+            ->orWhere('subdomain', $workspaceSlug)
+            ->firstOrFail();
+
+        return view('churchly::feedback.public_form', compact('branches', 'departments', 'workspace'));
     }
 
     /**
      * Store public or internal feedback.
      */
-    public function storePublic(Request $request)
+    public function storePublic(Request $request, $workspaceSlug)
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
@@ -367,8 +372,13 @@ class ChurchFeedbackController extends Controller
             $validated['attachment'] = $request->file('attachment')->store('feedback_attachments','public');
         }
 
+        $workspace = Workspace::where('slug', $workspaceSlug)
+            ->orWhere('domain', $workspaceSlug)
+            ->orWhere('subdomain', $workspaceSlug)
+            ->firstOrFail();
+
         $validated['submitted_by'] = Auth::check() ? Auth::id() : null;
-        $validated['workspace_id'] = Auth::check() ? Auth::user()->workspace_id : Workspace::first()?->id;
+        $validated['workspace_id'] = $workspace->id;
 
         ChurchFeedback::create($validated);
 

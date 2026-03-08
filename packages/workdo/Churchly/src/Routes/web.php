@@ -108,6 +108,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('members/{member}/follow-ups', [MemberFollowUpController::class, 'store'])->name('members.followups.store');
     Route::put('members/{member}/follow-ups/{followUp}', [MemberFollowUpController::class, 'update'])->name('members.followups.update');
     Route::delete('members/{member}/follow-ups/{followUp}', [MemberFollowUpController::class, 'destroy'])->name('members.followups.destroy');
+    Route::post('members/{member}/communications', [MemberCommunicationController::class, 'store'])->name('members.communications.store');
 
     Route::prefix('churchly')->name('churchly.')->group(function () {
     // Care lists
@@ -247,10 +248,6 @@ Route::get('/birthday-card/{member}', [BirthdayCardController::class, 'generate'
         Route::get('/feedback/{id}/review', [ChurchFeedbackController::class, 'review'])->name('feedback.review');
         Route::put('/feedback/{id}/update-response', [ChurchFeedbackController::class, 'updateResponse'])->name('feedback.updateResponse');
 
-
-    // Public feedback form (optional, based on type)
-    Route::get('{workspace}/feedback/form', [ChurchFeedbackController::class, 'publicForm'])->name('churchly.feedback.form');
-    Route::post('{workspace}/feedback/submit', [ChurchFeedbackController::class, 'publicSubmit'])->name('churchly.feedback.submit');
 
 
     Route::get('/feedback/attachment/{filename}', function ($filename) {

@@ -234,6 +234,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('troubleshoot/cache/clear', [TroubleshootController::class, 'clearCaches'])->name('superadmin.troubleshoot.cache-clear');
         Route::post('troubleshoot/cache/build', [TroubleshootController::class, 'buildCaches'])->name('superadmin.troubleshoot.cache-build');
         Route::post('troubleshoot/run-seeders', [TroubleshootController::class, 'runSeeders'])->name('superadmin.troubleshoot.run-seeders');
+        Route::post('troubleshoot/migrate-fresh', [TroubleshootController::class, 'runFreshMigrations'])->name('superadmin.troubleshoot.migrate-fresh');
         Route::post('troubleshoot/permissions/fix', [TroubleshootController::class, 'fixPermissions'])->name('superadmin.troubleshoot.permissions-fix');
         Route::post('troubleshoot/logs/clear', [TroubleshootController::class, 'clearLog'])->name('superadmin.troubleshoot.logs-clear');
 

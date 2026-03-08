@@ -7,15 +7,20 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
+        if (Schema::hasTable('maintenance_categories')) {
+            return;
+        }
+
         Schema::create('maintenance_categories', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('workspace_id')->index();
             $table->string('name');
-            $table->string('slug')->nullable();
-            $table->unsignedBigInteger('created_by')->nullable();
+            $table->string('slug')->unique();
+            $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
-            $table->unique(['workspace_id', 'slug']);
+            $table->softDeletes();
+            $table->unique(['workspace_id', 'name']);
         });
     }
 

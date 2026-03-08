@@ -22,12 +22,14 @@ class ChurchMemberSelfServiceController extends Controller
      */
     public function showForm($workspace)
     {
-
-       
-
         $workspaceId = ChurchHelper::getWorkspaceIdBySlug($workspace);
 
         if (!$workspaceId) {
+            abort(404, 'Invalid church workspace');
+        }
+
+        $workspaceModel = Workspace::find($workspaceId);
+        if (! $workspaceModel) {
             abort(404, 'Invalid church workspace');
         }
 
@@ -35,7 +37,7 @@ class ChurchMemberSelfServiceController extends Controller
         $departments = ChurchDepartment::where('workspace', $workspaceId)->pluck('name', 'id');
         $designations = ChurchDesignation::where('workspace', $workspaceId)->pluck('name', 'id');
 
-        return view('churchly::members.self-register', compact('branches', 'workspace', 'departments', 'designations'));
+        return view('churchly::members.self-register', compact('branches', 'workspaceModel', 'departments', 'designations', 'workspace'));
     }
 
     /**

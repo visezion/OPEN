@@ -55,9 +55,6 @@ class CompanyMenuListener
             'permission' => 'churchly dashboard manage'
         ]);
        
-
-        
-                
         ///////// attendance Management/////
         $menu->add([
             'category' => 'Church',
@@ -298,6 +295,8 @@ class CompanyMenuListener
             'module' => $module,
             'permission' => 'maintenance schedule manage'
         ]);
+
+        
 
         $menu->add([
             'category' => 'Church',

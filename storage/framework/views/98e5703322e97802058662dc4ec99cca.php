@@ -77,6 +77,20 @@
                             </button>
                         </form>
                     </div>
+                    <hr/>
+                    <div class="alert alert-warning mb-3">
+                        <strong><?php echo e(__('Danger:')); ?></strong>
+                        <?php echo e(__('This will drop all tables, re-run every migration (including package migrations), and seed all package seeders.')); ?>
+
+                    </div>
+                    <form action="<?php echo e(route('superadmin.troubleshoot.migrate-fresh')); ?>" method="POST"
+                        onsubmit="return confirm('<?php echo e(__('This will DROP ALL TABLES and re-run all migrations + seeders (including packages). Continue?')); ?>');">
+                        <?php echo csrf_field(); ?>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ti ti-alert-triangle"></i> <?php echo e(__('Migrate Fresh + Seed All Packages')); ?>
+
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

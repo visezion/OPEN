@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TroubleshootController extends Controller
 {
@@ -186,6 +187,55 @@ class TroubleshootController extends Controller
         return redirect()->back()->with('success', __('Seeder run results: :result', ['result' => $message]));
     }
 
+    public function runFreshMigrations(Request $request)
+    {
+        if (!Auth::user() || !Auth::user()->isAbleTo('setting manage')) {
+            return redirect()->back()->with('error', __('Permission denied.'));
+        }
+
+        $results = [];
+        $errors = [];
+
+        try {
+            Artisan::call('migrate:fresh', ['--seed' => true, '--force' => true]);
+            $results[] = 'migrate:fresh --seed';
+        } catch (\Throwable $e) {
+            $errors[] = 'migrate:fresh --seed failed: ' . $e->getMessage();
+        }
+
+        foreach ($this->packageMigrationPaths() as $path) {
+            try {
+                Artisan::call('migrate', ['--path' => $path, '--force' => true]);
+                $results[] = 'migrate --path=' . $path;
+            } catch (\Throwable $e) {
+                $errors[] = 'migrate --path=' . $path . ' failed: ' . $e->getMessage();
+            }
+        }
+
+        foreach ($this->packageSeederClasses() as $class) {
+            if (!class_exists($class)) {
+                $errors[] = $class . ' not found';
+                continue;
+            }
+            try {
+                Artisan::call('db:seed', ['--class' => $class, '--force' => true]);
+                $results[] = $class . ' seeded';
+            } catch (\Throwable $e) {
+                $errors[] = $class . ' failed: ' . $e->getMessage();
+            }
+        }
+
+        if (!empty($errors)) {
+            return redirect()->back()->with('error', __('Fresh migration completed with errors: :result', [
+                'result' => implode('; ', $errors),
+            ]));
+        }
+
+        return redirect()->back()->with('success', __('Fresh migration completed: :result', [
+            'result' => implode('; ', $results),
+        ]));
+    }
+
     public function clearLog(Request $request)
     {
         if (!Auth::user() || !Auth::user()->isAbleTo('setting manage')) {
@@ -200,5 +250,59 @@ class TroubleshootController extends Controller
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', __('Failed to clear log: ') . $e->getMessage());
         }
+    }
+
+    protected function packageMigrationPaths(): array
+    {
+        $base = base_path('packages');
+        if (!is_dir($base)) {
+            return [];
+        }
+
+        $paths = [];
+        foreach (File::allFiles($base) as $file) {
+            $path = $file->getPathname();
+            if (strpos($path, DIRECTORY_SEPARATOR . 'Database' . DIRECTORY_SEPARATOR . 'Migrations' . DIRECTORY_SEPARATOR) === false) {
+                continue;
+            }
+            $dir = $file->getPath();
+            $relative = Str::after($dir, base_path() . DIRECTORY_SEPARATOR);
+            $paths[$relative] = true;
+        }
+
+        $paths = array_keys($paths);
+        sort($paths);
+        return $paths;
+    }
+
+    protected function packageSeederClasses(): array
+    {
+        $base = base_path('packages');
+        if (!is_dir($base)) {
+            return [];
+        }
+
+        $classes = [];
+        foreach (File::allFiles($base) as $file) {
+            $path = $file->getPathname();
+            if (strpos($path, DIRECTORY_SEPARATOR . 'Database' . DIRECTORY_SEPARATOR . 'Seeders' . DIRECTORY_SEPARATOR) === false) {
+                continue;
+            }
+            if (!str_ends_with($file->getFilename(), 'Seeder.php')) {
+                continue;
+            }
+            $contents = File::get($path);
+            if (!preg_match('/namespace\s+([^;]+);/', $contents, $namespaceMatch)) {
+                continue;
+            }
+            if (!preg_match('/class\s+([^\s]+)\s+extends\s+Seeder/', $contents, $classMatch)) {
+                continue;
+            }
+            $classes[] = trim($namespaceMatch[1]) . '\\' . trim($classMatch[1]);
+        }
+
+        $classes = array_values(array_unique($classes));
+        sort($classes);
+        return $classes;
     }
 }

@@ -424,33 +424,56 @@
                 </div>
             </div>
             <!-- Family Tree -->
-            <div class="tab-pane fade" id="family"> 
-                
+            <div class="tab-pane fade" id="family">
                 <div class="card p-4 shadow-sm border-0">
-                    <h6><i class="ti ti-users"></i> {{ __('Family Tree') }}</h6>
-                    <div class="alert alert-light border rounded shadow-sm mt-4">
-                        <h5 class="text-primary">
-                            <i class="ti ti-heart text-danger"></i> {{ __('Our Family in Christ') }}
-                        </h5>
-                        <p class="mb-3 text-muted">
-                            Beloved <strong>{{ $member->name }}</strong>, within this <strong>Family Tree</strong> we are reminded that the ties of faith are stronger than blood, for in Christ we are made one body and one household of God.  
-                        </p>
-                        <p class="mb-3 text-muted">
-                            <em>“You are no longer strangers or outsiders. You are citizens with all of God’s holy people. You are members of God’s family, built on the foundation of the apostles and prophets, with Christ Jesus Himself as the cornerstone.”</em> 
-                            (<strong>Ephesians 2:19-20</strong>)
-                        </p>
-                        <p class="mb-0 text-dark fw-semibold">
-                            You are not just a name on a record; you are a living stone in God’s temple, a light to this generation, and a priceless part of His eternal family.  
-                        </p>
-
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="ti ti-users text-primary fs-5 me-2"></i>
+                        <h6 class="mb-0">{{ __('Family Tree') }}</h6>
                     </div>
-                    <div id="church-tree" style="width:100%; height:700px; border:2px solid #eee;"></div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-7">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <h5 class="text-primary mb-2">{{ __('Our Family in Christ') }}</h5>
+                                <p class="mb-2 text-muted">
+                                    Beloved <strong>{{ $member->name }}</strong>, this portrait of your spiritual family reminds us that we are bonded not by blood only but by the grace that unites us in Christ. Every branch you touch is nourished by your testimony and service.
+                                </p>
+                                <p class="mb-2 text-muted fst-italic">
+                                    “You are no longer strangers or outsiders. You are citizens with all of God’s holy people. You are members of God’s family, built on the foundation of the apostles and prophets, with Christ Jesus Himself as the cornerstone.” —
+                                    <strong>Ephesians 2:19-20</strong>
+                                </p>
+                                <p class="text-dark fw-semibold mb-0">
+                                    Your name shines not just on a page but as a living stone in God’s temple, called to bring light, love, and legacy to every household you influence.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5">
+                            <div class="border rounded-3 p-3 h-100">
+                                <h6 class="text-primary mb-3">{{ __('A Living Lineage') }}</h6>
+                                <ul class="list-unstyled small mb-0">
+                                    <li class="mb-2">
+                                        <span class="fw-semibold">{{ __('Rooted in Prayer') }}</span>
+                                        <p class="text-muted mb-0">{{ __('Your family branch remains intentional about prayer and intercession for every milestone.') }}</p>
+                                    </li>
+                                    <li class="mb-2">
+                                        <span class="fw-semibold">{{ __('Faithful Servanthood') }}</span>
+                                        <p class="text-muted mb-0">{{ __('You steward relationships, resources, and ministry responsibilities with excellence.') }}</p>
+                                    </li>
+                                    <li>
+                                        <span class="fw-semibold">{{ __('Heirs Together') }}</span>
+                                        <p class="text-muted mb-0">{{ __('No season is walked alone; your church-family stands beside you in celebration and in trial.') }}</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="church-tree" class="mt-4 rounded border border-2 border-dashed" style="min-height:500px;"></div>
                 </div>
             </div>
 
-
-
-           <!-- Teams --><!-- Teams / Departments -->
+<!-- Teams --><!-- Teams / Departments -->
 <div class="tab-pane fade" id="teams">
     <div class="card p-3 shadow-sm border-0">
         <h6 class="mb-5">
@@ -1104,12 +1127,21 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const members = @json($nodes); // From controller
+    const nodesFromServer = @json($nodes);
+    const linksFromServer = @json($links);
     const workspaceName = @json($workspaceName);
     const currentMemberId = @json($member->id); // ✅ highlight this member
 
-    const nodes = [];
+    const nodes = Array.from(new Map(nodesFromServer.map(node => [node.id, node])).values());
+    const seenLinks = new Set();
     const links = [];
+    linksFromServer.forEach(link => {
+        const key = `${link.source}|${link.target}|${link.type}`;
+        if (!seenLinks.has(key)) {
+            seenLinks.add(key);
+            links.push(link);
+        }
+    });
 
     const width = document.getElementById("church-tree").clientWidth || window.innerWidth;
     const height = window.innerHeight;
@@ -1117,64 +1149,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const colorDept   = d3.scaleOrdinal(d3.schemeTableau10);
     const colorBranch = d3.scaleOrdinal(d3.schemeSet2);
-
-    // GOD + Workspace
-    nodes.push({ id: "GOD", name: "GOD", type: "god" });
-    nodes.push({ id: "WORKSPACE", name: workspaceName, type: "workspace" });
-    links.push({ source: "WORKSPACE", target: "GOD", type: "god" });
-
-    const branches = {};
-    const departments = {};
-
-    // --- Add members ---
-    members.forEach(m => {
-        m.type = "member";
-        nodes.push(m);
-
-        if (m.department) {
-            const deptKey = m.department + "-" + m.branch;
-            if (!departments[deptKey]) {
-                departments[deptKey] = {
-                    id: "dept-" + deptKey,
-                    name: m.department,
-                    type: "department",
-                    branch: m.branch
-                };
-                nodes.push(departments[deptKey]);
-            }
-            links.push({ source: m.id, target: departments[deptKey].id, type: "department" });
-        } else if (m.branch) {
-            if (!branches[m.branch]) {
-                branches[m.branch] = {
-                    id: "branch-" + m.branch,
-                    name: m.branch,
-                    type: "branch"
-                };
-                nodes.push(branches[m.branch]);
-            }
-            links.push({ source: m.id, target: branches[m.branch].id, type: "branch" });
-        }
-    });
-
-    // --- Connect departments → branches
-    Object.values(departments).forEach(dept => {
-        if (dept.branch) {
-            if (!branches[dept.branch]) {
-                branches[dept.branch] = {
-                    id: "branch-" + dept.branch,
-                    name: dept.branch,
-                    type: "branch"
-                };
-                nodes.push(branches[dept.branch]);
-            }
-            links.push({ source: dept.id, target: branches[dept.branch].id, type: "branch" });
-        }
-    });
-
-    // --- Connect branches → workspace
-    Object.values(branches).forEach(branch => {
-        links.push({ source: branch.id, target: "WORKSPACE", type: "workspace" });
-    });
 
     // ✅ Create SVG with zoom
     const svg = d3.select("#church-tree").append("svg")

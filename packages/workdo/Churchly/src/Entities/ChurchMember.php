@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
-// ✅ Correct imports for BaconQrCode v3.0.0
+// Correct imports for BaconQrCode v3.0.0
 use BaconQrCode\Writer;
-use BaconQrCodeenderer\ImageRenderer;
-use BaconQrCodeendererendererStyleendererStyle;
-use BaconQrCodeenderer\Image\GdImageBackEnd; // Works perfectly on XAMPP
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 
 class ChurchMember extends Model
 {
@@ -227,18 +227,17 @@ class ChurchMember extends Model
     |--------------------------------------------------------------------------
     */
     public function generateQrCode()
-{
-    // Ensure storage path exists
-    if (!Storage::disk('public')->exists('qr_codes')) {
-        Storage::disk('public')->makeDirectory('qr_codes');
-    }
+    {
+        if (!Storage::disk('public')->exists('qr_codes')) {
+            Storage::disk('public')->makeDirectory('qr_codes');
+        }
 
-    $writer = new \BaconQrCode\Writer(
-        new \BaconQrCodeenderer\ImageRenderer(
-            new \BaconQrCodeendererendererStyleendererStyle(300),
-            new \BaconQrCodeenderer\Image\SvgImageBackEnd()
-        )
-    );
+        $writer = new \BaconQrCode\Writer(
+            new \BaconQrCode\Renderer\ImageRenderer(
+                new \BaconQrCode\Renderer\RendererStyle\RendererStyle(300),
+                new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+            )
+        );
 
     $payload = json_encode([
         'member_id'   => $this->id,
@@ -283,6 +282,7 @@ class ChurchMember extends Model
         });
     }
 }
+
 
 
 

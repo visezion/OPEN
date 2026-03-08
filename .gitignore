@@ -4,6 +4,7 @@
 .env.*
 /storage/*.key
 /public/storage
+/public/build
 /storage/logs/*
 /bootstrap/cache/*
 /.idea
@@ -13,3 +14,4 @@ npm-debug.log
 yarn-error.log
 .DS_Store
 Thumbs.db
+/build

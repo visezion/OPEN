@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('foodbank_public_tokens', 'deleted_at')) {
+            return;
+        }
+
         Schema::table('foodbank_public_tokens', function (Blueprint $table) {
             $table->softDeletes()->after('updated_by');
         });
@@ -15,6 +19,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (!Schema::hasColumn('foodbank_public_tokens', 'deleted_at')) {
+            return;
+        }
+
         Schema::table('foodbank_public_tokens', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });

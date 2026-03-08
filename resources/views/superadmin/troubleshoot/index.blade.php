@@ -69,6 +69,18 @@
                             </button>
                         </form>
                     </div>
+                    <hr/>
+                    <div class="alert alert-warning mb-3">
+                        <strong>{{ __('Danger:') }}</strong>
+                        {{ __('This will drop all tables, re-run every migration (including package migrations), and seed all package seeders.') }}
+                    </div>
+                    <form action="{{ route('superadmin.troubleshoot.migrate-fresh') }}" method="POST"
+                        onsubmit="return confirm('{{ __('This will DROP ALL TABLES and re-run all migrations + seeders (including packages). Continue?') }}');">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ti ti-alert-triangle"></i> {{ __('Migrate Fresh + Seed All Packages') }}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
