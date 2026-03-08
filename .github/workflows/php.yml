@@ -75,7 +75,7 @@ jobs:
     runs-on: [self-hosted, hestia]
     if: github.ref == 'refs/heads/main'
     env:
-      DEPLOY_PATH: /home/victor/web/open.vicezion.com/public_html
+      DEPLOY_PATH: /home/vicezion/web/open.vicezion.com/public_html
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
