@@ -14,7 +14,7 @@ class CompanySettingMenuListener
         $module = 'Churchly';
         $menu = $event->menu;
         $menu->add([
-            'title' => __('Church Settings'),
+            'title' => __('Church Setup'),
             'name' => 'church-setting',
             'order' => 130,
             'ignore_if' => [],
@@ -22,7 +22,7 @@ class CompanySettingMenuListener
             'route' => '',
             'navigation' => 'church-sidenav',
             'module' => $module,
-            'permission' => 'settings manage'
+            'permission' => 'church_settings manage'
         ]);
     }
 }

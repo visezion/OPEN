@@ -2,6 +2,7 @@
 namespace Workdo\Churchly\Listeners;
 
 use App\Events\CompanyMenuEvent;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyMenuListener
 {
@@ -12,6 +13,7 @@ class CompanyMenuListener
     {
         $module = 'Churchly';
         $menu = $event->menu;
+        $user = Auth::user();
         $menu->add([
             'category' => 'General',
             'title' => __('Church Dashboard'),
@@ -258,19 +260,6 @@ class CompanyMenuListener
 
         $menu->add([
             'category' => 'Church',
-            'title' => __('Leaderboard'),
-            'icon' => '',
-            'name' => 'leaderboard',
-            'parent' => 'attendance',
-            'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchly.attendance.reports.dashboard',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
-        $menu->add([
-            'category' => 'Church',
             'title' => __('Maintenance'),
             'icon' => 'tools',
             'name' => 'maintenance',
@@ -497,93 +486,65 @@ class CompanyMenuListener
             'permission' => 'church_settings manage'
         ]);
 
-        
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Church Settings'),
-            'icon' => ' ti ti-tool',
-            'name' => 'church_settings',
-            'parent' => null,
-            'order' => 400,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => '',
-            'module' => $module,
-            'permission' => 'churchly dashboard manage'
-        ]);
+        if ($user && ($user->hasRole('company') || $user->type === 'company')) {
+             $menu->add([
+                'category' => 'Church',
+                'title' => __('App/Web Settings'),
+                'icon' => ' ti ti-phone',
+                'name' => 'appweb_builder',
+                'parent' => null,
+                'order' => 400,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => '',
+                'module' => $module,
+                'permission' => 'churchly dashboard manage'
+            ]);
 
+            $menu->add([
+                'category' => 'Church',
+                'title' => __('Mobile App Builder'),
+                'icon' => '',
+                'name' => 'app_builder',
+                'parent' => 'appweb_builder',
+                'order' => 400,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'app-builder.index',
+                'module' => $module,
+                'permission' => 'church_settings manage'
+            ]);
 
-         $menu->add([
-            'category' => 'Church',
-            'title' => __('App/Web Settings'),
-            'icon' => ' ti ti-phone',
-            'name' => 'appweb_builder',
-            'parent' => null,
-            'order' => 400,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => '',
-            'module' => $module,
-            'permission' => 'churchly dashboard manage'
-        ]);
+            $menu->add([
+                'category' => 'Church',
+                'title' => __('YouTube Sync'),
+                'icon' => 'brand-youtube',
+                'name' => 'youtube-sync',
+                'parent' => 'appweb_builder',
+                'order' => 450,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'churchly.youtube.index',
+                'module' => $module,
+                'permission' => 'church_settings manage'
+            ]);
 
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Mobile App Builder'),
-            'icon' => '',
-            'name' => 'app_builder',
-            'parent' => 'appweb_builder',
-            'order' => 400,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'app-builder.index',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
-
-        // YouTube Sync settings
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('YouTube Sync'),
-            'icon' => 'brand-youtube',
-            'name' => 'youtube-sync',
-            'parent' => 'appweb_builder',
-            'order' => 450,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchly.youtube.index',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
-        // API Docs link under App/Web Settings
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('API Docs'),
-            'icon' => 'ti ti-book',
-            'name' => 'churchly_api_docs',
-            'parent' => 'appweb_builder',
-            'order' => 410,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchly.api.docs',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
+            $menu->add([
+                'category' => 'Church',
+                'title' => __('API Docs'),
+                'icon' => 'ti ti-book',
+                'name' => 'churchly_api_docs',
+                'parent' => 'appweb_builder',
+                'order' => 410,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'churchly.api.docs',
+                'module' => $module,
+                'permission' => 'church_settings manage'
+            ]);
+        }
 
          
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Church Setup'),
-            'icon' => '',
-            'name' => 'system-setup',
-            'parent' => 'church_settings',
-            'order' => 400,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchbranch.index',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
     }
 }
 

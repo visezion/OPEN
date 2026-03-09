@@ -2,6 +2,40 @@
 
 use Illuminate\Support\Str;
 
+$readDotEnvValue = static function (string $key): ?string {
+    $envPath = base_path('.env');
+
+    if (! is_file($envPath) || ! is_readable($envPath)) {
+        return null;
+    }
+
+    foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+
+        if ($line === '' || str_starts_with($line, '#') || ! str_contains($line, '=')) {
+            continue;
+        }
+
+        [$envKey, $envValue] = explode('=', $line, 2);
+
+        if (trim($envKey) !== $key) {
+            continue;
+        }
+
+        return trim($envValue, " \t\n\r\0\x0B\"'");
+    }
+
+    return null;
+};
+
+$looksLikePath = static function (?string $value): bool {
+    if (blank($value) || $value === ':memory:') {
+        return false;
+    }
+
+    return str_contains($value, '/') || str_contains($value, '\\') || str_ends_with(strtolower($value), '.sqlite');
+};
+
 return [
 
     /*
@@ -16,7 +50,30 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => (function () {
+        $default = env('DB_CONNECTION', 'mysql');
+
+        if ($default !== 'sqlite') {
+            return $default;
+        }
+
+        $database = env('DB_DATABASE', database_path('database.sqlite'));
+
+        if (! blank($database) && $database !== ':memory:') {
+            $isAbsolutePath = str_starts_with($database, DIRECTORY_SEPARATOR) || preg_match('/^[A-Za-z]:[\\\\\\/]/', $database);
+            $sqlitePath = $isAbsolutePath ? $database : base_path($database);
+
+            if (file_exists($sqlitePath)) {
+                return 'sqlite';
+            }
+        }
+
+        if (filled(env('DB_HOST')) && filled(env('DB_DATABASE'))) {
+            return env('DB_FALLBACK_CONNECTION', 'mysql');
+        }
+
+        return 'sqlite';
+    })(),
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +91,15 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => (function () {
+                $database = env('DB_DATABASE', database_path('database.sqlite'));
+
+                if (blank($database) || $database === ':memory:' || str_starts_with($database, DIRECTORY_SEPARATOR) || preg_match('/^[A-Za-z]:[\\\\\\/]/', $database)) {
+                    return $database;
+                }
+
+                return base_path($database);
+            })(),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
@@ -44,7 +109,21 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'laravel'),
+            'database' => (function () use ($readDotEnvValue, $looksLikePath) {
+                $database = env('DB_DATABASE');
+
+                if (! $looksLikePath($database)) {
+                    return $database ?: 'laravel';
+                }
+
+                $dotEnvDatabase = $readDotEnvValue('DB_DATABASE');
+
+                if (! $looksLikePath($dotEnvDatabase) && filled($dotEnvDatabase)) {
+                    return $dotEnvDatabase;
+                }
+
+                return 'laravel';
+            })(),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
