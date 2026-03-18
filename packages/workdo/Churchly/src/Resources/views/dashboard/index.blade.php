@@ -4,6 +4,40 @@
     {{ __('Dashboard') }}
 @endsection
 
+@push('css')
+<style>
+    .church-dashboard .dashboard-card,
+    .church-dashboard .dashboard-project-card,
+    .church-dashboard .card,
+    .church-dashboard .dashboard-wrp > a.card {
+        border: 1px solid #d8e2ef !important;
+        box-shadow: none !important;
+    }
+
+    .church-dashboard .card-header {
+        border-bottom: 1px solid #d8e2ef !important;
+        background: #ffffff;
+    }
+
+    .church-dashboard .card-footer {
+        border-top: 1px solid #d8e2ef !important;
+        background: #ffffff;
+    }
+
+    .church-dashboard .input-group .form-control,
+    .church-dashboard .input-group .btn,
+    .church-dashboard .theme-avtar,
+    .church-dashboard .badge {
+        border: 1px solid #d8e2ef !important;
+    }
+
+    .church-dashboard .qr-card img {
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 10px;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('click', function (event) {
@@ -58,7 +92,7 @@ document.addEventListener('click', function (event) {
 
     
 
-<div class="row row-gap mb-4">
+<div class="row row-gap mb-4 church-dashboard">
     <!-- LEFT SECTION (Main Dashboard) -->
     <div class="col-xl-9 col-12">
         <div class="row row-gap mb-4">
@@ -88,39 +122,38 @@ document.addEventListener('click', function (event) {
 
             <!-- QR CODE CARD -->
             <div class="col-xl-4 col-12">
-                <div class="dashboard-card bg-primary text-center">
-                   <div class="card p-3 bg-primary">
-                        @php
-                            $member = \Workdo\Churchly\Entities\ChurchMember::where('user_id', Auth::id())->first();
-                        @endphp
-                        <div style="padding-left: 0px;important;" class="qr-card">
-                            <h5 class="mb-3 fw-bold text-white">{{ __('Attendance QR Code') }}</h5>
-                            @if($member && $member->qr_code)
-                                <img src="{{ asset('storage/' . $member->qr_code) }}" height = "150px" alt="QR Code">
-                                <p class="mt-2 text-white"><small>{{ __('Scan this at service entry for attendance tracking.') }}</small></p>
-                                <a href="{{ asset('storage/' . $member->qr_code) }}" 
-                                    target="_blank" 
-                                    class="btn btn-warning btn-lg w-500 mt-3 d-flex align-items-center justify-content-center gap-2 shadow">
-                                        <i class="ti ti-download fs-4"></i>
-                                        <span class="fw-bold text-dark">{{ __('QR Code') }}</span>
-                                </a>
+                <div class="card p-3 bg-primary text-center">
+                    @php
+                        $member = \Workdo\Churchly\Entities\ChurchMember::where('user_id', Auth::id())->first();
+                    @endphp
+                    <div style="padding-left: 0px;important;" class="qr-card">
+                        <h5 class="mb-3 fw-bold text-white">{{ __('Attendance QR Code') }}</h5>
+                        @if($member && $member->qr_code)
+                            <img src="{{ asset('storage/' . $member->qr_code) }}" height = "150px" alt="QR Code">
+                            <p class="mt-2 text-white"><small>{{ __('Scan this at service entry for attendance tracking.') }}</small></p>
+                            <a href="{{ asset('storage/' . $member->qr_code) }}" 
+                                target="_blank" 
+                                class="btn btn-warning btn-lg w-500 mt-3 d-flex align-items-center justify-content-center gap-2 shadow">
+                                    <i class="ti ti-download fs-4"></i>
+                                    <span class="fw-bold text-dark">{{ __('QR Code') }}</span>
+                            </a>
 
-                            @elseif($member)
-                                <form action="{{ route('churchly.members.generate_qr', $member->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn btn-warning">
-                                        <i class="ti ti-qrcode"></i> {{ __('Generate QR Code') }}
-                                    </button>
-                                </form>
-                            @else
-                                <p class="text-white mb-0">{{ __('No linked member account found.  You are not a member of any church.') }}</p><br><br>
-                                <button  class="btn btn-light">
-                                        <i class="ti ti-phone"></i> {{ _('Contact your administrator.') }}
-                                    </button>
-                            @endif
-                        </div>
+                        @elseif($member)
+                            <form action="{{ route('churchly.members.generate_qr', $member->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="ti ti-qrcode"></i> {{ __('Generate QR Code') }}
+                                </button>
+                            </form>
+                        @else
+                            <p class="text-white mb-0">{{ __('No linked member account found.  You are not a member of any church.') }}</p><br><br>
+                            <button  class="btn btn-light">
+                                    <i class="ti ti-phone"></i> {{ _('Contact your administrator.') }}
+                                </button>
+                        @endif
                     </div>
                 </div>
+           
             </div>
             <!-- Mini Cards -->
         </div>

@@ -8,14 +8,72 @@
 <?php $__env->stopSection(); ?>
 <?php $__env->startPush('css'); ?>
 <link href="<?php echo e(asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.css')); ?>" rel="stylesheet">
+<style>
+    .settings-page .setting-sidebar {
+        top: 16px !important;
+        border: 1px solid #d8e2ef;
+        border-radius: 14px;
+        box-shadow: none !important;
+        background: #ffffff;
+    }
+
+    .settings-page .setting-sidebar .list-group-item {
+        border-color: #e3ebf7 !important;
+        padding: 12px 14px;
+    }
+
+    .settings-page .setting-sidebar .list-group-item.active,
+    .settings-page .setting-sidebar .list-group-item:hover {
+        background: #ffffff !important;
+        color: var(--bs-primary) !important;
+        border-color: #d8e2ef !important;
+    }
+
+    .settings-page .setting-menu-div {
+        min-height: 420px;
+    }
+
+    .settings-page .setting-menu-div .card {
+        border: 1px solid #d8e2ef;
+        border-radius: 14px;
+        box-shadow: none !important;
+        background: #ffffff;
+    }
+
+    .settings-page .setting-menu-div .card-header {
+        border-bottom: 1px solid #d8e2ef;
+        background: #ffffff;
+    }
+
+    .settings-page .setting-menu-div .card-footer {
+        border-top: 1px solid #d8e2ef;
+        background: #ffffff;
+    }
+
+    .settings-page .setting-menu-div .form-control,
+    .settings-page .setting-menu-div .form-select,
+    .settings-page .setting-menu-div .select2-container--default .select2-selection--single,
+    .settings-page .setting-menu-div .select2-container--default .select2-selection--multiple,
+    .settings-page .setting-menu-div .note-editor.note-frame {
+        border-color: #d8e2ef !important;
+        box-shadow: none !important;
+    }
+
+    .settings-page .setting-menu-div .table-responsive {
+        border: 1px solid #d8e2ef;
+        border-radius: 12px;
+        box-shadow: none !important;
+        background: #ffffff;
+    }
+</style>
 <?php $__env->stopPush(); ?>
 <?php $__env->startSection('content'); ?>
-    <div class="row">
+    <div class="row settings-page g-3">
         <!-- [ sample-page ] start -->
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-xl-3">
-                    <div class="card sticky-top setting-sidebar" style="top:30px">
+                    <div class="card sticky-top setting-sidebar">
                         <div class="list-group list-group-flush" id="useradd-sidenav">
                             <?php echo getSettingMenu(); ?>
 
@@ -27,19 +85,63 @@
                 </div>
             </div>
         </div>
+    </div>
     <?php $__env->stopSection(); ?>
     <?php $__env->startPush('scripts'); ?>
     <script src="<?php echo e(asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.js')); ?>"></script>
 
         <script>
             $(document).ready(function() {
-                getSettingSection('Base');
+                loadSettingSectionFromHash();
             });
-            $(document).on("click", ".setting-menu-nav", function() {
+
+            $(document).on("click", ".setting-menu-nav", function(e) {
+                e.preventDefault();
+
+                var hash = ($(this).attr('href') || '').replace('#', '');
+                if (hash && window.location.hash !== '#' + hash) {
+                    window.location.hash = hash;
+                    return;
+                }
+
+                setActiveSettingNav($(this));
                 var module = $(this).attr('data-module');
                 var method = $(this).attr('data-method');
-                getSettingSection(module,method);
+                getSettingSection(module, method);
             });
+
+            $(window).on('hashchange', function() {
+                loadSettingSectionFromHash();
+            });
+
+            function loadSettingSectionFromHash() {
+                var hash = (window.location.hash || '').replace('#', '');
+                var targetNav = null;
+
+                if (hash) {
+                    targetNav = $('.setting-menu-nav').filter(function() {
+                        return ($(this).attr('href') || '') === '#' + hash;
+                    }).first();
+                }
+
+                if (!targetNav || !targetNav.length) {
+                    targetNav = $('.setting-menu-nav').first();
+                }
+
+                if (targetNav && targetNav.length) {
+                    setActiveSettingNav(targetNav);
+                    var module = targetNav.attr('data-module');
+                    var method = targetNav.attr('data-method');
+                    getSettingSection(module, method);
+                } else {
+                    getSettingSection('Base');
+                }
+            }
+
+            function setActiveSettingNav(navItem) {
+                $('.setting-menu-nav').removeClass('active');
+                navItem.addClass('active');
+            }
 
             function getSettingSection(module,method = null) {
 

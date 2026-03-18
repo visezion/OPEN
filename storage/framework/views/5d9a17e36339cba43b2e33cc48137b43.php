@@ -57,6 +57,161 @@
         :root {
             --color-customColor: <?= $color ?>;
         }
+
+        .dash-header {
+            border-bottom: 1px solid #d8e2ef !important;
+            box-shadow: none !important;
+        }
+
+        .dash-sidebar {
+            border-right: 1px solid #d8e2ef !important;
+            box-shadow: none !important;
+        }
+
+        [dir="rtl"] .dash-sidebar {
+            border-right: 0 !important;
+            border-left: 1px solid #d8e2ef !important;
+        }
+
+        .dash-content .page-header {
+            border-bottom: 1px solid #d8e2ef !important;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        body:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item > .dash-link {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            margin: 4px 10px !important;
+            padding: 10px 12px !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+        }
+
+        body:not(.minimenu) .dash-sidebar.light-sidebar .dash-link .dash-micon {
+            margin-right: 0 !important;
+            flex: 0 0 34px !important;
+            width: 34px !important;
+            height: 34px !important;
+            box-shadow: none !important;
+        }
+
+        body:not(.minimenu) .dash-sidebar.light-sidebar .dash-link .dash-mtext {
+            display: block !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            line-height: 1.2 !important;
+            color: #1f3a62 !important;
+        }
+
+        body:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link,
+        body:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item:hover > .dash-link {
+            border: 1px solid #d8e2ef;
+            background: #ffffff !important;
+        }
+
+        .superadmin-page .dash-header,
+        .superadmin-page .dash-sidebar,
+        .superadmin-page .page-header,
+        .superadmin-page .card,
+        .superadmin-page .dropdown-menu,
+        .superadmin-page .modal-content,
+        .superadmin-page .table-responsive,
+        .superadmin-page .accordion-item,
+        .superadmin-page .nav-pills .nav-link,
+        .superadmin-page .list-group-item,
+        .superadmin-page .form-control,
+        .superadmin-page .form-select,
+        .superadmin-page .select2-container--default .select2-selection--single,
+        .superadmin-page .select2-container--default .select2-selection--multiple {
+            box-shadow: none !important;
+            filter: none !important;
+        }
+
+        .superadmin-page .dash-header,
+        .superadmin-page .dash-sidebar,
+        .superadmin-page .page-header,
+        .superadmin-page .card,
+        .superadmin-page .dropdown-menu,
+        .superadmin-page .modal-content,
+        .superadmin-page .table-responsive,
+        .superadmin-page .accordion-item,
+        .superadmin-page .list-group-item,
+        .superadmin-page .form-control,
+        .superadmin-page .form-select,
+        .superadmin-page .select2-container--default .select2-selection--single,
+        .superadmin-page .select2-container--default .select2-selection--multiple {
+            border-color: #d8e2ef !important;
+        }
+
+        .superadmin-page .dash-sidebar.light-sidebar .dash-link .dash-micon {
+            box-shadow: none !important;
+            border: 1px solid #d8e2ef !important;
+            background: #ffffff !important;
+        }
+
+        .superadmin-page .dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link,
+        .superadmin-page .dash-sidebar.light-sidebar .dash-navbar > .dash-item:hover > .dash-link {
+            box-shadow: none !important;
+            border: 1px solid #d8e2ef !important;
+            background: #ffffff !important;
+        }
+
+        .superadmin-page .dash-sidebar.light-sidebar .dash-submenu {
+            box-shadow: none !important;
+            border: 1px solid #d8e2ef !important;
+        }
+
+        .superadmin-page .card-header {
+            border-bottom: 1px solid #d8e2ef !important;
+            background: #ffffff !important;
+        }
+
+        .superadmin-page .card-footer {
+            border-top: 1px solid #d8e2ef !important;
+            background: #ffffff !important;
+        }
+
+        .superadmin-page .table > :not(caption) > * > * {
+            border-color: #d8e2ef !important;
+        }
+
+        .superadmin-page .table-responsive {
+            border: 1px solid #d8e2ef !important;
+            border-radius: 12px;
+            background: #ffffff !important;
+        }
+
+        .superadmin-page .table {
+            margin-bottom: 0 !important;
+            background: #ffffff !important;
+        }
+
+        .superadmin-page .table > :not(caption) > * > * {
+            border-style: solid !important;
+            border-width: 0 1px 1px 0 !important;
+            border-color: #d8e2ef !important;
+        }
+
+        .superadmin-page .table > :not(caption) > * > *:last-child {
+            border-right: 0 !important;
+        }
+
+        .superadmin-page .table > thead > tr > * {
+            background: #f8fbff !important;
+            border-bottom: 1px solid #d8e2ef !important;
+        }
+
+        .superadmin-page .table > tbody > tr:last-child > * {
+            border-bottom: 0 !important;
+        }
+
+        .superadmin-page .dropdown-divider,
+        .superadmin-page .list-group-item + .list-group-item,
+        .superadmin-page .accordion-button {
+            border-color: #d8e2ef !important;
+        }
     </style>
 
     <link rel="stylesheet" href="<?php echo e(asset('css/custom-color.css')); ?>">
@@ -72,6 +227,7 @@
     <?php else: ?>
         <link rel="stylesheet" href="" id="main-style-link">
     <?php endif; ?>
+    <link rel="stylesheet" href="<?php echo e(asset('css/ui-clean.css')); ?>">
 
     <?php echo $__env->yieldPushContent('css'); ?>
     <?php echo $__env->yieldPushContent('availabilitylink'); ?>

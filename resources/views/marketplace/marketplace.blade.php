@@ -2,30 +2,55 @@
 <html lang="en">
 @php
     $admin_settings = getAdminAllSetting();
+    $brand_name = !empty($admin_settings['title_text']) ? $admin_settings['title_text'] : 'Platform';
+    $brand_name = preg_replace('/\b(workdo|dash)\b/i', '', (string) $brand_name);
+    $brand_name = trim(preg_replace('/\s+/', ' ', (string) $brand_name));
+    if ($brand_name === '') {
+        $brand_name = 'Platform';
+    }
+
+    $default_meta_title = $brand_name;
+    $default_meta_keywords = 'business platform,workspace,operations';
+    $default_meta_description = 'Centralized operations platform for modern teams.';
+
+    $meta_title = trim((string) ($admin_settings['meta_title'] ?? ''));
+    if ($meta_title === '' || preg_match('/workdo|dash/i', $meta_title)) {
+        $meta_title = $default_meta_title;
+    }
+
+    $meta_keywords = trim((string) ($admin_settings['meta_keywords'] ?? ''));
+    if ($meta_keywords === '' || preg_match('/workdo|dash/i', $meta_keywords)) {
+        $meta_keywords = $default_meta_keywords;
+    }
+
+    $meta_description = trim((string) ($admin_settings['meta_description'] ?? ''));
+    if ($meta_description === '' || preg_match('/workdo|dash/i', $meta_description)) {
+        $meta_description = $default_meta_description;
+    }
 @endphp
 <head>
 
-    <title>@yield('page-title') | {{!empty($admin_settings['title_text']) ? $admin_settings['title_text'] :'WorkDo-Dash' }}</title>
+    <title>@yield('page-title') | {{ $brand_name }}</title>
 
-    <meta name="title" content="{{ !empty($admin_settings['meta_title']) ? $admin_settings['meta_title'] : 'WOrkdo Dash' }}">
-    <meta name="keywords" content="{{ !empty($admin_settings['meta_keywords']) ? $admin_settings['meta_keywords'] : 'WorkDo Dash,SaaS solution,Multi-workspace' }}">
-    <meta name="description" content="{{ !empty($admin_settings['meta_description']) ? $admin_settings['meta_description'] : 'Discover the efficiency of Dash, a user-friendly web application by WorkDo.'}}">
+    <meta name="title" content="{{ $meta_title }}">
+    <meta name="keywords" content="{{ $meta_keywords }}">
+    <meta name="description" content="{{ $meta_description }}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ env('APP_URL') }}">
-    <meta property="og:title" content="{{ !empty($admin_settings['meta_title']) ? $admin_settings['meta_title'] : 'WOrkdo Dash' }}">
-    <meta property="og:description" content="{{ !empty($admin_settings['meta_description']) ? $admin_settings['meta_description'] : 'Discover the efficiency of Dash, a user-friendly web application by WorkDo.'}} ">
+    <meta property="og:title" content="{{ $meta_title }}">
+    <meta property="og:description" content="{{ $meta_description }} ">
     <meta property="og:image" content="{{ get_file( (!empty($admin_settings['meta_image'])) ? (check_file($admin_settings['meta_image'])) ?  $admin_settings['meta_image'] : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  ) }}{{'?'.time() }}">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ env('APP_URL') }}">
-    <meta property="twitter:title" content="{{ !empty($admin_settings['meta_title']) ? $admin_settings['meta_title'] : 'WOrkdo Dash' }}">
-    <meta property="twitter:description" content="{{ !empty($admin_settings['meta_description']) ? $admin_settings['meta_description'] : 'Discover the efficiency of Dash, a user-friendly web application by WorkDo.'}} ">
+    <meta property="twitter:title" content="{{ $meta_title }}">
+    <meta property="twitter:description" content="{{ $meta_description }} ">
     <meta property="twitter:image" content="{{ get_file( (!empty($admin_settings['meta_image'])) ? (check_file($admin_settings['meta_image'])) ?  $admin_settings['meta_image'] : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  ) }}{{'?'.time() }}">
 
-    <meta name="author" content="Workdo.io">
+    <meta name="author" content="{{ $brand_name }}">
 
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -51,9 +76,177 @@
         <link rel="stylesheet" href="{{ asset('market_assets/css/main-style-dark.css') }}" id="main-style-link">
     @endif
     <link rel="stylesheet" href="{{ asset('market_assets/css/magnific-popup.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/ui-clean.css') }}">
+    <style>
+        .market-brand-text {
+            color: #19273d;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .site-footer .market-brand-text {
+            color: #ffffff;
+            font-size: 1rem;
+            letter-spacing: 0.06em;
+        }
+        .site-footer.footer-refined {
+            margin-top: 52px;
+            padding: 56px 0 26px;
+            background: #ffffff;
+            color: #1b2b48;
+            border-top: 1px solid rgba(25, 39, 61, 0.14);
+        }
+        .site-footer.footer-refined .market-brand-text {
+            color: #16284a;
+            font-size: 1.05rem;
+            letter-spacing: 0.08em;
+        }
+        .footer-refined .footer-main {
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .footer-refined .footer-brand-block {
+            max-width: 420px;
+        }
+        .footer-refined .footer-tagline {
+            margin: 16px 0 0;
+            color: #5a6b88;
+            line-height: 1.7;
+            font-weight: 500;
+        }
+        .footer-refined .footer-quick-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .footer-refined .footer-btn {
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 18px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 1;
+            transition: all .2s ease-in-out;
+        }
+        .footer-refined .footer-btn-primary {
+            background: var(--theme-color);
+            border-color: var(--theme-color);
+            color: #ffffff;
+        }
+        .footer-refined .footer-btn-primary:hover {
+            filter: brightness(0.94);
+        }
+        .footer-refined .footer-btn-secondary {
+            background: #ffffff;
+            border-color: rgba(22, 40, 74, 0.2);
+            color: #1b2b48;
+        }
+        .footer-refined .footer-btn-secondary:hover {
+            border-color: var(--theme-color);
+            color: var(--theme-color);
+        }
+        .footer-refined .footer-nav-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(145px, 1fr));
+            gap: 24px;
+        }
+        .footer-refined .footer-nav-group h4 {
+            margin: 0 0 14px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #20345d;
+        }
+        .footer-refined .footer-nav-group ul li:not(:last-child) {
+            margin-bottom: 10px;
+        }
+        .footer-refined .footer-nav-group ul li a {
+            color: #536584;
+            font-weight: 600;
+        }
+        .footer-refined .footer-nav-group ul li a:hover {
+            color: var(--theme-color);
+        }
+        .footer-refined .footer-bottom {
+            margin-top: 34px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(25, 39, 61, 0.14);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .footer-refined .footer-bottom p {
+            margin: 0;
+            color: #60718d;
+            font-weight: 600;
+        }
+        .footer-refined .footer-meta-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .footer-refined .footer-meta-links a {
+            color: #465a7f;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .footer-refined .footer-meta-links a:hover {
+            color: var(--theme-color);
+        }
+        @media (max-width: 991px) {
+            .site-footer.footer-refined {
+                margin-top: 34px;
+                padding: 44px 0 24px;
+            }
+            .footer-refined .footer-main {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .footer-refined .footer-brand-block {
+                max-width: 100%;
+            }
+            .footer-refined .footer-nav-grid {
+                width: 100%;
+                grid-template-columns: repeat(2, minmax(150px, 1fr));
+                gap: 20px;
+            }
+        }
+        @media (max-width: 575px) {
+            .site-footer.footer-refined {
+                padding: 36px 0 20px;
+            }
+            .footer-refined .footer-nav-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-refined .footer-quick-actions {
+                width: 100%;
+            }
+            .footer-refined .footer-btn {
+                flex: 1;
+                min-width: 150px;
+            }
+            .footer-refined .footer-bottom {
+                margin-top: 28px;
+                padding-top: 16px;
+            }
+        }
+    </style>
 </head>
 
-<body class="{{ !empty($admin_settings['color'])?$admin_settings['color']:'theme-1' }}" >
+<body class="{{ !empty($admin_settings['color'])?$admin_settings['color']:'theme-1' }} ui-border-clean" >
     <!-- header start here -->
     <header class="site-header header-style-one">
         <div class="main-navigationbar">
@@ -61,7 +254,7 @@
                 <div class="navigationbar-row d-flex align-items-center justify-content-between">
                     <div class="logo-col">
                         <a href="{{ route('start') }}">
-                            <img src="{{ get_file(sidebar_logo()) }}{{'?'.time()}}">
+                            <span class="market-brand-text">{{ $brand_name }}</span>
                         </a>
                     </div>
                     <div class="menu-items-col">
@@ -112,99 +305,54 @@
     <!-- wrapper end -->
 
     <!-- Footer start here -->
-    <footer class="site-footer">
+    <footer class="site-footer footer-refined">
         <div class="container">
-            <div class="footer-top">
-                <div class="footer-logo">
+            <div class="footer-main">
+                <div class="footer-brand-block">
                     <a href="{{ route('start') }}">
-                        <img src="{{ get_file(light_logo()) }}{{'?'.time()}}" alt="">
+                        <span class="market-brand-text">{{ $brand_name }}</span>
                     </a>
+                    <p class="footer-tagline">{{ __('Free and open source workspace for organized ministry teams, operations, and daily service coordination.') }}</p>
+                    <div class="footer-quick-actions">
+                        <a href="{{ route('apps.software') }}" class="footer-btn footer-btn-secondary">{{ __('Explore Add-ons') }}</a>
+                        <a href="{{ route('apps.pricing') }}" class="footer-btn footer-btn-primary">{{ __('View Pricing') }}</a>
+                    </div>
                 </div>
-                <div class="divider-line"></div>
-                <div class="footer-top-right">
-                    <ul>
-                        <li>
-                            <a href="#" class="btn-secondary">{{ __('Go to Shop')}}<svg
-                                    xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18"
-                                    fill="none">
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M4.25 13.5V7.5H2.75V13.5C2.75 15.1569 4.09315 16.5 5.75 16.5H13.25C14.9069 16.5 16.25 15.1569 16.25 13.5V7.5H14.75V13.5C14.75 14.3284 14.0784 15 13.25 15H11.75V12.75C11.75 11.5074 10.7426 10.5 9.5 10.5C8.25736 10.5 7.25 11.5074 7.25 12.75V15H5.75C4.92157 15 4.25 14.3284 4.25 13.5ZM8.75 15H10.25V12.75C10.25 12.3358 9.91421 12 9.5 12C9.08579 12 8.75 12.3358 8.75 12.75V15Z"
-                                        fill="white" />
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M6.20416 1.5C4.96424 1.5 3.74225 2.1179 3.07037 3.26266C2.85516 3.62935 2.61186 4.0677 2.41774 4.48653C2.32087 4.69556 2.22534 4.92295 2.15147 5.14939C2.0852 5.35254 2 5.66136 2 6C2 6.59786 2.14656 7.35644 2.67579 7.99153C3.24513 8.67473 4.07678 9 5 9C5.87645 9 6.55566 8.5913 6.99156 8.22643C7.1402 8.10201 7.3598 8.10201 7.50844 8.22643C7.94434 8.5913 8.62355 9 9.5 9C10.3765 9 11.0557 8.5913 11.4916 8.22643C11.6402 8.10201 11.8598 8.10201 12.0084 8.22643C12.4443 8.5913 13.1235 9 14 9C14.9232 9 15.7549 8.67473 16.3242 7.99153C16.8534 7.35644 17 6.59786 17 6C17 5.66136 16.9148 5.35254 16.8485 5.14939C16.7747 4.92296 16.6791 4.69556 16.5823 4.48653C16.3881 4.0677 16.1448 3.62936 15.9296 3.26266C15.2578 2.1179 14.0358 1.5 12.7958 1.5H6.20416ZM6.20416 3C5.45187 3 4.74481 3.37312 4.36402 4.02192C3.95516 4.71856 3.5 5.58686 3.5 6C3.5 6.75 3.875 7.5 5 7.5C5.78879 7.5 6.39323 6.76259 6.68405 6.32183C6.81063 6.13001 7.02018 6 7.25 6C7.47982 6 7.68937 6.13001 7.81595 6.32183C8.10677 6.76259 8.71121 7.5 9.5 7.5C10.2888 7.5 10.8932 6.76259 11.1841 6.32183C11.3106 6.13001 11.5202 6 11.75 6C11.9798 6 12.1894 6.13001 12.3159 6.32183C12.6068 6.76259 13.2112 7.5 14 7.5C15.125 7.5 15.5 6.75 15.5 6C15.5 5.58686 15.0448 4.71856 14.636 4.02192C14.2552 3.37312 13.5481 3 12.7958 3H6.20416Z"
-                                        fill="white" />
-                                </svg></a>
-                        </li>
-                        <li>
-                            <a href="#" class="btn-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                    viewBox="0 0 14 14" fill="none">
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M11.6658 12.3335C12.034 12.3335 12.3325 12.035 12.3325 11.6668C12.3325 11.2986 12.034 11.0002 11.6658 11.0002C11.2976 11.0002 10.9992 11.2986 10.9992 11.6668C10.9992 12.035 11.2976 12.3335 11.6658 12.3335ZM11.6658 13.6668C12.7704 13.6668 13.6658 12.7714 13.6658 11.6668C13.6658 10.5623 12.7704 9.66682 11.6658 9.66682C10.5613 9.66682 9.66583 10.5623 9.66583 11.6668C9.66583 12.7714 10.5613 13.6668 11.6658 13.6668Z"
-                                        fill="#6FD943" />
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M9.3325 1.66682C8.41203 1.66682 7.66583 2.41301 7.66583 3.33349V10.6668C7.66583 12.3237 6.32269 13.6668 4.66583 13.6668C3.00898 13.6668 1.66583 12.3237 1.66583 10.6668V5.66682C1.66583 5.29863 1.96431 5.00015 2.3325 5.00015C2.70069 5.00015 2.99917 5.29863 2.99917 5.66682V10.6668C2.99917 11.5873 3.74536 12.3335 4.66583 12.3335C5.58631 12.3335 6.3325 11.5873 6.3325 10.6668V3.33349C6.3325 1.67663 7.67565 0.333486 9.3325 0.333486C10.9894 0.333486 12.3325 1.67663 12.3325 3.33349V7.66682C12.3325 8.03501 12.034 8.33349 11.6658 8.33349C11.2976 8.33349 10.9992 8.03501 10.9992 7.66682V3.33349C10.9992 2.41301 10.253 1.66682 9.3325 1.66682Z"
-                                        fill="#6FD943" />
-                                    <path
-                                        d="M1.75665 0.653994C2.0139 0.212991 2.6511 0.212992 2.90835 0.653995L4.081 2.66424C4.34025 3.10868 4.01967 3.66682 3.50514 3.66682H1.15986C0.645331 3.66682 0.32475 3.10868 0.584006 2.66424L1.75665 0.653994Z"
-                                        fill="#6FD943" />
-                                </svg>{{ __('Support')}}</a>
-                        </li>
-                    </ul>
+                <div class="footer-nav-grid">
+                    <div class="footer-nav-group">
+                        <h4>{{ __('Platform') }}</h4>
+                        <ul>
+                            <li><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+                            <li><a href="{{ route('apps.software') }}">{{ __('Add-ons') }}</a></li>
+                            <li><a href="{{ route('apps.pricing') }}">{{ __('Pricing') }}</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-nav-group">
+                        <h4>{{ __('Account') }}</h4>
+                        <ul>
+                            <li><a href="{{ route('login') }}">{{ __('Login') }}</a></li>
+                            @if (Route::has('register'))
+                                <li><a href="{{ route('register') }}">{{ __('Register') }}</a></li>
+                            @endif
+                            <li><a href="{{ Auth::check() ? route('home') : route('login') }}">{{ __('Dashboard') }}</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-nav-group">
+                        <h4>{{ __('Support') }}</h4>
+                        <ul>
+                            <li><a href="{{ route('apps.software') }}">{{ __('Module Library') }}</a></li>
+                            <li><a href="{{ route('apps.pricing') }}">{{ __('Plans') }}</a></li>
+                            <li><a href="{{ route('start') }}">{{ __('Back to Top') }}</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="footer-row">
-                <div class="footer-col  about-site">
-                    <p>{{ __('We build modern web tools to help you jump-start your daily business work.')}}</p>
-                    <p>{{ __('All Rights Reserved to')}}<br>
-                        <a href="https://workdo.io/">{{ 'WorkDo.io'}}</a>
-                    </p>
-                </div>
-                <div class="footer-col footer-link footer-link-1">
-                    <div class="footer-widget">
-                        <h4>{{ __('Company')}}</h4>
-                        <ul>
-                            <li><a href="#">{{ __('About Us')}}</a></li>
-                            <li><a href="#">{{ __('Freebies')}}</a></li>
-                            <li><a href="#">{{ __('Premium')}}</a></li>
-                            <li><a href="#">{{ __('Blog')}}</a></li>
-                            <li><a href="#">{{ __('Affiliate Program')}}</a></li>
-                            <li><a href="#">{{ __('Get coupon')}}</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="footer-col footer-link footer-link-2">
-                    <div class="footer-widget">
-                        <h4>{{ __('Help and Support')}}</h4>
-                        <ul>
-                            <li><a href="#">{{ __('Knowledge Center')}}</a></li>
-                            <li><a href="#">{{ __('Contact Us')}}</a></li>
-                            <li><a href="#">{{ __('Premium Support')}}</a></li>
-                            <li><a href="#">{{ __('Sponsorships')}}</a></li>
-                            <li><a href="#">{{ __('Custom Development')}}</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="footer-col footer-link footer-link-2">
-                    <div class="footer-widget">
-                        <h4>{{ __('Help and Support')}}</h4>
-                        <ul>
-                            <li><a href="#">{{ __('Terms & Conditions')}}</a></li>
-                            <li><a href="#">{{ __('Privacy Policy')}}</a></li>
-                            <li><a href="#">{{ __('Licenses')}}</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="footer-col  footer-subscribe-col">
-                    <div class="footer-widget">
-                        <h4><b>{{ __('Join Our')}}</b>{{ __('Community')}}</h4>
-                        <p> {{ __('We build modern web tools to help you jump-start your daily business work.')}} </p>
-                        <form class="footer-subscribe-form">
-                            <div class="input-wrapper">
-                                <input type="email" placeholder="Your email address...">
-                                <button type="submit" class="btn-subscibe">{{ __('Join')}}</button>
-                            </div>
-                        </form>
-                    </div>
+            <div class="footer-bottom">
+                <p>{{ __('Copyright') }} {{ date('Y') }} {{ $brand_name }}. {{ __('Built for reliable daily operations.') }}</p>
+                <div class="footer-meta-links">
+                    <a href="{{ route('apps.software') }}">{{ __('Add-on Marketplace') }}</a>
+                    <a href="{{ route('apps.pricing') }}">{{ __('Pricing & Plans') }}</a>
+                    <a href="{{ route('start') }}">{{ __('Home') }}</a>
                 </div>
             </div>
         </div>

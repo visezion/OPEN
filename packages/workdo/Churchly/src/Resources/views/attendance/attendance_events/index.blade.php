@@ -2,6 +2,14 @@
 
 @section('page-title', __('Attendance Events'))
 
+@push('css')
+<style>
+    .attendance-events-page .card {
+        border: 1px solid var(--bs-border-color, #dee2e6) !important;
+    }
+</style>
+@endpush
+
 @section('page-action')
     <a href="{{ route('churchly.attendance_events.create') }}" class="btn btn-sm btn-primary">
         <i class="ti ti-plus"></i> {{ __('New Attendance Event') }}
@@ -9,7 +17,7 @@
 @endsection
 
 @section('content')
-<div class="row">
+<div class="row attendance-events-page">
     {{-- Main Content --}}
     <div class="col-lg-9">
         <div class="card border-0 shadow-sm mb-3">

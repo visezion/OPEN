@@ -2,6 +2,14 @@
 
 @section('page-title', __('Setup Attendance Event'))
 
+@push('css')
+<style>
+    .attendance-events-create .card {
+        border: 1px solid var(--bs-border-color, #dee2e6) !important;
+    }
+</style>
+@endpush
+
 @section('page-action')
     <a href="{{ route('churchly.events.index') }}" class="btn btn-sm btn-outline-primary">
         <i class="ti ti-calendar"></i> {{ __('View All Events') }}
@@ -12,7 +20,7 @@
 @endsection
 
 @section('content')
-<div class="row">
+<div class="row attendance-events-create">
     {{-- Left Column: Form --}}
     <div class="col-lg-9">
         <div class="card border-0 shadow-sm">

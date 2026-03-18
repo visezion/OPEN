@@ -8,6 +8,7 @@ body{ font-family: {{ $theme->font_family ?? 'Inter, sans-serif' }}; }
 .footer{ padding:12px 20px; background:#f5f5f5; color:#666; }
 .nav a{ color:#fff; margin-right:16px; text-decoration:none; }
 .section{ padding:40px 20px; }
+.card{ border:1px solid #d8e2ef !important; }
 </style>
 <div class="header d-flex align-items-center justify-content-between">
   <div class="d-flex align-items-center">

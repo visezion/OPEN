@@ -1,0 +1,123 @@
+.ui-border-clean .dash-header,
+.ui-border-clean .dash-sidebar,
+.ui-border-clean .page-header,
+.ui-border-clean .card,
+.ui-border-clean .dropdown-menu,
+.ui-border-clean .modal-content,
+.ui-border-clean .table-responsive,
+.ui-border-clean .accordion-item,
+.ui-border-clean .list-group-item,
+.ui-border-clean .form-control,
+.ui-border-clean .form-select,
+.ui-border-clean .select2-container--default .select2-selection--single,
+.ui-border-clean .select2-container--default .select2-selection--multiple,
+.ui-border-clean .nav-pills .nav-link {
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+.ui-border-clean .dash-header {
+    border-bottom: 1px solid #d8e2ef !important;
+}
+
+.ui-border-clean .dash-sidebar {
+    border-right: 1px solid #d8e2ef !important;
+}
+
+[dir="rtl"] .ui-border-clean .dash-sidebar {
+    border-right: 0 !important;
+    border-left: 1px solid #d8e2ef !important;
+}
+
+.ui-border-clean .dash-content .page-header {
+    border-bottom: 1px solid #d8e2ef !important;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+}
+
+.ui-border-clean .card,
+.ui-border-clean .dropdown-menu,
+.ui-border-clean .modal-content,
+.ui-border-clean .table-responsive,
+.ui-border-clean .accordion-item,
+.ui-border-clean .list-group-item,
+.ui-border-clean .form-control,
+.ui-border-clean .form-select,
+.ui-border-clean .select2-container--default .select2-selection--single,
+.ui-border-clean .select2-container--default .select2-selection--multiple {
+    border-color: #d8e2ef !important;
+}
+
+.ui-border-clean .card-header {
+    border-bottom: 1px solid #d8e2ef !important;
+    background: #ffffff !important;
+}
+
+.ui-border-clean .card-footer {
+    border-top: 1px solid #d8e2ef !important;
+    background: #ffffff !important;
+}
+
+.ui-border-clean .dropdown-divider,
+.ui-border-clean .list-group-item + .list-group-item,
+.ui-border-clean .accordion-button {
+    border-color: #d8e2ef !important;
+}
+
+.ui-border-clean .table-responsive {
+    border: 1px solid #d8e2ef !important;
+    border-radius: 12px;
+    background: #ffffff !important;
+}
+
+.ui-border-clean .table {
+    margin-bottom: 0 !important;
+    background: #ffffff !important;
+}
+
+.ui-border-clean .table > :not(caption) > * > * {
+    border-color: #d8e2ef !important;
+}
+
+.ui-border-clean .table > thead > tr > * {
+    background: #f8fbff !important;
+    border-bottom: 1px solid #d8e2ef !important;
+}
+
+.ui-border-clean.churchly-module-page .card {
+    border: 1px solid #d8e2ef !important;
+}
+
+.ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item > .dash-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin: 4px 10px !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+.ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-link .dash-micon {
+    margin-right: 0 !important;
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    height: 34px !important;
+    box-shadow: none !important;
+    border: 1px solid #d8e2ef !important;
+    background: #ffffff !important;
+}
+
+.ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-link .dash-mtext {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    line-height: 1.2 !important;
+}
+
+.ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link,
+.ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item:hover > .dash-link {
+    border: 1px solid #d8e2ef !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}

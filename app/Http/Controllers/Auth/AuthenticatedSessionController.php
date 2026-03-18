@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Models\WorkSpace;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,7 +48,24 @@ class AuthenticatedSessionController extends Controller
             $lang = array_key_exists($lang, languages()) ? $lang : 'en';
         }
         \App::setLocale($lang);
-        return view('auth.login',compact('lang'));
+        $captcha = $this->buildLoginCaptcha();
+        session(['login_captcha_answer' => $captcha['answer']]);
+
+        return view('auth.login', [
+            'lang' => $lang,
+            'captchaImage' => $captcha['image'],
+        ]);
+    }
+
+    public function refreshCaptcha(Request $request): JsonResponse
+    {
+        $captcha = $this->buildLoginCaptcha();
+        $request->session()->put('login_captcha_answer', $captcha['answer']);
+
+        return response()->json([
+            'ok' => true,
+            'captcha_image' => $captcha['image'],
+        ]);
     }
 
     /**
@@ -57,6 +75,18 @@ class AuthenticatedSessionController extends Controller
     {
         $validation = [];
         $redirect = false;
+
+        $submittedCaptcha = strtoupper((string) preg_replace('/[^A-Za-z0-9]/', '', (string) $request->input('captcha_answer', '')));
+        $expectedCaptcha = strtoupper((string) $request->session()->get('login_captcha_answer', ''));
+
+        if ($expectedCaptcha === '' || $submittedCaptcha === '' || !hash_equals($expectedCaptcha, $submittedCaptcha)) {
+            return back()
+                ->withInput($request->except('password'))
+                ->withErrors([
+                    'captcha_answer' => __('The security captcha is invalid.'),
+                ]);
+        }
+
         if (module_is_active('GoogleCaptcha') && admin_setting('google_recaptcha_is_on') == 'on') {
             if (admin_setting('google_recaptcha_version') == 'v2-checkbox') {
                 $request->validate([
@@ -77,6 +107,7 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        $request->session()->forget('login_captcha_answer');
 
         //  User logs
 
@@ -187,5 +218,55 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function buildLoginCaptcha(): array
+    {
+        $characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        $length = strlen($characters) - 1;
+        $answer = '';
+        for ($i = 0; $i < 5; $i++) {
+            $answer .= $characters[random_int(0, $length)];
+        }
+
+        $width = 260;
+        $height = 74;
+
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $width . '" height="' . $height . '" viewBox="0 0 ' . $width . ' ' . $height . '">';
+        $svg .= '<rect width="100%" height="100%" fill="#ffffff"/>';
+
+        for ($i = 0; $i < 10; $i++) {
+            $x1 = random_int(0, $width);
+            $y1 = random_int(0, $height);
+            $x2 = random_int(0, $width);
+            $y2 = random_int(0, $height);
+            $stroke = random_int(190, 235);
+            $svg .= '<line x1="' . $x1 . '" y1="' . $y1 . '" x2="' . $x2 . '" y2="' . $y2 . '" stroke="rgb(' . $stroke . ',' . ($stroke - 8) . ',' . ($stroke - 18) . ')" stroke-width="1"/>';
+        }
+
+        for ($i = 0; $i < 14; $i++) {
+            $cx = random_int(6, $width - 6);
+            $cy = random_int(6, $height - 6);
+            $r = random_int(1, 2);
+            $fill = random_int(165, 220);
+            $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . $r . '" fill="rgb(' . $fill . ',' . $fill . ',' . $fill . ')" />';
+        }
+
+        $x = 28;
+        $letters = str_split($answer);
+        foreach ($letters as $letter) {
+            $rotate = random_int(-14, 14);
+            $y = random_int(44, 58);
+            $color = random_int(60, 105);
+            $svg .= '<text x="' . $x . '" y="' . $y . '" font-size="52" font-family="Verdana, Arial, sans-serif" fill="rgb(' . $color . ',' . ($color + 7) . ',' . ($color + 20) . ')" transform="rotate(' . $rotate . ' ' . $x . ' ' . $y . ')">' . $letter . '</text>';
+            $x += 44;
+        }
+
+        $svg .= '</svg>';
+
+        return [
+            'answer' => $answer,
+            'image' => 'data:image/svg+xml;base64,' . base64_encode($svg),
+        ];
     }
 }

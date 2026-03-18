@@ -40,9 +40,7 @@ use App\Http\Controllers\ReferralProgramController;
 use Workdo\FoodBank\Http\Controllers\PublicController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home.landing');
 
 /*
 |--------------------------------------------------------------------------
@@ -64,10 +62,12 @@ require __DIR__ . '/auth.php';
 // custom domain code
     Route::middleware('domain-check')->group(function () {
         Route::get('start', [HomeController::class, 'Software'])->name('start');
-        Route::get('/register/{lang?}', [RegisteredUserController::class, 'create'])->name('register');
-    Route::get('/login/{lang?}', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::get('/forgot-password/{lang?}', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::get('/verify-email/{lang?}', [EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
+        Route::middleware('guest')->group(function () {
+            Route::get('/register/{lang?}', [RegisteredUserController::class, 'create'])->name('register');
+            Route::get('/login/{lang?}', [AuthenticatedSessionController::class, 'create'])->name('login');
+            Route::get('/forgot-password/{lang?}', [PasswordResetLinkController::class, 'create'])->name('password.request');
+        });
+        Route::get('/verify-email/{lang?}', [EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
 
     // module page before login
     Route::get('add-on', [HomeController::class, 'Software'])->name('apps.software');

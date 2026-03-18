@@ -1,4 +1,7 @@
-<nav class="dash-sidebar light-sidebar {{ empty($company_settings['site_transparent']) || $company_settings['site_transparent'] == 'on' ? 'transprent-bg' : '' }}">
+@php
+    $is_superadmin_sidebar = Auth::check() && Auth::user()->type === 'super admin';
+@endphp
+<nav class="dash-sidebar light-sidebar {{ empty($company_settings['site_transparent']) || $company_settings['site_transparent'] == 'on' ? 'transprent-bg' : '' }} {{ $is_superadmin_sidebar ? 'superadmin-sidebar' : '' }}">
     <div class="navbar-wrapper">
         <div class="m-header main-logo">
             <a href="{{ route('home') }}" class="b-brand">

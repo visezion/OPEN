@@ -455,34 +455,7 @@ class CompanyMenuListener
             'permission' => 'church_settings manage'
         ]);
 
-        ///Automation & Tasks///
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Automation & Tasks'),
-            'icon' => 'ti ti-vector-triangle',
-            'name' => 'automation',
-            'parent' => null,
-            'order' => 10,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => '',
-            'module' => $module,
-            'permission' => 'churchly dashboard manage'
-        ]);
-
-         $menu->add([
-            'category' => 'Church',
-            'title' => __('Automated Reminders'),
-            'icon' => '',
-            'name' => 'automated-reminders',
-            'parent' => 'automation',
-            'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => '',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
+        
 
          $menu->add([
             'category' => 'Church',

@@ -1,4 +1,7 @@
-<nav class="dash-sidebar light-sidebar <?php echo e(empty($company_settings['site_transparent']) || $company_settings['site_transparent'] == 'on' ? 'transprent-bg' : ''); ?>">
+<?php
+    $is_superadmin_sidebar = Auth::check() && Auth::user()->type === 'super admin';
+?>
+<nav class="dash-sidebar light-sidebar <?php echo e(empty($company_settings['site_transparent']) || $company_settings['site_transparent'] == 'on' ? 'transprent-bg' : ''); ?> <?php echo e($is_superadmin_sidebar ? 'superadmin-sidebar' : ''); ?>">
     <div class="navbar-wrapper">
         <div class="m-header main-logo">
             <a href="<?php echo e(route('home')); ?>" class="b-brand">

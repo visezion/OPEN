@@ -411,7 +411,7 @@
   .logo-col {
     max-width: 100px;
   }
-  .dedicated-themes-section .dash-theme-preview{
+  .dedicated-themes-section .theme-preview{
     margin: 25px 0;
   }
   .common-banner-section .banner-image img {
@@ -510,7 +510,7 @@
   .support-card-inner {
     padding: 15px;
   }
-  .dedicated-themes-section .dash-theme-preview {
+  .dedicated-themes-section .theme-preview {
     margin: 15px 0;
  }
  .information-card-inner {
@@ -556,3 +556,4 @@
     padding: 10px 0;
   }
 }
+

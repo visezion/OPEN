@@ -63,10 +63,11 @@
     @endif    <link rel="stylesheet" href="{{ asset('assets/css/customizer.css') }}">
     <!-- custom css -->
     <link rel="stylesheet" href="{{ asset('css/custome.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/ui-clean.css') }}">
 
 </head>
 
-<body class="{{ !empty($company_settings['color']) ? $company_settings['color'] : 'theme-1' }}">
+<body class="{{ !empty($company_settings['color']) ? $company_settings['color'] : 'theme-1' }} ui-border-clean">
     @yield('content')
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 99999">
         <div id="liveToast" class="toast text-white  fade" role="alert" aria-live="assertive" aria-atomic="true">

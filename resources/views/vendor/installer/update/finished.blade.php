@@ -2,8 +2,11 @@
 
 @section('title', trans('installer_messages.updater.final.title'))
 @section('container')
-    <p class="paragraph text-center">{{ isset(session('message')['message']) ? session('message')['message'] : '' }}</p>
-    <div class="buttons">
-        <a href="{{ url('/') }}" class="button">{{ trans('installer_messages.updater.final.exit') }}</a>
+    <p class="update-copy">
+        {{ isset(session('message')['message']) ? session('message')['message'] : __('Update process completed successfully.') }}
+    </p>
+    <div class="update-actions">
+        <a href="{{ url('/') }}" class="update-btn primary">{{ trans('installer_messages.updater.final.exit') }}</a>
+        <a href="{{ route('LaravelUpdater::overview') }}" class="update-btn secondary">{{ __('Review Updates') }}</a>
     </div>
 @stop

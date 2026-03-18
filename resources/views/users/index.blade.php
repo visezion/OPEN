@@ -14,6 +14,145 @@
         {{ __('Users') }}
     @endsection
 @endif
+@push('css')
+    <style>
+        .users-grid-wrap {
+            row-gap: 18px;
+        }
+
+        .users-grid-wrap .card,
+        .users-grid-wrap .user-card,
+        .users-grid-wrap .btn-addnew-project {
+            background: #ffffff;
+            border: 1px solid #d8e2ef;
+            box-shadow: none !important;
+            filter: none !important;
+            border-radius: 14px;
+        }
+
+        .users-grid-wrap .users-filter-card .card-body {
+            padding: 18px;
+        }
+
+        .users-grid-wrap .users-filter-card .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            color: #5f7696;
+            margin-bottom: 8px;
+        }
+
+        .users-grid-wrap .users-filter-card .form-control,
+        .users-grid-wrap .users-filter-card .select2-selection {
+            border: 1px solid #cfd9e8;
+            border-radius: 10px;
+            background: #ffffff;
+            min-height: 42px;
+        }
+
+        .users-grid-wrap .user-card .card-header {
+            background: #ffffff;
+            border: 0 !important;
+            border-bottom: 1px solid #e2eaf5 !important;
+            padding: 14px !important;
+        }
+
+        .users-grid-wrap .user-card .card-body {
+            padding: 16px;
+        }
+
+        .users-grid-wrap .user-image {
+            width: 74px;
+            height: 74px;
+            border-radius: 12px !important;
+            border-width: 1px !important;
+            border-color: #c7d5e8 !important;
+            overflow: hidden;
+        }
+
+        .users-grid-wrap .user-card h4 {
+            margin-bottom: 6px;
+            font-size: 22px;
+            line-height: 1.2;
+            color: #162f55;
+            word-break: break-word;
+        }
+
+        .users-grid-wrap .user-card .text-dark.text-md {
+            color: #6b82a2 !important;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .users-grid-wrap .badge.bg-primary {
+            border-radius: 999px;
+            letter-spacing: .05em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .users-grid-wrap .bottom-icons {
+            gap: 10px;
+        }
+
+        .users-grid-wrap .bottom-icons .edit-btn-wrp {
+            gap: 8px;
+        }
+
+        .users-grid-wrap .bottom-icons .btn.btn-sm.border {
+            border: 1px solid #d3deed !important;
+            background: #ffffff !important;
+            border-radius: 10px;
+        }
+
+        .users-grid-wrap .bottom-icons .btn.btn-sm.border:hover {
+            border-color: var(--bs-primary) !important;
+        }
+
+        .users-grid-wrap .btn-addnew-project {
+            min-height: 100%;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .users-grid-wrap .btn-addnew-project h6 {
+            color: #1f3a62;
+        }
+
+        .users-grid-wrap .btn-addnew-project p {
+            color: #6f86a7 !important;
+        }
+
+        .users-grid-wrap .proj-add-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .users-grid-wrap .btn-outline-primary {
+            background: #ffffff;
+            border-color: #c8d8ee;
+            color: var(--bs-primary);
+        }
+
+        .users-grid-wrap .btn-outline-primary:hover {
+            border-color: var(--bs-primary);
+            color: var(--bs-primary);
+            background: #ffffff;
+        }
+
+        .users-pagination-wrap {
+            margin-top: 8px;
+        }
+    </style>
+@endpush
 @section('page-action')
     <div class="d-flex">
         @permission('user logs history')
@@ -54,10 +193,10 @@
 @endsection
 @section('content')
     <!-- [ Main Content ] start -->
-    <div class="row row-gap-2 mb-4">
+    <div class="row users-grid-wrap mb-4">
         @if (\Auth::user()->type != 'super admin')
             <div class="" id="multiCollapseExample1">
-                <div class="card mb-0">
+                <div class="card mb-0 users-filter-card">
                     <div class="card-body">
                         {{ Form::open(['route' => ['users.index'], 'method' => 'GET', 'id' => 'user_submit']) }}
                         <div class="row d-flex align-items-center justify-content-end">
@@ -491,7 +630,9 @@
         @endif
         @endauth
     </div>
-    {!! $users->links('vendor.pagination.global-pagination') !!}
+    <div class="users-pagination-wrap">
+        {!! $users->links('vendor.pagination.global-pagination') !!}
+    </div>
     <!-- [ Main Content ] end -->
 @endsection
 @push('scripts')

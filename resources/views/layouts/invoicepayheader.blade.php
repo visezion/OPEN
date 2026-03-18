@@ -71,13 +71,14 @@
 @if ( $rtl != 'on' && (isset($company_settings['cust_darklayout']) ? $company_settings['cust_darklayout'] : 'off')!= 'on')
  <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
 @endif
+<link rel="stylesheet" href="{{ asset('css/ui-clean.css') }}">
 
  <script src="{{ asset('js/jquery.min.js') }}"></script>
  <link rel="stylesheet" href="{{ asset('packages/workdo/Account/src/Resources/assets/css/nprogress.css') }}" >
 <script src="{{ asset('packages/workdo/Account/src/Resources/assets/js/nprogress.js') }}"></script>
 </head>
 
-<body class="{{ !empty($company_settings['color'])?$company_settings['color']:'theme-1' }}">
+<body class="{{ !empty($company_settings['color'])?$company_settings['color']:'theme-1' }} ui-border-clean">
     <div class="container">
         <div class="dash-content">
             <!-- [ breadcrumb ] start -->

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CustomApiAuth;
+use App\Http\Middleware\ClearLegacyCookies;
 use App\Http\Middleware\DomainCheck;
 use App\Http\Middleware\SetLang;
 use Illuminate\Foundation\Application;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         // Append middleware to the 'web' group
         $middleware->appendToGroup('web', SetLang::class);
+        $middleware->appendToGroup('web', ClearLegacyCookies::class);
         // Exclude specific routes from CSRF protection
         $middleware->validateCsrfTokens(
             except: ['invoice/paytm/*',

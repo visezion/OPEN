@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>@yield('page-title', 'Church System')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .card {
+            border: 1px solid #d8e2ef !important;
+        }
+    </style>
     @yield('styles')
 </head>
 <body>

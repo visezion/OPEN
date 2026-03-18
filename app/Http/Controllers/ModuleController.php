@@ -94,7 +94,12 @@ class ModuleController extends Controller
     }
     public function enable(Request $request)
     {
-        $module = Module::find($request->name);
+        $moduleName = trim((string) $request->input('name', ''));
+        if ($moduleName === '') {
+            return redirect()->back()->with('error', __('Module name is required.'));
+        }
+
+        $module = Module::find($moduleName);
         if (!empty($module)) {
             // Sidebar Performance Changes
             sideMenuCacheForget('all');
@@ -104,43 +109,42 @@ class ModuleController extends Controller
             if ($module->isEnabled()) {
                 $check_child_module = $this->Check_Child_Module($module);
                 if ($check_child_module == true) {
-                    $module = Module::find($request->name);
                     $module->disable();
                     return redirect()->back()->with('success', __('Module Disable Successfully!'));
                 } else {
                     return redirect()->back()->with('error', __($check_child_module['msg']));
                 }
             } else {
-                $addon = AddOn::where('module', $request->name)->first();
+                $addon = AddOn::where('module', $moduleName)->first();
                 if (empty($addon)) {
-                    Artisan::call('migrate --path=/packages/workdo/' . $request->name . '/src/Database/Migrations');
-                    Artisan::call('package:seed ' . $request->name);
+                    Artisan::call('migrate --path=/packages/workdo/' . $moduleName . '/src/Database/Migrations');
+                    Artisan::call('package:seed ' . $moduleName);
 
-                    $filePath = base_path('packages/workdo/' . $request->name . '/module.json');
+                    $filePath = base_path('packages/workdo/' . $moduleName . '/module.json');
                     $data = [];
                     if (file_exists($filePath)) {
                         $jsonContent = file_get_contents($filePath);
                         $data = json_decode($jsonContent, true) ?? [];
                     } else {
-                        Log::warning("module.json missing while enabling {$request->name}.");
+                        Log::warning("module.json missing while enabling {$moduleName}.");
                     }
 
                     $addon = new AddOn;
-                    $addon->module = $data['name'] ?? $request->name;
-                    $addon->name = $data['alias'] ?? $request->name;
+                    $addon->module = $data['name'] ?? $moduleName;
+                    $addon->name = $data['alias'] ?? $moduleName;
                     $addon->monthly_price = $data['monthly_price'] ?? 0;
                     $addon->yearly_price = $data['yearly_price'] ?? 0;
                     $addon->package_name = $data['package_name'] ?? null;
                     $addon->save();
-                    Module::moduleCacheForget($request->name);
+                    Module::moduleCacheForget($moduleName);
                 }
-                $module = Module::find($request->name);
+                $module = Module::find($moduleName);
 
                 $check_parent_module = $this->Check_Parent_Module($module);
                 if ($check_parent_module['status'] == true) {
-                    Artisan::call('migrate --path=/packages/workdo/' . $request->name . '/src/Database/Migrations');
-                    Artisan::call('package:seed ' . $request->name);
-                    $module = Module::find($request->name);
+                    Artisan::call('migrate --path=/packages/workdo/' . $moduleName . '/src/Database/Migrations');
+                    Artisan::call('package:seed ' . $moduleName);
+                    $module = Module::find($moduleName);
                     $module->enable();
                     return redirect()->back()->with('success', __('Module Enable Successfully!'));
                 } else {
@@ -225,10 +229,28 @@ class ModuleController extends Controller
 
     public function Check_Parent_Module($module)
     {
-        $path = $module->getPath() . '/module.json';
-        $json = json_decode(file_get_contents($path), true);
         $data['status'] = true;
         $data['msg'] = '';
+        if (empty($module)) {
+            $data['status'] = false;
+            $data['msg'] = __('Invalid module request.');
+            return $data;
+        }
+
+        $path = rtrim($module->getPath(), '/\\') . '/module.json';
+        if (!is_file($path)) {
+            $data['status'] = false;
+            $data['msg'] = __('module.json is missing for :module.', ['module' => $module->getName()]);
+            Log::warning("module.json missing while checking parent for {$module->getName()} at {$path}.");
+            return $data;
+        }
+
+        $json = json_decode(file_get_contents($path), true);
+        if (!is_array($json)) {
+            $data['status'] = false;
+            $data['msg'] = __('module.json is invalid for :module.', ['module' => $module->getName()]);
+            return $data;
+        }
 
         if (isset($json['parent_module']) && !empty($json['parent_module'])) {
             foreach ($json['parent_module'] as $key => $value) {
@@ -237,7 +259,10 @@ class ModuleController extends Controller
                 if ($parent_module == true) {
                     $module = Module::find($value);
                     if ($module) {
-                        $this->Check_Parent_Module($module);
+                        $parentCheck = $this->Check_Parent_Module($module);
+                        if (($parentCheck['status'] ?? false) !== true) {
+                            return $parentCheck;
+                        }
                     }
                 } else {
                     $data['status'] = false;
@@ -252,9 +277,22 @@ class ModuleController extends Controller
     }
     public function Check_Child_Module($module)
     {
-        $path = $module->getPath() . '/module.json';
+        if (empty($module)) {
+            return true;
+        }
+
+        $path = rtrim($module->getPath(), '/\\') . '/module.json';
+        if (!is_file($path)) {
+            Log::warning("module.json missing while checking child for {$module->getName()} at {$path}.");
+            return true;
+        }
+
         $json = json_decode(file_get_contents($path), true);
-        $status = true;
+        if (!is_array($json)) {
+            Log::warning("module.json invalid while checking child for {$module->getName()}.");
+            return true;
+        }
+
         if (isset($json['child_module']) && !empty($json['child_module'])) {
             foreach ($json['child_module'] as $key => $value) {
                 $child_module = module_is_active($value);

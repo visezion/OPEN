@@ -8,8 +8,61 @@
     {{ __('Troubleshoot') }}
 @endsection
 
+@push('css')
+    <style>
+        .troubleshoot-page .card {
+            border: 1px solid #d8e2ef;
+            border-radius: 14px;
+            box-shadow: none !important;
+            background: #ffffff;
+        }
+
+        .troubleshoot-page .card-header {
+            border-bottom: 1px solid #d8e2ef;
+            background: #ffffff;
+            padding: 14px 18px;
+        }
+
+        .troubleshoot-page .card-body {
+            padding: 18px;
+        }
+
+        .troubleshoot-page .status-block {
+            border: 1px solid #e3ebf7;
+            border-radius: 10px;
+            padding: 12px 14px;
+            background: #fbfdff;
+        }
+
+        .troubleshoot-page .section-divider {
+            border-top: 1px solid #d8e2ef;
+            margin: 18px 0;
+        }
+
+        .troubleshoot-page .list-group-item {
+            border-color: #e3ebf7 !important;
+            padding: 12px 14px;
+        }
+
+        .troubleshoot-page .log-tail {
+            max-height: 260px;
+            overflow: auto;
+            background: #f8fbff;
+            color: #1f3a62;
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            padding: .85rem;
+            margin: 0;
+        }
+
+        .troubleshoot-page .top-actions {
+            flex-wrap: wrap;
+        }
+    </style>
+@endpush
+
 @section('page-action')
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 top-actions">
         <form action="{{ route('superadmin.troubleshoot.storage-link') }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
@@ -37,9 +90,9 @@
 @endsection
 
 @section('content')
-    <div class="row">
+    <div class="row troubleshoot-page g-3">
         
-        <div class="col-12 mt-3">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">{{ __('Seeder Helpers') }}</h5>
@@ -69,7 +122,7 @@
                             </button>
                         </form>
                     </div>
-                    <hr/>
+                    <hr class="section-divider"/>
                     <div class="alert alert-warning mb-3">
                         <strong>{{ __('Danger:') }}</strong>
                         {{ __('This will drop all tables, re-run every migration (including package migrations), and seed all package seeders.') }}
@@ -98,7 +151,7 @@
                     @endif
 
                     <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center justify-content-between status-block">
                             <div>
                                 <div class="fw-semibold">{{ __('Public storage link') }}</div>
                                 <div class="text-muted small">{{ $publicStorage }}</div>
@@ -112,7 +165,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center justify-content-between status-block">
                             <div>
                                 <div class="fw-semibold">{{ __('Storage public path') }}</div>
                                 <div class="text-muted small">{{ $storagePublic }}</div>
@@ -133,7 +186,7 @@
                         </button>
                     </form>
 
-                    <hr/>
+                    <hr class="section-divider"/>
                     <div class="d-flex gap-2">
                         <form action="{{ route('superadmin.troubleshoot.cache-clear') }}" method="POST">
                             @csrf
@@ -154,7 +207,7 @@
 
 
         <div class="col-xl-4">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header">
                     <h5 class="mb-0">{{ __('Diagnostics') }}</h5>
                 </div>
@@ -220,9 +273,9 @@
                     </div>
 
                     @if(!empty($logTail))
-                        <hr/>
+                        <hr class="section-divider"/>
                         <div class="small text-muted mb-1">{{ __('Last 100 log lines') }}</div>
-                        <pre class="small" style="max-height:240px;overflow:auto;background:#0f172a;color:#e5e7eb;padding:.75rem;border-radius:.5rem;">{{ $logTail }}</pre>
+                        <pre class="small log-tail">{{ $logTail }}</pre>
                     @endif
                 </div>
             </div>

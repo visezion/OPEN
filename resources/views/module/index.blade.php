@@ -142,6 +142,7 @@
             @endif
             <h2>{{ __('Installed Add-on') }}</h2>
             @foreach ($modules as $module)
+                @continue(empty($module->name))
                 @php
                     $id = strtolower(preg_replace('/\s+/', '_', $module->name));
                 @endphp

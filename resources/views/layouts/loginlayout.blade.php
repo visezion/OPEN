@@ -106,6 +106,7 @@
     @if ($rtl != 'on' && (isset($company_settings['cust_darklayout']) ? $company_settings['cust_darklayout'] : 'off') != 'on')
         <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
     @endif
+    <link rel="stylesheet" href="{{ asset('css/ui-clean.css') }}">
 
     <style>
         .navbar-brand .auth-navbar-brand {
@@ -114,7 +115,7 @@
     </style>
 </head>
 
-<body class="{{ $themeColor }}">
+<body class="{{ $themeColor }} ui-border-clean">
     <div class="custom-login">
         <div class="login-bg-img">
             {{-- <img src="{{ asset('images/'.$themeColor.'.svg') }}" class="login-bg-1"> --}}

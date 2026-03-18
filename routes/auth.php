@@ -17,6 +17,7 @@ Route::middleware('guest')->group(function () {
 
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('auth/captcha-refresh', [AuthenticatedSessionController::class, 'refreshCaptcha'])->name('login.captcha.refresh');
 
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])

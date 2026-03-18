@@ -41,3 +41,354 @@ body .custom-login .dash-header .drp-language .drp-text{
     margin-left: 0 !important;
 
 }
+
+body.faith-login-page .custom-login {
+    background: #0e1320;
+}
+
+body.faith-login-page .custom-login .bg-login {
+    background: #121a2a;
+}
+
+body.faith-login-page .custom-login .navbar {
+    border: 1px solid #5f5539;
+    box-shadow: none;
+}
+
+.custom-login .faith-side-panel {
+    background: #141b2c;
+    border-color: #ceb878;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+}
+
+.custom-login .faith-side-panel::before {
+    border-color: #5f5539;
+}
+
+.custom-login .faith-side-tag {
+    border-color: #ceb878;
+    background: #ceb878;
+    color: #172034;
+}
+
+.custom-login .faith-side-panel h2 {
+    color: #f0e2bf;
+}
+
+.custom-login .faith-side-text {
+    color: #c5cede;
+}
+
+.custom-login .faith-side-verse {
+    border-color: #5f5539;
+    background: #101621;
+    color: #d8dfec;
+}
+
+.custom-login .faith-side-points span {
+    border-color: #ceb878;
+    background: #101621;
+    color: #f0e2bf;
+}
+
+.custom-login .faith-orb {
+    border-color: #5f5539;
+}
+
+.custom-login .faith-symbol {
+    color: #ceb878;
+}
+
+.custom-login .auth-login-card .auth-login-card-body {
+    border-color: #706542;
+    background: #171d28;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+}
+
+.custom-login .faith-connection {
+    background: #101621;
+    border-color: #706542;
+}
+
+.custom-login .faith-cross {
+    border-color: #ceb878;
+    color: #ceb878;
+}
+
+.custom-login .faith-connection-copy h2,
+.custom-login .faith-connection-copy p {
+    color: #f0e2bf;
+}
+
+.custom-login .faith-connection-copy small {
+    color: #bbc4d4;
+}
+
+.custom-login .auth-login-intro {
+    border-bottom-color: #5f5539;
+}
+
+.custom-login .auth-login-chip {
+    border-color: #ceb878;
+    background: #ceb878;
+    color: #172034;
+}
+
+.custom-login .auth-login-copy,
+.custom-login .auth-login-remember,
+.custom-login .auth-login-register {
+    color: #b7c0d2;
+}
+
+.custom-login .auth-login-form .form-label {
+    color: #d8dfec;
+}
+
+.custom-login .auth-login-form .auth-input {
+    background: #0f1521;
+    border-color: #4b556c;
+    color: #f1f4fa;
+}
+
+.custom-login .auth-login-form .auth-input::placeholder {
+    color: #8f99ad;
+}
+
+.custom-login .auth-login-form .auth-input:focus {
+    border-color: #ceb878;
+    box-shadow: 0 0 0 0.15rem rgba(206, 184, 120, 0.25);
+}
+
+.custom-login .auth-input-icon {
+    color: #c2cada;
+}
+
+.custom-login .auth-login-actions,
+.custom-login .auth-login-divider::before,
+.custom-login .auth-login-register {
+    border-color: #5f5539;
+}
+
+.custom-login .auth-login-forgot {
+    color: #f0e2bf;
+}
+
+.custom-login .auth-login-submit {
+    border-color: #ceb878;
+    background: #ceb878;
+    color: #172034;
+}
+
+.custom-login .auth-login-submit:hover,
+.custom-login .auth-login-submit:focus {
+    border-color: #b39d64;
+    background: #b39d64;
+}
+
+.custom-login .auth-login-divider span {
+    background: #171d28;
+    color: #bbc4d4;
+}
+
+.custom-login .auth-login-register a {
+    color: #f0e2bf !important;
+}
+
+/* DMS faith-aligned login redesign (dark mode) */
+body.dms-faith-login {
+    --dms-bg: #ffffff;
+    --dms-panel: #ffffff;
+    --dms-panel-soft: #f7f9fc;
+    --dms-panel-white: #ffffff;
+    --dms-line: #d8e0eb;
+    --dms-line-strong: var(--superadmin-primary, var(--bs-primary, #0d6efd));
+    --dms-ink: #1f2f45;
+    --dms-muted: #637188;
+    --dms-accent: var(--superadmin-primary, var(--bs-primary, #0d6efd));
+    --dms-accent-hover: var(--superadmin-primary, var(--bs-primary, #0d6efd));
+    --dms-gold: var(--superadmin-primary, var(--bs-primary, #0d6efd));
+}
+
+body.dms-faith-login .custom-login {
+    background: var(--dms-bg);
+    color: var(--dms-ink);
+}
+
+body.dms-faith-login .custom-login .navbar {
+    background: var(--dms-panel-white);
+    border-color: var(--dms-line);
+    box-shadow: none !important;
+}
+
+body.dms-faith-login .custom-login .navbar::after {
+    border-bottom-color: #e5eaf2;
+}
+
+body.dms-faith-login .custom-login .navbar .nav-link,
+body.dms-faith-login .custom-login .drp-language .drp-text,
+body.dms-faith-login .custom-login .drp-language a span {
+    color: var(--dms-ink) !important;
+}
+
+body.dms-faith-login .custom-login .dropdown-toggle::after,
+body.dms-faith-login .custom-login .navbar .navbar-toggler-icon {
+    filter: none;
+}
+
+body.dms-faith-login .custom-login .drp-language .btn {
+    background: var(--dms-panel-soft);
+    border-color: var(--dms-line);
+}
+
+body.dms-faith-login .custom-login .dropdown-menu {
+    background: var(--dms-panel-white);
+    border-color: var(--dms-line);
+}
+
+body.dms-faith-login .custom-login .dropdown-item {
+    color: var(--dms-ink);
+}
+
+body.dms-faith-login .custom-login .dropdown-item:hover,
+body.dms-faith-login .custom-login .dropdown-item:focus {
+    background: #f5f8fc;
+}
+
+body.dms-faith-login .dms-faith-hero {
+    background: var(--dms-panel);
+    border-color: var(--dms-line);
+}
+
+body.dms-faith-login .dms-hero-gradient {
+    background: #ffffff;
+}
+
+body.dms-faith-login .dms-scene-grid {
+    background-image:
+        linear-gradient(to right, rgba(31, 47, 69, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(31, 47, 69, 0.06) 1px, transparent 1px);
+}
+
+body.dms-faith-login .dms-hero-map {
+    border-color: #e1e7f0;
+    background: #ffffff;
+}
+
+body.dms-faith-login .dms-radar-ring {
+    border-color: rgba(73, 94, 124, 0.25);
+}
+
+body.dms-faith-login .dms-flow-line {
+    stroke: var(--dms-accent);
+}
+
+body.dms-faith-login .dms-node {
+    border-color: #d8e0eb;
+    background: #ffffff;
+    color: #2f3f58;
+}
+
+body.dms-faith-login .dms-core {
+    border-color: #d8e0eb;
+    background: #ffffff;
+}
+
+body.dms-faith-login .dms-core h3 {
+    color: var(--dms-ink);
+}
+
+body.dms-faith-login .dms-core p,
+body.dms-faith-login .dms-hero-copy p,
+body.dms-faith-login .dms-card-copy,
+body.dms-faith-login .dms-label,
+body.dms-faith-login .dms-remember,
+body.dms-faith-login .dms-register,
+body.dms-faith-login .dms-note,
+body.dms-faith-login .auth-footer {
+    color: var(--dms-muted);
+}
+
+body.dms-faith-login .dms-hero-copy,
+body.dms-faith-login .dms-card-head,
+body.dms-faith-login .dms-login-actions,
+body.dms-faith-login .dms-register {
+    border-color: #e5eaf2;
+}
+
+body.dms-faith-login .dms-hero-label,
+body.dms-faith-login .dms-forgot,
+body.dms-faith-login .dms-register a {
+    color: var(--dms-accent) !important;
+}
+
+body.dms-faith-login .dms-hero-copy h2,
+body.dms-faith-login .dms-card-head h2,
+body.dms-faith-login .dms-card-icon {
+    color: var(--dms-ink);
+}
+
+body.dms-faith-login .dms-faith-card {
+    border-color: var(--dms-line);
+    background: var(--dms-panel-white);
+}
+
+body.dms-faith-login .dms-card-icon {
+    border-color: var(--dms-line);
+    background: var(--dms-panel-soft);
+}
+
+body.dms-faith-login .dms-error {
+    border-color: #cf7676;
+    background: #fff1f1;
+    color: #8a2020;
+}
+
+body.dms-faith-login .dms-field-icon,
+body.dms-faith-login .dms-toggle-pass {
+    color: #637188;
+}
+
+body.dms-faith-login .dms-toggle-pass:hover,
+body.dms-faith-login .dms-toggle-pass:focus {
+    background: #eef3fa;
+    color: #284a74;
+}
+
+body.dms-faith-login .dms-login-input {
+    background: #ffffff;
+    border-color: #c9d5e6;
+    color: var(--dms-ink);
+}
+
+body.dms-faith-login .dms-login-input::placeholder {
+    color: #8b97ab;
+}
+
+body.dms-faith-login .dms-login-input:focus {
+    border-color: var(--dms-accent);
+    box-shadow: 0 0 0 0.14rem color-mix(in srgb, var(--dms-accent) 22%, transparent);
+}
+
+body.dms-faith-login .dms-remember .form-check-input {
+    border-color: #9eaec4;
+    background-color: #ffffff;
+}
+
+body.dms-faith-login .dms-remember .form-check-input:checked {
+    border-color: var(--dms-accent);
+    background-color: var(--dms-accent);
+}
+
+body.dms-faith-login .dms-submit-btn {
+    border-color: var(--dms-accent);
+    background: var(--dms-accent);
+    color: #ffffff;
+}
+
+body.dms-faith-login .dms-submit-btn:hover,
+body.dms-faith-login .dms-submit-btn:focus {
+    border-color: var(--dms-accent-hover);
+    background: var(--dms-accent-hover);
+    color: #ffffff;
+    filter: brightness(0.95);
+}

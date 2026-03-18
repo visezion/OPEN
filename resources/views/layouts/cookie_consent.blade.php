@@ -86,7 +86,7 @@
 
                 onChange: function(cookie, changed_preferences) {},
                 onAccept: function(cookie) {
-                    if (!getCookie('workdo_dash_cookie_status'))
+                    if (!getCookie('site_cookie_status'))
                     {
                         var cookie = cookie.level;
                         $.ajax({
@@ -96,7 +96,7 @@
                                 cookie: cookie,
                             },
                         })
-                        setCookie('workdo_dash_cookie_status', '1', 182, '/');
+                        setCookie('site_cookie_status', '1', 182, '/');
                     }
                 },
 

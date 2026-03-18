@@ -14,8 +14,9 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link rel="stylesheet" href="{{ asset('css/ui-clean.css') }}">
     </head>
-    <body class="font-sans text-gray-900 antialiased">
+    <body class="font-sans text-gray-900 antialiased ui-border-clean">
         @php
             $workspaceParam = $workspace ?? null;
             $workspaceForLayout = $workspaceParam ?? \App\Models\WorkSpace::find(getActiveWorkSpace());

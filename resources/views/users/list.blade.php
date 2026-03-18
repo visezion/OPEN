@@ -19,6 +19,64 @@
 @endsection
 @push('css')
     @include('layouts.includes.datatable-css')
+    <style>
+        .users-list-wrap {
+            row-gap: 18px;
+        }
+
+        .users-list-wrap .card {
+            background: #ffffff;
+            border: 1px solid #d8e2ef;
+            border-radius: 14px;
+            box-shadow: none !important;
+            filter: none !important;
+        }
+
+        .users-list-wrap .users-filter-card .card-body {
+            padding: 18px;
+        }
+
+        .users-list-wrap .users-filter-card .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            color: #5f7696;
+            margin-bottom: 8px;
+        }
+
+        .users-list-wrap .users-filter-card .form-control,
+        .users-list-wrap .users-filter-card .select2-selection {
+            border: 1px solid #cfd9e8;
+            border-radius: 10px;
+            background: #ffffff;
+            min-height: 42px;
+        }
+
+        .users-list-wrap .table-border-style {
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .users-list-wrap table.dataTable thead th {
+            border-bottom: 1px solid #dfe8f3 !important;
+            color: #60789a;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            background: #f8faff;
+        }
+
+        .users-list-wrap table.dataTable tbody td {
+            border-bottom: 1px solid #edf2f9 !important;
+            color: #1f3a62;
+            vertical-align: middle;
+        }
+
+        .users-list-wrap table.dataTable tbody tr:last-child td {
+            border-bottom: 0 !important;
+        }
+    </style>
 @endpush
 @section('page-action')
 <div class="d-flex">
@@ -49,10 +107,10 @@
 @endsection
 @section('content')
     <!-- [ Main Content ] start -->
-        <div class="row">
+        <div class="row users-list-wrap">
             @if (\Auth::user()->type != 'super admin')
                 <div class="" id="multiCollapseExample1">
-                    <div class="card">
+                    <div class="card users-filter-card">
                         <div class="card-body">
                             {{ Form::open(['route' => ['users.index'], 'method' => 'GET', 'id' => 'user_submit']) }}
                             <div class="row d-flex align-items-center justify-content-end">
@@ -72,6 +130,7 @@
                                 <div class="col-xl-2 col-lg-3 col-md-6 col-sm-12 col-12 mr-2">
                                     <div class="btn-box">
                                         {{ Form::label('role', __('Role'), ['class' => 'form-label']) }}
+                                        {{ Form::select('role', $roles, isset($_GET['role']) ? $_GET['role'] : '', ['class' => 'form-control select text-capitalize', 'placeholder' => __('All')]) }}
                                        </div>
                                 </div>
                                 <div class="col-auto float-end mt-4 d-flex">

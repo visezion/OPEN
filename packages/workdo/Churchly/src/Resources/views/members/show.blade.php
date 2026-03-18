@@ -2,6 +2,31 @@
 
 @section('page-title', __("$member->name Profile"))
 
+@push('css')
+<style>
+    .members-details-page .card,
+    .members-details-page .table-responsive,
+    .members-details-page .p-4.bg-light.rounded.shadow-sm,
+    .members-details-page .d-flex.align-items-center.p-2.border.rounded.shadow-sm,
+    .members-details-page #church-tree,
+    .members-details-page #family-tree {
+        border: 1px solid #d8e2ef !important;
+    }
+
+    .members-details-page .card {
+        border-radius: 12px;
+    }
+
+    .members-details-page .nav-tabs .nav-link {
+        border: 1px solid #d8e2ef;
+        margin-right: 6px;
+    }
+
+    .members-details-page .nav-tabs .nav-link.active {
+        border-color: #d8e2ef #d8e2ef #ffffff;
+    }
+</style>
+@endpush
 
 @section('page-action')
     <a href="{{ route('members.edit', Crypt::encrypt($member->id)) }}" class="btn btn-sm btn-primary">
@@ -10,7 +35,7 @@
 @endsection
 
 @section('content')
-<div class="row">
+<div class="row members-details-page">
     <div class="col-lg-12">
         <!-- Profile Header -->
         <div class="card shadow-sm border-0 mb-4">
