@@ -39,29 +39,30 @@
             background: #ffffff;
             color: #10233f;
             font-family: "Overpass", sans-serif;
-            padding: 130px 0 174px;
+            padding: 138px 0 210px;
         }
 
         .faith-landing .container {
-            max-width: 1440px;
+            max-width: 1700px;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 32px;
         }
 
         .faith-landing-hero {
             display: grid;
             grid-template-columns: 1.02fr 0.98fr;
-            border: 1px solid var(--faith-border);
+            border: 0px solid var(--faith-border);
             border-radius: 22px;
             overflow: hidden;
             background: #fff;
-            box-shadow: 0 26px 48px -36px rgba(18, 45, 83, 0.35);
+            min-height: 690px;
+             box-shadow: 0 18px 36px -32px rgba(22, 55, 98, 0.45);
         }
 
         .faith-hero-copy {
-            padding: 52px 50px;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-            border-right: 1px solid var(--faith-border);
+            padding: 72px 64px;
+           
+           
         }
 
         .faith-eyebrow {
@@ -85,26 +86,26 @@
 
         .faith-hero-copy h1 {
             margin: 0;
-            font-size: clamp(1.9rem, 2.65vw, 2.8rem);
+            font-size: clamp(2.15rem, 3vw, 3.4rem);
             line-height: 1.2;
             color: var(--faith-primary-ink);
             font-weight: 800;
-            max-width: 660px;
+            max-width: 760px;
         }
 
         .faith-hero-copy p {
-            margin: 18px 0 0;
+            margin: 22px 0 0;
             color: var(--faith-muted);
-            font-size: 1rem;
+            font-size: 1.08rem;
             line-height: 1.72;
-            max-width: 590px;
+            max-width: 690px;
         }
 
         .faith-hero-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 28px;
+            margin-top: 34px;
         }
 
         .faith-btn {
@@ -146,14 +147,14 @@
         }
 
         .faith-hero-note {
-            margin-top: 18px;
-            font-size: 0.9rem;
+            margin-top: 22px;
+            font-size: 0.98rem;
             color: #6981a1;
         }
 
         .faith-hero-map {
             position: relative;
-            min-height: 460px;
+            min-height: 590px;
             background: #f8fbff;
             overflow: hidden;
         }
@@ -172,8 +173,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 210px;
-            height: 210px;
+            width: 246px;
+            height: 246px;
             border-radius: 50%;
             border: 1px solid rgba(20, 83, 136, 0.24);
             background: #fff;
@@ -196,7 +197,7 @@
         .faith-core h3 {
             margin: 8px 0 4px;
             color: var(--faith-primary);
-            font-size: 2.1rem;
+            font-size: 2.65rem;
             line-height: 1.05;
             font-weight: 800;
         }
@@ -210,13 +211,13 @@
 
         .faith-node {
             position: absolute;
-            padding: 9px 14px;
+            padding: 11px 16px;
             background: #fff;
             border: 1px solid #d8e3f1;
             border-radius: 12px;
             box-shadow: 0 14px 30px -24px rgba(15, 40, 77, 0.45);
             color: #395578;
-            font-size: 0.86rem;
+            font-size: 0.93rem;
             font-weight: 700;
             z-index: 2;
             white-space: nowrap;
@@ -244,29 +245,29 @@
             position: absolute;
             border-radius: 999px;
             border: 1px dashed rgba(71, 103, 145, 0.34);
-            inset: 66px 90px;
+            inset: 62px 84px;
             animation: spinSlow 20s linear infinite;
         }
 
         .faith-ring.r2 {
-            inset: 106px 130px;
+            inset: 110px 132px;
             animation-direction: reverse;
             animation-duration: 16s;
         }
 
         .faith-kpis {
-            margin-top: 20px;
+            margin-top: 28px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 13px;
+            gap: 16px;
         }
 
         .faith-kpi {
             border: 1px solid var(--faith-border);
             border-radius: 14px;
-            padding: 14px 16px;
+            padding: 20px 22px;
             background: #fff;
-            min-height: 102px;
+            min-height: 132px;
             box-shadow: 0 12px 24px -26px rgba(20, 48, 86, 0.42);
         }
 
@@ -286,7 +287,7 @@
         }
 
         .faith-section-title {
-            margin: 48px 0 16px;
+            margin: 62px 0 22px;
             font-size: 1.45rem;
             color: var(--faith-primary-ink);
             font-weight: 800;
@@ -295,15 +296,15 @@
         .faith-feature-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 16px;
+            gap: 20px;
         }
 
         .faith-feature-card {
             border: 1px solid var(--faith-border);
             border-radius: 16px;
-            padding: 21px 19px;
+            padding: 24px 22px;
             background: #fff;
-            min-height: 176px;
+            min-height: 206px;
             transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
         }
 
@@ -337,11 +338,11 @@
         }
 
         .faith-bottom-cta {
-            margin-top: 42px;
+            margin-top: 58px;
             border-radius: 18px;
             border: 1px solid var(--faith-border);
             background: linear-gradient(132deg, #f5f9ff 0%, #ffffff 78%);
-            padding: 30px 26px;
+            padding: 38px 34px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -394,10 +395,15 @@
         @media (max-width: 1100px) {
             .faith-landing-hero {
                 grid-template-columns: 1fr;
+                min-height: unset;
             }
             .faith-hero-copy {
                 border-right: 0;
                 border-bottom: 1px solid var(--faith-border);
+                padding: 52px 34px;
+            }
+            .faith-hero-map {
+                min-height: 500px;
             }
             .faith-kpis {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -409,7 +415,7 @@
 
         @media (max-width: 767px) {
             .faith-landing {
-                padding: 46px 0 56px;
+                padding: 58px 0 82px;
             }
             .faith-hero-copy {
                 padding: 32px 22px;
@@ -442,6 +448,12 @@
             }
             .faith-feature-card {
                 min-height: unset;
+            }
+            .faith-kpi {
+                min-height: 112px;
+            }
+            .faith-bottom-cta {
+                padding: 28px 20px;
             }
         }
     </style>
@@ -483,7 +495,6 @@
                     </div>
                 </div>
             </section>
-<br><br>
             <section class="faith-kpis">
                 <article class="faith-kpi">
                     <strong>{{ __('One Workspace') }}</strong>

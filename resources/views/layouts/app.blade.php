@@ -12,7 +12,22 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @php
+            $viteManifestPath = public_path('build/manifest.json');
+            $viteHotPath = public_path('hot');
+            $legacyCssPath = public_path('css/app.css');
+            $legacyJsPath = public_path('js/app.js');
+        @endphp
+        @if (file_exists($viteManifestPath) || file_exists($viteHotPath))
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @else
+            @if (file_exists($legacyCssPath))
+                <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+            @endif
+            @if (file_exists($legacyJsPath))
+                <script src="{{ asset('js/app.js') }}" defer></script>
+            @endif
+        @endif
         <link rel="stylesheet" href="{{ asset('css/ui-clean.css') }}">
     </head>
     <body class="font-sans antialiased ui-border-clean">
