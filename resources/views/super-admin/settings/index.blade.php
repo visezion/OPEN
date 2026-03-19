@@ -458,6 +458,56 @@
      {{ Form::close() }}
  </div>
 
+ <!--App environment settings-->
+ <div class="card" id="app-environment-sidenav">
+     <div class="card-header p-3">
+         <h5 class="small-title">{{ __('App Environment') }}</h5>
+         <small class="text-secondary">
+             {{ __('Switch application mode and debug visibility without manually editing the .env file.') }}
+         </small>
+     </div>
+     {{ Form::open(['route' => ['super.admin.app.environment.save'], 'method' => 'post', 'id' => 'setting-app-environment-form']) }}
+     <div class="card-body p-3 pb-0">
+         <div class="row">
+             <div class="col-md-6">
+                 <div class="form-group">
+                     <label class="form-label" for="app_environment">{{ __('Application Mode') }}</label>
+                     <select class="form-control" name="app_environment" id="app_environment">
+                         <option value="local" {{ strtolower((string) ($appEnvCurrent ?? 'production')) === 'local' ? 'selected' : '' }}>
+                             {{ __('Local (Development)') }}
+                         </option>
+                         <option value="production" {{ strtolower((string) ($appEnvCurrent ?? 'production')) === 'production' ? 'selected' : '' }}>
+                             {{ __('Production') }}
+                         </option>
+                     </select>
+                 </div>
+             </div>
+             <div class="col-md-6">
+                 <div class="form-group">
+                     <label class="form-label d-block">{{ __('Debug Mode') }}</label>
+                     <div class="form-check form-switch custom-switch-v1">
+                         <input type="checkbox" name="app_debug" class="form-check-input input-primary" id="app_debug"
+                             {{ !empty($appDebugCurrent) ? 'checked' : '' }}>
+                         <label class="form-check-label" for="app_debug">{{ __('Enable APP_DEBUG') }}</label>
+                     </div>
+                 </div>
+             </div>
+             <div class="col-12">
+                 <div class="alert alert-warning mb-0">
+                     <strong>{{ __('Current') }}:</strong>
+                     {{ __('Mode') }} {{ strtoupper((string) ($appEnvCurrent ?? 'PRODUCTION')) }} |
+                     {{ __('Debug') }} {{ !empty($appDebugCurrent) ? 'ON' : 'OFF' }}.
+                     {{ __('Use debug only for troubleshooting and disable it in production after use.') }}
+                 </div>
+             </div>
+         </div>
+     </div>
+     <div class="card-footer text-end p-3">
+         <input class="btn btn-print-invoice btn-primary" type="submit" value="{{ __('Save Changes') }}">
+     </div>
+     {{ Form::close() }}
+ </div>
+
  <!--currency settings-->
  <div class="card" id="currency-settings">
      <div class="card-header p-3">

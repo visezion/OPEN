@@ -94,6 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('company/settings-save', [CompanySettingsController::class, 'store'])->name('company.settings.save');
     Route::post('super-admin/settings-save', [SuperAdminSettingsController::class, 'store'])->name('super.admin.settings.save');
     Route::post('super-admin/system-settings-save', [SuperAdminSettingsController::class, 'SystemStore'])->name('super.admin.system.setting.store');
+    Route::post('super-admin/app-environment-save', [SuperAdminSettingsController::class, 'saveAppEnvironment'])->name('super.admin.app.environment.save');
     Route::post('company/system-settings-save', [CompanySettingsController::class, 'SystemStore'])->name('company.system.setting.store');
     Route::post('company-setting-save', [CompanySettingsController::class, 'companySettingStore'])->name('company.setting.save');
     Route::post('comapny-currency-settings', [CompanySettingsController::class, 'saveCompanyCurrencySettings'])->name('company.setting.currency.settings');

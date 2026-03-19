@@ -15,6 +15,6 @@ class SmsGatewaySetting extends Model
 
     public function workspace()
     {
-        return $this->belongsTo(\App\Models\Workspace::class);
+        return $this->belongsTo(\App\Models\WorkSpace::class);
     }
 }

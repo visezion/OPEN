@@ -4,7 +4,7 @@ namespace Workdo\Churchly\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Workspace; // or your actual model
+use App\Models\WorkSpace;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -28,7 +28,7 @@ class ChurchMemberSelfServiceController extends Controller
             abort(404, 'Invalid church workspace');
         }
 
-        $workspaceModel = Workspace::find($workspaceId);
+        $workspaceModel = WorkSpace::find($workspaceId);
         if (! $workspaceModel) {
             abort(404, 'Invalid church workspace');
         }
@@ -47,7 +47,7 @@ class ChurchMemberSelfServiceController extends Controller
     {
         $workspaceId = ChurchHelper::getWorkspaceIdBySlug($workspace);
         $workspaceSlug = $request->route('workspace'); // 'cce' from route
-        $workspace = Workspace::where('slug', $workspaceSlug)->first();
+        $workspace = WorkSpace::where('slug', $workspaceSlug)->first();
         $memberId = ChurchMember::generateMemberId();
         if (!$workspace) {
             abort(404, 'Invalid workspace');

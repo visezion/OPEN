@@ -14,7 +14,7 @@ use Workdo\Churchly\Entities\ChurchFeedback;
 use Workdo\Churchly\Entities\ChurchBranch;
 use Workdo\Churchly\Entities\ChurchDepartment;
 use Workdo\Churchly\Entities\ChurchMember;
-use App\Models\Workspace;
+use App\Models\WorkSpace;
 use Illuminate\Support\Str;
 use Workdo\Churchly\Helpers\ChurchHelper;
 
@@ -342,7 +342,7 @@ class ChurchFeedbackController extends Controller
         $branches = ChurchBranch::all();
         $departments = ChurchDepartment::all();
 
-        $workspace = Workspace::where('slug', $workspaceSlug)
+        $workspace = WorkSpace::where('slug', $workspaceSlug)
             ->orWhere('domain', $workspaceSlug)
             ->orWhere('subdomain', $workspaceSlug)
             ->firstOrFail();
@@ -372,7 +372,7 @@ class ChurchFeedbackController extends Controller
             $validated['attachment'] = $request->file('attachment')->store('feedback_attachments','public');
         }
 
-        $workspace = Workspace::where('slug', $workspaceSlug)
+        $workspace = WorkSpace::where('slug', $workspaceSlug)
             ->orWhere('domain', $workspaceSlug)
             ->orWhere('subdomain', $workspaceSlug)
             ->firstOrFail();

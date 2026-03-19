@@ -36,6 +36,17 @@ class SuperAdminSettingMenuListener
             'permission' => 'setting manage'
         ]);
         $menu->add([
+            'title' => __('App Environment'),
+            'name' => 'app-environment-settings',
+            'order' => 22,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => '',
+            'navigation' => 'app-environment-sidenav',
+            'module' => $module,
+            'permission' => 'setting manage'
+        ]);
+        $menu->add([
             'title' => __('Currency Settings'),
             'name' => 'currency-settings',
             'order' => 25,

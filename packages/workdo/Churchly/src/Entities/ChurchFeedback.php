@@ -56,7 +56,7 @@ class ChurchFeedback extends Model
      */
     public function workspace()
     {
-        return $this->belongsTo(\App\Models\Workspace::class, 'workspace_id');
+        return $this->belongsTo(\App\Models\WorkSpace::class, 'workspace_id');
     }
 
     /**

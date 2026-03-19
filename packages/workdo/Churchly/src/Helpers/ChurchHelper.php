@@ -2,23 +2,23 @@
 
 namespace Workdo\Churchly\Helpers;
 
-use App\Models\Workspace;
+use App\Models\WorkSpace;
 
 class ChurchHelper
 {
     public static function getWorkspaceIdBySlug($slug)
     {
-        return Workspace::where('slug', $slug)->value('id');
+        return WorkSpace::where('slug', $slug)->value('id');
     }
 
     public static function getWorkspaceCreator($workspaceId)
     {
-        return Workspace::find($workspaceId)?->created_by ?? 1;
+        return WorkSpace::find($workspaceId)?->created_by ?? 1;
     }
 
     public static function getDefaultWorkSpace()
     {
-        return auth()->check() ? auth()->user()->workspace_id : Workspace::first()?->id;
+        return auth()->check() ? auth()->user()->workspace_id : WorkSpace::first()?->id;
     }
 
     public static function getActiveWorkSpaceSlug()
@@ -28,7 +28,7 @@ class ChurchHelper
             return $workspace ? $workspace->slug : null;
         }
 
-        return Workspace::first()?->slug;
+        return WorkSpace::first()?->slug;
     }
 
     public static function getWorkspaceByCreator()
@@ -39,7 +39,7 @@ class ChurchHelper
 
         $userId = auth()->id();
         $creatorId = \App\Models\User::find($userId)->active_workspace;
-        $workspace = \App\Models\Workspace::where('id', $creatorId)->first();
+        $workspace = \App\Models\WorkSpace::where('id', $creatorId)->first();
 
         if (!$workspace) {
             return null;

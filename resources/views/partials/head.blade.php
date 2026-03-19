@@ -57,6 +57,12 @@
             --color-customColor: <?= $color ?>;
         }
 
+        body,
+        .dash-container,
+        .dash-content {
+            background: #ffffff !important;
+        }
+
         .dash-header {
             border-bottom: 1px solid #d8e2ef !important;
             box-shadow: none !important;
@@ -65,6 +71,7 @@
         .dash-sidebar {
             border-right: 1px solid #d8e2ef !important;
             box-shadow: none !important;
+            background: #ffffff !important;
         }
 
         [dir="rtl"] .dash-sidebar {
@@ -101,7 +108,7 @@
             flex: 1 1 auto !important;
             min-width: 0 !important;
             line-height: 1.2 !important;
-            color: #1f3a62 !important;
+            color: #000000 !important;
         }
 
         body:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link,
@@ -160,6 +167,14 @@
         .superadmin-page .dash-sidebar.light-sidebar .dash-submenu {
             box-shadow: none !important;
             border: 1px solid #d8e2ef !important;
+        }
+
+        .dash-sidebar .dash-link,
+        .dash-sidebar .dash-link .dash-mtext,
+        .dash-sidebar .dash-link .dash-arrow,
+        .dash-sidebar .dash-caption label,
+        .dash-sidebar .dash-caption span:not(.badge) {
+            color: #000000 !important;
         }
 
         .superadmin-page .card-header {

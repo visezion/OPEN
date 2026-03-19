@@ -7,7 +7,9 @@ use App\Models\ApikeySetiings;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
@@ -19,10 +21,20 @@ class SettingsController extends Controller
     {
         $file_type = config('files_types');
         $timezones = config('timezones');
+        $appEnvCurrent = strtoupper((string) config('app.env', env('APP_ENV', 'production')));
+        $appDebugCurrent = (bool) config('app.debug', filter_var(env('APP_DEBUG', false), FILTER_VALIDATE_BOOLEAN));
 
         $ai_key_settings = ApikeySetiings::get();
         $models = getAiModelName();
-        return view('super-admin.settings.index', compact('settings', 'file_type', 'timezones', 'ai_key_settings','models'));
+        return view('super-admin.settings.index', compact(
+            'settings',
+            'file_type',
+            'timezones',
+            'ai_key_settings',
+            'models',
+            'appEnvCurrent',
+            'appDebugCurrent'
+        ));
     }
 
     /**
@@ -541,5 +553,83 @@ class SettingsController extends Controller
             . number_format($price, $format, $decimal_separator, $thousand_separator) . (isset($currency_space) && $currency_space == 'withspace' ? ' ' : '') .
             (($symbol_position == "post") ?  $symbol : '');
         return response()->json(['success' => true,'formatted_price' => $formatted_price]);
+    }
+
+    public function saveAppEnvironment(Request $request)
+    {
+        if (!Auth::check() || Auth::user()->type !== 'super admin' || !Auth::user()->isAbleTo('setting manage')) {
+            return redirect()->back()->with('error', __('Permission denied.'));
+        }
+
+        $validated = $request->validate([
+            'app_environment' => 'required|in:local,production',
+        ]);
+
+        $envPath = base_path('.env');
+        if (!File::exists($envPath)) {
+            return redirect()->back()->with('error', __('Unable to update environment: .env file is missing.'));
+        }
+
+        if (!is_writable($envPath)) {
+            return redirect()->back()->with('error', __('Unable to update environment: .env file is not writable.'));
+        }
+
+        $appEnv = strtolower((string) $validated['app_environment']);
+        $appDebug = $request->boolean('app_debug') ? 'true' : 'false';
+
+        try {
+            $this->updateEnvKeys([
+                'APP_ENV' => $appEnv,
+                'APP_DEBUG' => $appDebug,
+            ]);
+
+            Artisan::call('optimize:clear');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', __('Failed to update environment settings: :message', ['message' => $e->getMessage()]));
+        }
+
+        return redirect()->back()->with('success', __('Environment updated successfully. Mode: :env | Debug: :debug', [
+            'env' => strtoupper($appEnv),
+            'debug' => strtoupper($appDebug),
+        ]));
+    }
+
+    private function updateEnvKeys(array $values): void
+    {
+        $path = base_path('.env');
+        $content = File::get($path);
+
+        foreach ($values as $key => $value) {
+            $prepared = $this->formatEnvValue($value);
+            $newLine = $key . '=' . $prepared;
+            $pattern = '/^' . preg_quote($key, '/') . '\s*=.*$/m';
+
+            if (preg_match($pattern, $content)) {
+                $content = preg_replace($pattern, $newLine, $content);
+            } else {
+                $content = rtrim($content) . PHP_EOL . $newLine . PHP_EOL;
+            }
+        }
+
+        File::put($path, $content);
+    }
+
+    private function formatEnvValue($value): string
+    {
+        $value = (string) $value;
+
+        if ($value === 'true' || $value === 'false' || is_numeric($value)) {
+            return $value;
+        }
+
+        if ($value === '') {
+            return '""';
+        }
+
+        if (preg_match('/\s/', $value)) {
+            return '"' . str_replace('"', '\"', $value) . '"';
+        }
+
+        return $value;
     }
 }
