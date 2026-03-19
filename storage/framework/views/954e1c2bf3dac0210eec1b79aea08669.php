@@ -1,4 +1,4 @@
-@php
+<?php
     $userprice = !empty($plan) ? $plan->price_per_user_monthly : 0;
     $userpriceyearly = !empty($plan) ? $plan->price_per_user_yearly : 0;
 
@@ -9,12 +9,13 @@
     $currancy_symbol = admin_setting('defult_currancy_symbol');
     $admin_settings = getAdminAllSetting();
     $currency_setting = json_encode(Arr::only(getAdminAllSetting(), ['site_currency_symbol_position','currency_format','currency_space','site_currency_symbol_name','defult_currancy_symbol','defult_currancy','float_number','decimal_separator','thousand_separator']));
-@endphp
-@extends($layout)
-@section('page-title')
-    {{ __('Pricing') }}
-@endsection
-@section('content')
+?>
+
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Pricing')); ?>
+
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
     <!-- wrapper start -->
     <div class="wrapper pricing-advanced">
         <style>
@@ -157,22 +158,22 @@
                     <div class="col-lg-9 col-md-7 col-12">
                         <div class="common-banner-content">
                             <div class="section-title text-center">
-                                <h1><b>{{ __('Simple Pricing') }}</b></h1>
-                                <p>{{ __('Choose extensions that best match your business needs') }}</p>
+                                <h1><b><?php echo e(__('Simple Pricing')); ?></b></h1>
+                                <p><?php echo e(__('Choose extensions that best match your business needs')); ?></p>
                             </div>
                             <div class="pricing-switch">
                                 <label class="switch ">
-                                    <span class="lbl time-monthly active">{{ __('Monthly') }}</span>
+                                    <span class="lbl time-monthly active"><?php echo e(__('Monthly')); ?></span>
                                     <input type="checkbox" name="time-period" class="switch-change">
                                     <span class="slider round"></span>
-                                    <span class="lbl time-yearly">{{ __('Yearly') }}</span>
+                                    <span class="lbl time-yearly"><?php echo e(__('Yearly')); ?></span>
                                 </label>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-5 col-12">
                         <div class="banner-image">
-                            <img src="{{ asset('market_assets/images/dash-banner-image.png') }}" alt="">
+                            <img src="<?php echo e(asset('market_assets/images/dash-banner-image.png')); ?>" alt="">
                             <div class="ripple-icon position-top">
                                 <div class="pulse0"></div>
                                 <div class="pulse1"></div>
@@ -192,103 +193,104 @@
                             <div class="package-card">
                                 <div class="package-card-inner">
                                     <div class="package-itm">
-                                        <img src="{{ !empty(admin_setting('favicon')) && check_file(admin_setting('favicon')) ? get_file(admin_setting('favicon')) : get_file('uploads/logo/favicon.png') }}{{ '?' . time() }}"
+                                        <img src="<?php echo e(!empty(admin_setting('favicon')) && check_file(admin_setting('favicon')) ? get_file(admin_setting('favicon')) : get_file('uploads/logo/favicon.png')); ?><?php echo e('?' . time()); ?>"
                                             alt="">
                                     </div>
                                     <div class="package-content flex-grow-1  px-3">
-                                        <h4>{{ __('Basic Package') }}</h4>
-                                        <div class="text-muted">{{ __('+' . count($modules) . ' Premium Add-on') }}</div>
+                                        <h4><?php echo e(__('Basic Package')); ?></h4>
+                                        <div class="text-muted"><?php echo e(__('+' . count($modules) . ' Premium Add-on')); ?></div>
                                     </div>
                                     <div class="price text-end">
                                         <ins
-                                            class="plan-price-text">{{ super_currency_format_with_sym($planprice) }}</ins>
-                                        <span class="time-lbl text-muted plan-time-text">{{ __('/Month') }}</span>
+                                            class="plan-price-text"><?php echo e(super_currency_format_with_sym($planprice)); ?></ins>
+                                        <span class="time-lbl text-muted plan-time-text"><?php echo e(__('/Month')); ?></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="pricing-live-meta">
                             <div class="live-meta-item">
-                                <span class="meta-label">{{ __('Billing') }}</span>
-                                <span class="meta-value time_period_input_label">{{ __('Monthly') }}</span>
+                                <span class="meta-label"><?php echo e(__('Billing')); ?></span>
+                                <span class="meta-value time_period_input_label"><?php echo e(__('Monthly')); ?></span>
                             </div>
                             <div class="live-meta-item">
-                                <span class="meta-label">{{ __('Extension') }}</span>
+                                <span class="meta-label"><?php echo e(__('Extension')); ?></span>
                                 <span class="meta-value module_counter_text">0</span>
                             </div>
                             <div class="live-meta-item">
-                                <span class="meta-label">{{ __('Users') }}</span>
+                                <span class="meta-label"><?php echo e(__('Users')); ?></span>
                                 <span class="meta-value user_counter_text">0</span>
                             </div>
                             <div class="live-meta-item">
-                                <span class="meta-label">{{ __('WorkSpace') }}</span>
+                                <span class="meta-label"><?php echo e(__('WorkSpace')); ?></span>
                                 <span class="meta-value workspace_counter_text">0</span>
                             </div>
                         </div>
                         <div class="product-selection">
                             <div class="row product-row">
-                                @if (count($modules) > 0)
-                                    @foreach ($modules as $key => $module)
-                                        @if (!isset($module->display) || $module->display == true)
+                                <?php if(count($modules) > 0): ?>
+                                    <?php $__currentLoopData = $modules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $module): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(!isset($module->display) || $module->display == true): ?>
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 product-card user_module">
                                                 <div class="product-card-inner">
                                                     <div class="product-img">
                                                         <div class="theme-avtar">
                                                             <a
-                                                                href="{{ route('software.details', $module->alias) }}">
-                                                                <img src="{{ $module->image }}"
-                                                                    alt="{{ $module->name }}" class="img-user">
+                                                                href="<?php echo e(route('software.details', $module->alias)); ?>">
+                                                                <img src="<?php echo e($module->image); ?>"
+                                                                    alt="<?php echo e($module->name); ?>" class="img-user">
                                                         </div>
                                                         </a>
                                                         <div class="checkbox-custom">
-                                                            <input type="checkbox" id="{{ 'checkbox-' . $key }}"
+                                                            <input type="checkbox" id="<?php echo e('checkbox-' . $key); ?>"
                                                                 class="form-check-input pointer user_module_check"
-                                                                data-module-img="{{ $module->image }}"
-                                                                data-module-price-monthly="{{ ModulePriceByName($module->name)['monthly_price'] }}"
-                                                                data-module-price-yearly="{{ ModulePriceByName($module->name)['yearly_price'] }}"
-                                                                data-module-alias="{{ $module->alias }}"
-                                                                value="{{ $module->name }}">
-                                                            <label for="{{ 'checkbox-' . $key }}"></label>
+                                                                data-module-img="<?php echo e($module->image); ?>"
+                                                                data-module-price-monthly="<?php echo e(ModulePriceByName($module->name)['monthly_price']); ?>"
+                                                                data-module-price-yearly="<?php echo e(ModulePriceByName($module->name)['yearly_price']); ?>"
+                                                                data-module-alias="<?php echo e($module->alias); ?>"
+                                                                value="<?php echo e($module->name); ?>">
+                                                            <label for="<?php echo e('checkbox-' . $key); ?>"></label>
                                                         </div>
                                                     </div>
                                                     <div class="product-content">
-                                                        <div class="lbl">{{ __('Statistics') }}</div>
-                                                        <h4> {{ $module->alias }}</h4>
+                                                        <div class="lbl"><?php echo e(__('Statistics')); ?></div>
+                                                        <h4> <?php echo e($module->alias); ?></h4>
                                                         <p class="text-muted text-sm mb-0">
-                                                            {{ $module->description ?? '' }}
+                                                            <?php echo e($module->description ?? ''); ?>
+
                                                         </p>
                                                         <div class="price d-flex justify-content-between">
                                                             <ins class="m-price-monthly"><span
-                                                                    class="currency-type">{{ super_currency_format_with_sym(ModulePriceByName($module->name)['monthly_price']) }}</span>
+                                                                    class="currency-type"><?php echo e(super_currency_format_with_sym(ModulePriceByName($module->name)['monthly_price'])); ?></span>
                                                                 <span
-                                                                    class="time-lbl text-muted">{{ __('/Month') }}</span></ins>
+                                                                    class="time-lbl text-muted"><?php echo e(__('/Month')); ?></span></ins>
                                                             <ins class="m-price-yearly d-none"><span
-                                                                    class="currency-type">{{ super_currency_format_with_sym(ModulePriceByName($module->name)['yearly_price']) }}</span>
+                                                                    class="currency-type"><?php echo e(super_currency_format_with_sym(ModulePriceByName($module->name)['yearly_price'])); ?></span>
                                                                 <span
-                                                                    class="time-lbl text-muted">{{ __('/Year') }}</span></ins>
+                                                                    class="time-lbl text-muted"><?php echo e(__('/Year')); ?></span></ins>
                                                         </div>
-                                                        <a href="{{ route('software.details', $module->alias) }}"
+                                                        <a href="<?php echo e(route('software.details', $module->alias)); ?>"
                                                             target="_new"
-                                                            class="btn  btn-outline-secondary w-100 mt-2">{{ __('View Details') }}</a>
+                                                            class="btn  btn-outline-secondary w-100 mt-2"><?php echo e(__('View Details')); ?></a>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endif
-                                    @endforeach
-                                @else
+                                        <?php endif; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php else: ?>
                                     <div class="col-lg-12 col-md-12">
                                         <div class="card p-5">
                                             <div class="d-flex justify-content-center">
                                                 <div class="ms-3 text-center">
-                                                    <h3>{{ __('Modules Not Available') }}</h3>
-                                                    <p class="text-muted">{{ __('Click ') }}<a
-                                                            href="{{ url('/') }}">{{ __('here') }}</a>
-                                                        {{ __('to back home') }}</p>
+                                                    <h3><?php echo e(__('Modules Not Available')); ?></h3>
+                                                    <p class="text-muted"><?php echo e(__('Click ')); ?><a
+                                                            href="<?php echo e(url('/')); ?>"><?php echo e(__('here')); ?></a>
+                                                        <?php echo e(__('to back home')); ?></p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
                             </div>
 
                         </div>
@@ -297,7 +299,7 @@
                     <div class="col-lg-5 col-xl-3 col-12 module-summary-col">
                         <div class="cart-summery">
                             <div class="summery-header">
-                                <h5>{{ __('Basic Package') }}</h5>
+                                <h5><?php echo e(__('Basic Package')); ?></h5>
                             </div>
                             <ul>
                                 <li>
@@ -309,7 +311,7 @@
                                             <path
                                                 d="M6 4.5H1.866a1 1 0 1 0 0 1h2.668A6.517 6.517 0 0 0 1.814 9H2.5c.123 0 .244.015.358.043a5.517 5.517 0 0 1 3.185-3.185A1.503 1.503 0 0 1 6 5.5v-1zm3.957 1.358A1.5 1.5 0 0 0 10 5.5v-1h4.134a1 1 0 1 1 0 1h-2.668a6.517 6.517 0 0 1 2.72 3.5H13.5c-.123 0-.243.015-.358.043a5.517 5.517 0 0 0-3.185-3.185z"
                                                 fill="#002333" />
-                                        </svg>{{ __('workspace ') }}:</span>
+                                        </svg><?php echo e(__('workspace ')); ?>:</span>
                                     <span class="cart-sum-right workspace_counter_text">0</span>
                                 </li>
                                 <li>
@@ -318,7 +320,7 @@
                                             <path
                                                 d="M9.00903 11.25C11.353 11.25 13.259 9.343 13.259 7C13.259 4.657 11.353 2.75 9.00903 2.75C6.66503 2.75 4.75903 4.657 4.75903 7C4.75903 9.343 6.66503 11.25 9.00903 11.25ZM9.00903 4.25C10.526 4.25 11.759 5.483 11.759 7C11.759 8.517 10.526 9.75 9.00903 9.75C7.49203 9.75 6.25903 8.517 6.25903 7C6.25903 5.483 7.49203 4.25 9.00903 4.25ZM16.75 18.519V21.5C16.75 21.914 16.414 22.25 16 22.25C15.586 22.25 15.25 21.914 15.25 21.5V18.519C15.25 17.518 14.943 14.25 11 14.25H7C3.057 14.25 2.75 17.517 2.75 18.519V21.5C2.75 21.914 2.414 22.25 2 22.25C1.586 22.25 1.25 21.914 1.25 21.5V18.519C1.25 15.858 2.756 12.75 7 12.75H11C15.244 12.75 16.75 15.857 16.75 18.519ZM14.155 10.7159C13.859 10.4259 13.8529 9.95103 14.1429 9.65503C14.4339 9.35903 14.909 9.35504 15.204 9.64404C15.563 9.99604 16.045 10.1899 16.559 10.1899C17.664 10.1899 18.53 9.32497 18.53 8.21997C18.53 7.13397 17.646 6.25 16.559 6.25C16.251 6.25 15.9731 6.31301 15.7321 6.43701C15.3651 6.62801 14.912 6.48104 14.722 6.11304C14.532 5.74504 14.678 5.29303 15.046 5.10303C15.502 4.86903 16.011 4.75 16.559 4.75C18.473 4.75 20.03 6.30697 20.03 8.21997C20.03 10.133 18.473 11.6899 16.559 11.6899C15.65 11.6899 14.797 11.3439 14.155 10.7159ZM22.75 17.1801V19.5C22.75 19.914 22.414 20.25 22 20.25C21.586 20.25 21.25 19.914 21.25 19.5V17.1801C21.25 16.4411 21.023 14.03 18.11 14.03H16.599C16.185 14.03 15.849 13.694 15.849 13.28C15.849 12.866 16.185 12.53 16.599 12.53H18.11C21.535 12.53 22.75 15.0351 22.75 17.1801Z"
                                                 fill="#002333"></path>
-                                        </svg>{{ __('Users ') }}:</span>
+                                        </svg><?php echo e(__('Users ')); ?>:</span>
                                     <span class="cart-sum-right user_counter_text">0</span>
                                 </li>
                                 <li class="set has-children">
@@ -328,7 +330,7 @@
                                                 <path
                                                     d="M21 14.75H19.75V10.25H21C21.414 10.25 21.75 9.914 21.75 9.5C21.75 9.086 21.414 8.75 21 8.75H19.75V8.5C19.75 6.082 18.418 4.75 16 4.75H15.75V3.5C15.75 3.086 15.414 2.75 15 2.75C14.586 2.75 14.25 3.086 14.25 3.5V4.75H9.75V3.5C9.75 3.086 9.414 2.75 9 2.75C8.586 2.75 8.25 3.086 8.25 3.5V4.75H8C5.582 4.75 4.25 6.082 4.25 8.5V8.75H3C2.586 8.75 2.25 9.086 2.25 9.5C2.25 9.914 2.586 10.25 3 10.25H4.25V14.75H3C2.586 14.75 2.25 15.086 2.25 15.5C2.25 15.914 2.586 16.25 3 16.25H4.25V16.5C4.25 18.918 5.582 20.25 8 20.25H8.25V21.5C8.25 21.914 8.586 22.25 9 22.25C9.414 22.25 9.75 21.914 9.75 21.5V20.25H14.25V21.5C14.25 21.914 14.586 22.25 15 22.25C15.414 22.25 15.75 21.914 15.75 21.5V20.25H16C18.418 20.25 19.75 18.918 19.75 16.5V16.25H21C21.414 16.25 21.75 15.914 21.75 15.5C21.75 15.086 21.414 14.75 21 14.75ZM18.25 16.5C18.25 18.077 17.577 18.75 16 18.75H8C6.423 18.75 5.75 18.077 5.75 16.5V8.5C5.75 6.923 6.423 6.25 8 6.25H16C17.577 6.25 18.25 6.923 18.25 8.5V16.5ZM14 8.25H10C8.591 8.25 7.75 9.091 7.75 10.5V14.5C7.75 15.909 8.591 16.75 10 16.75H14C15.409 16.75 16.25 15.909 16.25 14.5V10.5C16.25 9.091 15.409 8.25 14 8.25ZM14.75 14.5C14.75 15.089 14.589 15.25 14 15.25H10C9.411 15.25 9.25 15.089 9.25 14.5V10.5C9.25 9.911 9.411 9.75 10 9.75H14C14.589 9.75 14.75 9.911 14.75 10.5V14.5Z"
                                                     fill="#002333"></path>
-                                            </svg>{{ __('Extension') }}:</span>
+                                            </svg><?php echo e(__('Extension')); ?>:</span>
                                         <span class="cart-sum-right module_counter_text">0</span>
                                     </a>
                                     <div class="acnav-list">
@@ -340,7 +342,7 @@
                             </ul>
                             <div class="summery-footer">
                                 <div class="user-qty">
-                                    <div class="lbl"> {{ __('Choose Workspace') }}:</div>
+                                    <div class="lbl"> <?php echo e(__('Choose Workspace')); ?>:</div>
                                     <div class="qty-spinner">
                                         <button type="button" class="quantity-decrement" data-name = "workspace">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -364,7 +366,7 @@
                                     </div>
                                 </div>
                                 <div class="user-qty">
-                                    <div class="lbl"> {{ __('Choose Users') }}:</div>
+                                    <div class="lbl"> <?php echo e(__('Choose Users')); ?>:</div>
                                     <div class="qty-spinner">
                                         <button type="button" class="quantity-decrement" data-name = "user">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -391,46 +393,46 @@
 
                                     <li>
                                         <span class="cart-sum-left">
-                                            <h6 class="mb-0">{{ __('Basic Package') }}</h6>
+                                            <h6 class="mb-0"><?php echo e(__('Basic Package')); ?></h6>
                                         </span>
                                         <span class="cart-sum-right"><b
-                                                class="planpricetext">{{ $planprice > 0 ? super_currency_format_with_sym($planprice) : 'Free' }}</b></span>
+                                                class="planpricetext"><?php echo e($planprice > 0 ? super_currency_format_with_sym($planprice) : 'Free'); ?></b></span>
                                     </li>
                                     <li>
                                         <span class="cart-sum-left">
-                                            <h6 class="mb-0">{{ __('Workspace') }} <small
-                                                    class="text-muted workspace-price">{{ '( '. __('Per Workspace') . super_currency_format_with_sym(0) . ' )' }}</small>
+                                            <h6 class="mb-0"><?php echo e(__('Workspace')); ?> <small
+                                                    class="text-muted workspace-price"><?php echo e('( '. __('Per Workspace') . super_currency_format_with_sym(0) . ' )'); ?></small>
                                             </h6>
                                         </span>
                                         <span class="cart-sum-right"><b
-                                                class="workspacepricetext">{{ super_currency_format_with_sym(0) }}</b></span>
+                                                class="workspacepricetext"><?php echo e(super_currency_format_with_sym(0)); ?></b></span>
                                     </li>
                                     <li>
                                         <span class="cart-sum-left">
-                                            <h6 class="mb-0">{{ __('Users') }} <small
-                                                    class="text-muted user-price">{{ '( ' . __('Per User') . super_currency_format_with_sym($userprice) . ' )' }}</small>
+                                            <h6 class="mb-0"><?php echo e(__('Users')); ?> <small
+                                                    class="text-muted user-price"><?php echo e('( ' . __('Per User') . super_currency_format_with_sym($userprice) . ' )'); ?></small>
                                             </h6>
                                         </span>
                                         <span class="cart-sum-right"><b
-                                                class="userpricetext">{{ super_currency_format_with_sym(0) }}</b></span>
+                                                class="userpricetext"><?php echo e(super_currency_format_with_sym(0)); ?></b></span>
                                     </li>
                                     <li>
                                         <span class="cart-sum-left">
-                                            <h6 class="mb-0">{{ __('Extension') }}:</h6>
+                                            <h6 class="mb-0"><?php echo e(__('Extension')); ?>:</h6>
                                         </span>
                                         <span class="cart-sum-right"><b
-                                                class="module_price_text">{{ super_currency_format_with_sym(0) }}</b></span>
+                                                class="module_price_text"><?php echo e(super_currency_format_with_sym(0)); ?></b></span>
                                     </li>
                                 </ul>
                                 <div class="cart-footer-total-row d-flex align-items-center justify-content-between">
                                     <div class="mini-total-price">
                                         <div class="price">
                                             <ins><span
-                                                    class="currency-type total">{{ super_currency_format_with_sym(0) }}</span></ins>
-                                            <span class="time-lbl plan-time-text">{{ __('/Month') }}</span>
+                                                    class="currency-type total"><?php echo e(super_currency_format_with_sym(0)); ?></span></ins>
+                                            <span class="time-lbl plan-time-text"><?php echo e(__('/Month')); ?></span>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_token" id="token" value="<?php echo e(csrf_token()); ?>">
                                     <input type="hidden" name="user_counter_input" value="0"
                                         class="user_counter_input">
                                     <input type="hidden" name="workspace_counter_input" value="0"
@@ -443,10 +445,10 @@
                                     <input type="hidden" name="user_module_price_input" value="0"
                                         class="user_module_price_input">
                                     <input type="hidden" name="time_period" value="Month" class="time_period_input">
-                                    @if($admin_settings['signup'] == 'on')
+                                    <?php if($admin_settings['signup'] == 'on'): ?>
                                         <button type="button"
-                                            class="btn btn-dark user-register-btn">{{ __('Buy Now') }}</button>
-                                    @endif
+                                            class="btn btn-dark user-register-btn"><?php echo e(__('Buy Now')); ?></button>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="cart-reset text-center">
                                     <a href="#" onclick="location.reload();" class="reset-btn"><svg
@@ -455,7 +457,7 @@
                                             <path
                                                 d="M6 0.625C3.036 0.625 0.625 3.0365 0.625 6C0.625 8.9635 3.036 11.375 6 11.375C8.964 11.375 11.375 8.9635 11.375 6C11.375 3.0365 8.964 0.625 6 0.625ZM6 10.625C3.4495 10.625 1.375 8.5505 1.375 6C1.375 3.4495 3.4495 1.375 6 1.375C8.5505 1.375 10.625 3.4495 10.625 6C10.625 8.5505 8.5505 10.625 6 10.625ZM7.765 4.76501L6.53 6L7.765 7.23499C7.9115 7.38149 7.9115 7.619 7.765 7.7655C7.692 7.8385 7.596 7.87549 7.5 7.87549C7.404 7.87549 7.308 7.839 7.235 7.7655L6 6.53049L4.765 7.7655C4.692 7.8385 4.596 7.87549 4.5 7.87549C4.404 7.87549 4.308 7.839 4.235 7.7655C4.0885 7.619 4.0885 7.38149 4.235 7.23499L5.47 6L4.235 4.76501C4.0885 4.61851 4.0885 4.381 4.235 4.2345C4.3815 4.088 4.619 4.088 4.7655 4.2345L6.0005 5.46951L7.2355 4.2345C7.382 4.088 7.61951 4.088 7.76601 4.2345C7.91151 4.381 7.9115 4.61901 7.765 4.76501Z"
                                                 fill="#737373" />
-                                        </svg>{{ __('Reset') }}</a>
+                                        </svg><?php echo e(__('Reset')); ?></a>
                                 </div>
                             </div>
                         </div>
@@ -478,15 +480,18 @@
                                     </svg>
                                 </div>
                                 <div class="subtitle">
-                                    {{ __('SOLID FOUNDATION') }}
+                                    <?php echo e(__('SOLID FOUNDATION')); ?>
+
                                 </div>
-                                <h2>{{ __('A style theme, together with a dedicated Laravel backend') }}
-                                    <b>{{ __('and an intuitive mobile app') }}</b></h2>
+                                <h2><?php echo e(__('A style theme, together with a dedicated Laravel backend')); ?>
+
+                                    <b><?php echo e(__('and an intuitive mobile app')); ?></b></h2>
                             </div>
-                            <p>{{ __('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”') }}
+                            <p><?php echo e(__('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”')); ?>
+
                             </p>
                             <div class="btn-group">
-                                <a href="#" class="btn btn-white">{{ __('Get the Package') }} <svg
+                                <a href="#" class="btn btn-white"><?php echo e(__('Get the Package')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         viewBox="0 0 16 16" fill="none">
                                         <g clip-path="url(#clip0_14_726)">
@@ -501,7 +506,8 @@
                                             </clipPath>
                                         </defs>
                                     </svg></a>
-                                <a href="#" class="link-btn">{{ __('View Live Demo') }}
+                                <a href="#" class="link-btn"><?php echo e(__('View Live Demo')); ?>
+
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                         viewBox="0 0 20 20" fill="none">
                                         <g clip-path="url(#clip0_7_820)">
@@ -535,15 +541,18 @@
                                     </svg>
                                 </div>
                                 <div class="subtitle">
-                                    {{ __('SOLID FOUNDATION') }}
+                                    <?php echo e(__('SOLID FOUNDATION')); ?>
+
                                 </div>
-                                <h2>{{ __('A style theme, together with a dedicated Laravel backend') }}
-                                    <b>{{ __('and an intuitive mobile app') }}</b></h2>
+                                <h2><?php echo e(__('A style theme, together with a dedicated Laravel backend')); ?>
+
+                                    <b><?php echo e(__('and an intuitive mobile app')); ?></b></h2>
                             </div>
-                            <p>{{ __('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”') }}
+                            <p><?php echo e(__('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”')); ?>
+
                             </p>
                             <div class="btn-group">
-                                <a href="#" class="btn btn-white">{{ __('Get the Package') }} <svg
+                                <a href="#" class="btn btn-white"><?php echo e(__('Get the Package')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         viewBox="0 0 16 16" fill="none">
                                         <g clip-path="url(#clip0_14_726)">
@@ -558,7 +567,7 @@
                                             </clipPath>
                                         </defs>
                                     </svg></a>
-                                <a href="#" class="link-btn">{{ __('View Live Demo') }} <svg
+                                <a href="#" class="link-btn"><?php echo e(__('View Live Demo')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                         viewBox="0 0 20 20" fill="none">
                                         <g clip-path="url(#clip0_7_820)">
@@ -592,15 +601,18 @@
                                     </svg>
                                 </div>
                                 <div class="subtitle">
-                                    {{ __('SOLID FOUNDATION') }}
+                                    <?php echo e(__('SOLID FOUNDATION')); ?>
+
                                 </div>
-                                <h2>{{ __('A style theme, together with a dedicated Laravel backend') }}
-                                    <b>{{ __('and an intuitive mobile app') }}</b></h2>
+                                <h2><?php echo e(__('A style theme, together with a dedicated Laravel backend')); ?>
+
+                                    <b><?php echo e(__('and an intuitive mobile app')); ?></b></h2>
                             </div>
-                            <p>{{ __('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”') }}
+                            <p><?php echo e(__('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”')); ?>
+
                             </p>
                             <div class="btn-group">
-                                <a href="#" class="btn btn-white">{{ __('Get the Package') }}<svg
+                                <a href="#" class="btn btn-white"><?php echo e(__('Get the Package')); ?><svg
                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         viewBox="0 0 16 16" fill="none">
                                         <g clip-path="url(#clip0_14_726)">
@@ -615,7 +627,7 @@
                                             </clipPath>
                                         </defs>
                                     </svg></a>
-                                <a href="#" class="link-btn">{{ __('View Live Demo') }} <svg
+                                <a href="#" class="link-btn"><?php echo e(__('View Live Demo')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                         viewBox="0 0 20 20" fill="none">
                                         <g clip-path="url(#clip0_7_820)">
@@ -649,15 +661,18 @@
                                     </svg>
                                 </div>
                                 <div class="subtitle">
-                                    {{ __('SOLID FOUNDATION') }}
+                                    <?php echo e(__('SOLID FOUNDATION')); ?>
+
                                 </div>
-                                <h2>{{ __('A style theme, together with a dedicated Laravel backend') }}
-                                    <b>{{ __('and an intuitive mobile app') }}</b></h2>
+                                <h2><?php echo e(__('A style theme, together with a dedicated Laravel backend')); ?>
+
+                                    <b><?php echo e(__('and an intuitive mobile app')); ?></b></h2>
                             </div>
-                            <p>{{ __('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”') }}
+                            <p><?php echo e(__('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”')); ?>
+
                             </p>
                             <div class="btn-group">
-                                <a href="#" class="btn btn-white">{{ __('Get the Package') }} <svg
+                                <a href="#" class="btn btn-white"><?php echo e(__('Get the Package')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         viewBox="0 0 16 16" fill="none">
                                         <g clip-path="url(#clip0_14_726)">
@@ -672,7 +687,7 @@
                                             </clipPath>
                                         </defs>
                                     </svg></a>
-                                <a href="#" class="link-btn">{{ __('View Live Demo') }} <svg
+                                <a href="#" class="link-btn"><?php echo e(__('View Live Demo')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                         viewBox="0 0 20 20" fill="none">
                                         <g clip-path="url(#clip0_7_820)">
@@ -705,15 +720,18 @@
                                     </svg>
                                 </div>
                                 <div class="subtitle">
-                                    {{ __('SOLID FOUNDATION') }}
+                                    <?php echo e(__('SOLID FOUNDATION')); ?>
+
                                 </div>
-                                <h2>{{ __('A style theme, together with a dedicated Laravel backend') }}
-                                    <b>{{ __('and an intuitive mobile app') }}</b></h2>
+                                <h2><?php echo e(__('A style theme, together with a dedicated Laravel backend')); ?>
+
+                                    <b><?php echo e(__('and an intuitive mobile app')); ?></b></h2>
                             </div>
-                            <p>{{ __('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”') }}
+                            <p><?php echo e(__('gives your business an unfair advantage. The package doesn’t just provide you with everything you need to start selling online. It gives you a solid foundation for an eCommerce business for years to come.”')); ?>
+
                             </p>
                             <div class="btn-group">
-                                <a href="#" class="btn btn-white">{{ __('Get the Package') }} <svg
+                                <a href="#" class="btn btn-white"><?php echo e(__('Get the Package')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         viewBox="0 0 16 16" fill="none">
                                         <g clip-path="url(#clip0_14_726)">
@@ -728,7 +746,7 @@
                                             </clipPath>
                                         </defs>
                                     </svg></a>
-                                <a href="#" class="link-btn">{{ __('View Live Demo') }} <svg
+                                <a href="#" class="link-btn"><?php echo e(__('View Live Demo')); ?> <svg
                                         xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                         viewBox="0 0 20 20" fill="none">
                                         <g clip-path="url(#clip0_7_820)">
@@ -759,8 +777,9 @@
         <section class="faq-section padding-top padding-bottom">
             <div class="container">
                 <div class="section-title text-center">
-                    <h2>{{ __('Why Choose a Dedicated Fashion Theme') }} <b>{{ __('for Your Business?') }}</b></h2>
-                    <p>{{ __('With Alligō, you can take care of the entire partner lifecycle - from onboarding through nurturing, cooperating, and rewarding. Find top performers and let go of those who aren’t a good fit.') }}
+                    <h2><?php echo e(__('Why Choose a Dedicated Fashion Theme')); ?> <b><?php echo e(__('for Your Business?')); ?></b></h2>
+                    <p><?php echo e(__('With Alligō, you can take care of the entire partner lifecycle - from onboarding through nurturing, cooperating, and rewarding. Find top performers and let go of those who aren’t a good fit.')); ?>
+
                     </p>
                 </div>
                 <div class="faq-list">
@@ -784,11 +803,12 @@
                                     </defs>
                                 </svg>
                             </span>
-                            <span>{{ __('How do I order?') }}</span>
+                            <span><?php echo e(__('How do I order?')); ?></span>
                         </a>
                         <div class="acnav-list">
                             <p>
-                                {{ __('We’re not always in the position that we want to be at. We’re constantly growing. We’re constantly making mistakes. We’re constantly trying to express ourselves and actualize our dreams. If you have the opportunity to play this game of life you need to appreciate every moment. A lot of people don’t appreciate the moment until it’s passed.') }}
+                                <?php echo e(__('We’re not always in the position that we want to be at. We’re constantly growing. We’re constantly making mistakes. We’re constantly trying to express ourselves and actualize our dreams. If you have the opportunity to play this game of life you need to appreciate every moment. A lot of people don’t appreciate the moment until it’s passed.')); ?>
+
                             </p>
                         </div>
                     </div>
@@ -812,11 +832,12 @@
                                     </defs>
                                 </svg>
                             </span>
-                            <span>{{ __('How do I order?') }}</span>
+                            <span><?php echo e(__('How do I order?')); ?></span>
                         </a>
                         <div class="acnav-list">
                             <p>
-                                {{ __('We’re not always in the position that we want to be at. We’re constantly growing. We’re constantly making mistakes. We’re constantly trying to express ourselves and actualize our dreams. If you have the opportunity to play this game of life you need to appreciate every moment. A lot of people don’t appreciate the moment until it’s passed.') }}
+                                <?php echo e(__('We’re not always in the position that we want to be at. We’re constantly growing. We’re constantly making mistakes. We’re constantly trying to express ourselves and actualize our dreams. If you have the opportunity to play this game of life you need to appreciate every moment. A lot of people don’t appreciate the moment until it’s passed.')); ?>
+
                             </p>
                         </div>
                     </div>
@@ -840,11 +861,12 @@
                                     </defs>
                                 </svg>
                             </span>
-                            <span>{{ __('How do I order?') }}</span>
+                            <span><?php echo e(__('How do I order?')); ?></span>
                         </a>
                         <div class="acnav-list">
                             <p>
-                                {{ __('We’re not always in the position that we want to be at. We’re constantly growing. We’re constantly making mistakes. We’re constantly trying to express ourselves and actualize our dreams. If you have the opportunity to play this game of life you need to appreciate every moment. A lot of people don’t appreciate the moment until it’s passed.') }}
+                                <?php echo e(__('We’re not always in the position that we want to be at. We’re constantly growing. We’re constantly making mistakes. We’re constantly trying to express ourselves and actualize our dreams. If you have the opportunity to play this game of life you need to appreciate every moment. A lot of people don’t appreciate the moment until it’s passed.')); ?>
+
                             </p>
                         </div>
                     </div>
@@ -856,7 +878,7 @@
     <div class="register-popup">
         <div class="register-popup-body">
             <div class="popup-header">
-                <h5>{{ __('Register Form') }}</h5>
+                <h5><?php echo e(__('Register Form')); ?></h5>
                 <div class="close-register">
                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"
                         fill="none">
@@ -866,13 +888,13 @@
                     </svg>
                 </div>
             </div>
-            <form method="POST" action="{{ route('register') }}" id="register-form">
-                @csrf
+            <form method="POST" action="<?php echo e(route('register')); ?>" id="register-form">
+                <?php echo csrf_field(); ?>
                 <div class="popup-content">
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-12">
                             <div class="form-group">
-                                <label class="form-label">{{ __('Name') }}</label>
+                                <label class="form-label"><?php echo e(__('Name')); ?></label>
                                 <input id="name" type="text" placeholder="Enter name" class="form-control"
                                     name="name" value="" required="required" autocomplete="name" autofocus>
                             </div>
@@ -880,62 +902,62 @@
                         <input type="hidden" name = "type" value="pricing" id="type">
                         <div class="col-lg-6 col-md-6 col-12">
                             <div class="form-group">
-                                <label class="form-label">{{ __('WorkSpace Name') }}</label>
-                                <input id="store_name" placeholder="{{ __('Enter ministry workspace') }}" type="text" class="form-control"
+                                <label class="form-label"><?php echo e(__('WorkSpace Name')); ?></label>
+                                <input id="store_name" placeholder="<?php echo e(__('Enter ministry workspace')); ?>" type="text" class="form-control"
                                     name="workspace" value="" required="required">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-12">
                             <div class="form-group">
-                                <label class="form-label">{{ __('Email') }}</label>
+                                <label class="form-label"><?php echo e(__('Email')); ?></label>
                                 <input id="email" placeholder="Enter email" type="email" class="form-control "
                                     name="email" value="" required="required">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-12">
                             <div class="form-group">
-                                <label class="form-label">{{ __('Password') }}</label>
+                                <label class="form-label"><?php echo e(__('Password')); ?></label>
                                 <input id="password" placeholder="Enter password" type="password" class="form-control"
                                     name="password" required="required">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-12">
                             <div class="form-group">
-                                <label class="form-label">{{ __('Confirm password') }}</label>
+                                <label class="form-label"><?php echo e(__('Confirm password')); ?></label>
                                 <input id="password-confirm" placeholder="Enter confirm password" type="password"
                                     class="form-control" name="password_confirmation" required="required">
                                 <small
-                                    class="text-danger password-msg d-none">{{ __('Passwords do not match!') }}</small>
+                                    class="text-danger password-msg d-none"><?php echo e(__('Passwords do not match!')); ?></small>
                             </div>
                         </div>
-                        @stack('recaptcha_field')
+                        <?php echo $__env->yieldPushContent('recaptcha_field'); ?>
                     </div>
                 </div>
                 <div class="popup-footer d-flex align-items-center justify-content-end">
-                    <button type="button" class="btn-danger btn close-register">{{ __('Cancel') }}</button>
-                    <button type="button" class="btn btn-secondary register-form-btn">{{ __('Register') }}</button>
+                    <button type="button" class="btn-danger btn close-register"><?php echo e(__('Cancel')); ?></button>
+                    <button type="button" class="btn btn-secondary register-form-btn"><?php echo e(__('Register')); ?></button>
                 </div>
             </form>
         </div>
     </div>
-@endsection
-@push('scripts')
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
+<?php $__env->stopSection(); ?>
+<?php $__env->startPush('scripts'); ?>
+    <script src="<?php echo e(asset('js/jquery.min.js')); ?>"></script>
     <script>
         $(document).ready(function() {
-            var userprice = '{{ $userprice }}';
-            var planprice = '{{ $planprice }}';
+            var userprice = '<?php echo e($userprice); ?>';
+            var planprice = '<?php echo e($planprice); ?>';
             if ($('.switch-change').prop('checked') == true) {
-                userprice = '{{ $userpriceyearly }}';
-                planprice = '{{ $planpriceyearly }}';
+                userprice = '<?php echo e($userpriceyearly); ?>';
+                planprice = '<?php echo e($planpriceyearly); ?>';
             }
-            $(".time_period_input_label").text($('.switch-change').prop('checked') ? '{{ __('Yearly') }}' : '{{ __('Monthly') }}');
+            $(".time_period_input_label").text($('.switch-change').prop('checked') ? '<?php echo e(__('Yearly')); ?>' : '<?php echo e(__('Monthly')); ?>');
             var user = parseInt($('.user_counter_input').val());
             var userpricetext = userprice * user;
 
-            var currancy_symbol = '{{ $currancy_symbol }}';
+            var currancy_symbol = '<?php echo e($currancy_symbol); ?>';
             var total = parseFloat(userpricetext) + parseFloat(planprice);
-            $(".total").text(formatCurrency(total,'{{ $currency_setting }}'));
+            $(".total").text(formatCurrency(total,'<?php echo e($currency_setting); ?>'));
         });
         $(document).on("click", ".user_module_check", function() {
             $(this).closest(".user_module").toggleClass("active_module", $(this).is(":checked"));
@@ -965,16 +987,16 @@
     </script>
     <script>
         function ChangePrice(user = null, workspace = null, user_module_price = 0) {
-            var userprice = '{{ $userprice }}';
-            var workspaceprice = '{{ $workspaceprice }}';
-            var planprice = '{{ $planprice }}';
+            var userprice = '<?php echo e($userprice); ?>';
+            var workspaceprice = '<?php echo e($workspaceprice); ?>';
+            var planprice = '<?php echo e($planprice); ?>';
             if ($('.switch-change').prop('checked') == true) {
-                userprice = '{{ $userpriceyearly }}';
-                workspaceprice = '{{ $workspacepriceyearly }}';
-                planprice = '{{ $planpriceyearly }}';
+                userprice = '<?php echo e($userpriceyearly); ?>';
+                workspaceprice = '<?php echo e($workspacepriceyearly); ?>';
+                planprice = '<?php echo e($planpriceyearly); ?>';
             }
 
-            var currancy_symbol = '{{ $currancy_symbol }}';
+            var currancy_symbol = '<?php echo e($currancy_symbol); ?>';
             if (user == null) {
                 var user = parseInt($('.user_counter_input').val());
             }
@@ -988,9 +1010,9 @@
             var workspacepricetext = workspaceprice * workspace;
             var total = userpricetext + user_module_price + workspacepricetext + parseFloat(planprice);
 
-            $(".userpricetext").text(formatCurrency(userpricetext,'{{ $currency_setting }}'));
-            $(".workspacepricetext").text(formatCurrency(workspacepricetext,'{{ $currency_setting }}'));
-            $(".total").text(formatCurrency(total,'{{ $currency_setting }}'));
+            $(".userpricetext").text(formatCurrency(userpricetext,'<?php echo e($currency_setting); ?>'));
+            $(".workspacepricetext").text(formatCurrency(workspacepricetext,'<?php echo e($currency_setting); ?>'));
+            $(".total").text(formatCurrency(total,'<?php echo e($currency_setting); ?>'));
             $(".userprice_input").val(userpricetext);
             $(".workspaceprice_input").val(workspacepricetext);
 
@@ -999,7 +1021,7 @@
         function ChangeModulePrice() {
             var user_module_input = new Array();
             var user_module_price = parseFloat(0);
-            var currancy_symbol = '{{ $currancy_symbol }}';
+            var currancy_symbol = '<?php echo e($currancy_symbol); ?>';
             var n = jQuery(".user_module_check:checked").length;
 
             var time = '/Month';
@@ -1027,7 +1049,7 @@
                                         </div>
                                         <div class="ms-2">
                                             <p class="text-muted text-sm mb-0 text-capitalize">` + alias + `</p>
-                                            <h4 class="mb-0 text-primary">` + formatCurrency(price,'{{ $currency_setting }}') +
+                                            <h4 class="mb-0 text-primary">` + formatCurrency(price,'<?php echo e($currency_setting); ?>') +
                         `<span class="text-sm">` + time + `</span></h4>
                                         </div>
                                     </div>
@@ -1037,7 +1059,7 @@
                 });
             }
             $(".module_counter_text").text(n);
-            $(".module_price_text").text(formatCurrency(user_module_price,'{{ $currency_setting }}'));
+            $(".module_price_text").text(formatCurrency(user_module_price,'<?php echo e($currency_setting); ?>'));
             $(".user_module_input").val(user_module_input);
             $(".user_module_price_input").val(user_module_price);
         }
@@ -1097,10 +1119,10 @@
     </script>
     <script>
         $(document).on("click", ".switch-change", function() {
-            var userprice = '{{ $userprice }}';
-            var workspaceprice = '{{ $workspaceprice }}';
-            var planprice = '{{ $planprice }}';
-            var currancy_symbol = '{{ $currancy_symbol }}';
+            var userprice = '<?php echo e($userprice); ?>';
+            var workspaceprice = '<?php echo e($workspaceprice); ?>';
+            var planprice = '<?php echo e($planprice); ?>';
+            var currancy_symbol = '<?php echo e($currancy_symbol); ?>';
             var user = parseInt($('.user_counter_input').val());
             var workspace = parseInt($('.workspace_counter_input').val());
             var time = '/Month';
@@ -1114,14 +1136,14 @@
                 $(".m-price-yearly").removeClass("d-none");
                 $(".m-price-monthly").addClass("d-none");
 
-                userprice = '{{ $userpriceyearly }}';
-                workspaceprice = '{{ $workspacepriceyearly }}';
-                planprice = '{{ $planpriceyearly }}';
+                userprice = '<?php echo e($userpriceyearly); ?>';
+                workspaceprice = '<?php echo e($workspacepriceyearly); ?>';
+                planprice = '<?php echo e($planpriceyearly); ?>';
 
                 time = '/Year';
 
                 $(".time_period_input").val('Year');
-                $(".time_period_input_label").text('{{ __('Yearly') }}');
+                $(".time_period_input_label").text('<?php echo e(__('Yearly')); ?>');
 
             } else {
                 $(".time-yearly").removeClass("active");
@@ -1131,21 +1153,21 @@
                 $(".m-price-yearly").addClass("d-none");
 
                 $(".time_period_input").val('Month');
-                $(".time_period_input_label").text('{{ __('Monthly') }}');
+                $(".time_period_input_label").text('<?php echo e(__('Monthly')); ?>');
 
             }
 
             var userpricetext = userprice * user;
             var workspacepricetext = workspaceprice * workspace;
 
-            $(".plan-price-text").text(formatCurrency(planprice,'{{ $currency_setting }}'));
+            $(".plan-price-text").text(formatCurrency(planprice,'<?php echo e($currency_setting); ?>'));
             $(".plan-time-text").text(time);
 
-            $(".planpricetext").text(formatCurrency(planprice,'{{ $currency_setting }}'));
-            $(".workspace-price").text('( Per Work ' + formatCurrency(workspaceprice,'{{ $currency_setting }}') +')');
-            $(".user-price").text('( {{ __('Per User') }} ' + formatCurrency(userprice,'{{ $currency_setting }}') + ')');
-            $(".userpricetext").text(formatCurrency(userpricetext,'{{ $currency_setting }}'));
-            $(".workspacepricetext").text(formatCurrency(workspacepricetext,'{{ $currency_setting }}'));
+            $(".planpricetext").text(formatCurrency(planprice,'<?php echo e($currency_setting); ?>'));
+            $(".workspace-price").text('( Per Work ' + formatCurrency(workspaceprice,'<?php echo e($currency_setting); ?>') +')');
+            $(".user-price").text('( <?php echo e(__('Per User')); ?> ' + formatCurrency(userprice,'<?php echo e($currency_setting); ?>') + ')');
+            $(".userpricetext").text(formatCurrency(userpricetext,'<?php echo e($currency_setting); ?>'));
+            $(".workspacepricetext").text(formatCurrency(workspacepricetext,'<?php echo e($currency_setting); ?>'));
 
             ChangeModulePrice()
             ChangePrice()
@@ -1160,7 +1182,7 @@
             var user_module = $('.user_module_input').val();
             if(user_module.length == 0)
             {
-                alert('{{ __('Please select at least one ministry add-on.') }}');
+                alert('<?php echo e(__('Please select at least one ministry add-on.')); ?>');
                 return false;
             }
             var userprice = $('.userprice_input').val();
@@ -1177,10 +1199,10 @@
             formData.append("userprice", userprice);
             formData.append("user_module_price", user_module_price);
             formData.append("time_period", time_period);
-            formData.append('_token', "{{ csrf_token() }}");
+            formData.append('_token', "<?php echo e(csrf_token()); ?>");
 
             $.ajax({
-                url: "{{ route('guest.module.selection') }}",
+                url: "<?php echo e(route('guest.module.selection')); ?>",
                 method: "POST",
                 data: formData,
                 dataType: 'json',
@@ -1220,4 +1242,6 @@
             }
         });
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make($layout, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\resources\views/marketplace/pricing.blade.php ENDPATH**/ ?>

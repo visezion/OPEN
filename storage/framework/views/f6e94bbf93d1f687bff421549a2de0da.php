@@ -1,8 +1,8 @@
-@extends($layout)
-@section('page-title')
-    {{ __('Add-on Listing') }}
-@endsection
-@section('content')
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Add-on Listing')); ?>
+
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
     <!-- wrapper start -->
     <div class="wrapper">
         <section class="common-banner-section">
@@ -11,15 +11,16 @@
                     <div class="col-lg-9 col-md-7 col-12">
                         <div class="common-banner-content">
                             <div class="section-title text-center">
-                                <h2>{{ __('All Add-on') }}</h2>
-                                <p>{{ __('Lay a solid foundation for your fashion brand. Grab a high-converting fashion theme powered by a secure backend coupled with an intuitive eCommerce mobile app.') }}
+                                <h2><?php echo e(__('All Add-on')); ?></h2>
+                                <p><?php echo e(__('Lay a solid foundation for your fashion brand. Grab a high-converting fashion theme powered by a secure backend coupled with an intuitive eCommerce mobile app.')); ?>
+
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-5 col-12">
                         <div class="banner-image">
-                            <img src="{{ asset('market_assets/images/dash-banner') }}-image.png" alt="">
+                            <img src="<?php echo e(asset('market_assets/images/dash-banner')); ?>-image.png" alt="">
                             <div class="ripple-icon position-top">
                                 <div class="pulse0"></div>
                                 <div class="pulse1"></div>
@@ -36,9 +37,9 @@
                 <div class="tabs-wrapper">
                     <div class="product-list-search">
                         <div class="product-search">
-                            <form action="{{ route('apps.software') }}">
+                            <form action="<?php echo e(route('apps.software')); ?>">
                                 <div class="input-wrapper">
-                                    <input type="text" name="query" placeholder="{{ __('Search ministry add-on') }}">
+                                    <input type="text" name="query" placeholder="<?php echo e(__('Search ministry add-on')); ?>">
                                     <button type="submit" class="search-btn"><svg xmlns="http://www.w3.org/2000/svg"
                                             width="20" height="20" viewBox="0 0 20 20" fill="none">
                                             <path
@@ -61,56 +62,56 @@
                             <div class="tabs-container">
                                 <div class="tab-content active">
                                     <div class="row product-row">
-                                        @if (count($modules) > 0)
-                                            @foreach ($modules as $module)
-                                                @if (!isset($module->display) || $module->display == true)
+                                        <?php if(count($modules) > 0): ?>
+                                            <?php $__currentLoopData = $modules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $module): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <?php if(!isset($module->display) || $module->display == true): ?>
                                                     <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 product-card">
                                                         <div class="product-card-inner">
                                                             <div class="product-img">
                                                                 <div class="theme-avtar">
                                                                     <a target="_new"
-                                                                        href="{{ route('software.details', $module->alias) }}">
-                                                                        <img src="{{ $module->image }}"
-                                                                            alt="{{ $module->name }}" class="img-user">
+                                                                        href="<?php echo e(route('software.details', $module->alias)); ?>">
+                                                                        <img src="<?php echo e($module->image); ?>"
+                                                                            alt="<?php echo e($module->name); ?>" class="img-user">
                                                                 </div>
                                                             </div>
                                                             <div class="product-content">
-                                                                <div class="lbl">{{ __('Statistics') }}</div>
+                                                                <div class="lbl"><?php echo e(__('Statistics')); ?></div>
                                                                 <h4> <a target="_new"
-                                                                        href="{{ route('software.details', $module->alias) }}">{{ $module->alias }}</a>
+                                                                        href="<?php echo e(route('software.details', $module->alias)); ?>"><?php echo e($module->alias); ?></a>
                                                                 </h4>
                                                                 <div class="price">
                                                                     <ins><span
-                                                                            class="currency-type">{{ super_currency_format_with_sym(ModulePriceByName($module->name)['monthly_price']) }}</span>
+                                                                            class="currency-type"><?php echo e(super_currency_format_with_sym(ModulePriceByName($module->name)['monthly_price'])); ?></span>
                                                                         <span
-                                                                            class="time-lbl text-muted">{{ __('/Month') }}</span></ins>
+                                                                            class="time-lbl text-muted"><?php echo e(__('/Month')); ?></span></ins>
                                                                     <ins><span
-                                                                            class="currency-type">{{ super_currency_format_with_sym(ModulePriceByName($module->name)['yearly_price']) }}</span>
+                                                                            class="currency-type"><?php echo e(super_currency_format_with_sym(ModulePriceByName($module->name)['yearly_price'])); ?></span>
                                                                         <span
-                                                                            class="time-lbl text-muted">{{ __('/Year') }}</span></ins>
+                                                                            class="time-lbl text-muted"><?php echo e(__('/Year')); ?></span></ins>
                                                                 </div>
                                                                 <a target="_new"
-                                                                    href="{{ route('software.details', $module->alias) }}"
-                                                                    class="btn cart-btn">{{ __('View Details') }}</a>
+                                                                    href="<?php echo e(route('software.details', $module->alias)); ?>"
+                                                                    class="btn cart-btn"><?php echo e(__('View Details')); ?></a>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @endif
-                                            @endforeach
-                                        @else
+                                                <?php endif; ?>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <?php else: ?>
                                             <div class="col-lg-12 col-md-12">
                                                 <div class="card p-5">
                                                     <div class="d-flex justify-content-center">
                                                         <div class="ms-3 text-center">
-                                                            <h3>{{ __('Modules Not Available') }}</h3>
-                                                            <p class="text-muted">{{ __('Click ') }}<a
-                                                                    href="{{ url('/') }}">{{ __('here') }}</a>
-                                                                {{ __('to back home') }}</p>
+                                                            <h3><?php echo e(__('Modules Not Available')); ?></h3>
+                                                            <p class="text-muted"><?php echo e(__('Click ')); ?><a
+                                                                    href="<?php echo e(url('/')); ?>"><?php echo e(__('here')); ?></a>
+                                                                <?php echo e(__('to back home')); ?></p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -118,13 +119,17 @@
                     </div>
                 </div>
                 <div class="listing-info padding-top ">
-                    <p>{{ __('An effective fashion theme should be visually appealing and easy to navigate. A good theme makes it easy for customers to find and buy the items they’re interested in. The theme should also be responsive so that it looks good on all devices.') }}
+                    <p><?php echo e(__('An effective fashion theme should be visually appealing and easy to navigate. A good theme makes it easy for customers to find and buy the items they’re interested in. The theme should also be responsive so that it looks good on all devices.')); ?>
+
                     </p>
-                    <p>{{ __('With the Style theme, you get all of the above - and more. The theme gives you everything you need to sell your products and keep your audience coming back for more. Easily customize the theme and adjust its design to your branding needs. Add products, polish product pages, and start growing your online business.') }}
+                    <p><?php echo e(__('With the Style theme, you get all of the above - and more. The theme gives you everything you need to sell your products and keep your audience coming back for more. Easily customize the theme and adjust its design to your branding needs. Add products, polish product pages, and start growing your online business.')); ?>
+
                     </p>
                 </div>
             </div>
         </section>
     </div>
     <!-- wrapper end -->
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\resources\views/marketplace/software.blade.php ENDPATH**/ ?>

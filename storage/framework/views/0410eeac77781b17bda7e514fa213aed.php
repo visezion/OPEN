@@ -1,9 +1,9 @@
-@extends('marketplace.marketplace')
-@section('page-title')
-    {{ __('Welcome') }}
-@endsection
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Welcome')); ?>
 
-@php
+<?php $__env->stopSection(); ?>
+
+<?php
     $admin_settings = getAdminAllSetting();
     $brand_name = !empty($admin_settings['title_text']) ? $admin_settings['title_text'] : config('app.name', 'Platform');
     $brand_name = preg_replace('/\b(workdo|dash)\b/i', '', (string) $brand_name);
@@ -26,12 +26,12 @@
     ];
     $active_theme = strtolower((string) ($admin_settings['color'] ?? 'theme-1'));
     $landing_primary = $theme_palette[$active_theme] ?? '#145388';
-@endphp
+?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <style>
         .faith-landing {
-            --faith-primary: {{ $landing_primary }};
+            --faith-primary: <?php echo e($landing_primary); ?>;
             --faith-primary-ink: #12284a;
             --faith-muted: #5e7392;
             --faith-border: #d6dfec;
@@ -462,106 +462,110 @@
         <div class="container">
             <section class="faith-landing-hero">
                 <div class="faith-hero-copy">
-                    <p class="faith-eyebrow">{{ __('Faith Operations Hub') }}</p>
-                    <h2>{{ __('A unified ministry mission control center for every service team, task, and report.') }}</h2>
-                    <p>{{ __('Built to continue your secure login experience with a clean operational view, trusted structure, and accountability-first workflows.') }}</p>
+                    <p class="faith-eyebrow"><?php echo e(__('Faith Operations Hub')); ?></p>
+                    <h2><?php echo e(__('A unified ministry mission control center for every service team, task, and report.')); ?></h2>
+                    <p><?php echo e(__('Built to continue your secure login experience with a clean operational view, trusted structure, and accountability-first workflows.')); ?></p>
                     <div class="faith-hero-actions">
-                        <a class="faith-btn faith-btn-primary" href="{{ Auth::check() ? route('home') : route('login') }}">
-                            {{ Auth::check() ? __('Open Dashboard') : __('Sign In') }}
+                        <a class="faith-btn faith-btn-primary" href="<?php echo e(Auth::check() ? route('home') : route('login')); ?>">
+                            <?php echo e(Auth::check() ? __('Open Dashboard') : __('Sign In')); ?>
+
                         </a>
-                        @if (empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on')
-                            <a class="faith-btn faith-btn-outline" href="{{ route('register') }}">{{ __('Create Account') }}</a>
-                        @endif
-                        <a class="faith-btn faith-btn-outline" href="{{ route('apps.pricing') }}">{{ __('View Plans') }}</a>
+                        <?php if(empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on'): ?>
+                            <a class="faith-btn faith-btn-outline" href="<?php echo e(route('register')); ?>"><?php echo e(__('Create Account')); ?></a>
+                        <?php endif; ?>
+                        <a class="faith-btn faith-btn-outline" href="<?php echo e(route('apps.pricing')); ?>"><?php echo e(__('View Plans')); ?></a>
                     </div>
-                    <p class="faith-hero-note">{{ __('This app is free and open source, built to help your ministry serve with confidence.') }}</p>
+                    <p class="faith-hero-note"><?php echo e(__('This app is free and open source, built to help your ministry serve with confidence.')); ?></p>
                 </div>
                 <div class="faith-hero-map" aria-hidden="true">
                     <div class="faith-grid-bg"></div>
                     <div class="faith-ring"></div>
                     <div class="faith-ring r2"></div>
-                    <div class="faith-node faith-node-a">{{ __('Prayer Requests') }}</div>
-                    <div class="faith-node faith-node-b">{{ __('Service Reports') }}</div>
-                    <div class="faith-node faith-node-c">{{ __('Discipleship') }}</div>
-                    <div class="faith-node faith-node-d">{{ __('Finance Notes') }}</div>
-                    <div class="faith-node faith-node-e">{{ __('Outreach Tasks') }}</div>
-                    <div class="faith-node faith-node-f">{{ __('Team Scheduling') }}</div>
+                    <div class="faith-node faith-node-a"><?php echo e(__('Prayer Requests')); ?></div>
+                    <div class="faith-node faith-node-b"><?php echo e(__('Service Reports')); ?></div>
+                    <div class="faith-node faith-node-c"><?php echo e(__('Discipleship')); ?></div>
+                    <div class="faith-node faith-node-d"><?php echo e(__('Finance Notes')); ?></div>
+                    <div class="faith-node faith-node-e"><?php echo e(__('Outreach Tasks')); ?></div>
+                    <div class="faith-node faith-node-f"><?php echo e(__('Team Scheduling')); ?></div>
                     <div class="faith-core">
                         <div>
-                            <p>{{ __('Control Plane') }}</p>
-                            <h3>{{ $brand_name }}</h3>
-                            <span>{{ __('In Christ Jesus') }}</span>
+                            <p><?php echo e(__('Control Plane')); ?></p>
+                            <h3><?php echo e($brand_name); ?></h3>
+                            <span><?php echo e(__('In Christ Jesus')); ?></span>
                         </div>
                     </div>
                 </div>
             </section>
             <section class="faith-kpis">
                 <article class="faith-kpi">
-                    <strong>{{ __('One Workspace') }}</strong>
-                    <span>{{ __('Unify people, permissions, and records.') }}</span>
+                    <strong><?php echo e(__('One Workspace')); ?></strong>
+                    <span><?php echo e(__('Unify people, permissions, and records.')); ?></span>
                 </article>
                 <article class="faith-kpi">
-                    <strong>{{ __('Secure Access') }}</strong>
-                    <span>{{ __('Controlled sign-in with audit-focused flows.') }}</span>
+                    <strong><?php echo e(__('Secure Access')); ?></strong>
+                    <span><?php echo e(__('Controlled sign-in with audit-focused flows.')); ?></span>
                 </article>
                 <article class="faith-kpi">
-                    <strong>{{ __('Module Ready') }}</strong>
-                    <span>{{ __('Grow features as ministry operations expand.') }}</span>
+                    <strong><?php echo e(__('Module Ready')); ?></strong>
+                    <span><?php echo e(__('Grow features as ministry operations expand.')); ?></span>
                 </article>
                 <article class="faith-kpi">
-                    <strong>{{ __('Clear Reporting') }}</strong>
-                    <span>{{ __('Track accountability and operational progress.') }}</span>
+                    <strong><?php echo e(__('Clear Reporting')); ?></strong>
+                    <span><?php echo e(__('Track accountability and operational progress.')); ?></span>
                 </article>
             </section>
 
-            <h2 class="faith-section-title">{{ __('Why this interface works for your ministry teams') }}</h2>
+            <h2 class="faith-section-title"><?php echo e(__('Why this interface works for your ministry teams')); ?></h2>
             <section class="faith-feature-grid">
                 <article class="faith-feature-card">
                     <div class="faith-feature-dot"></div>
-                    <h3>{{ __('Consistent experience') }}</h3>
-                    <p>{{ __('Landing, login, and register now follow one visual system for better trust and easier navigation.') }}</p>
+                    <h3><?php echo e(__('Consistent experience')); ?></h3>
+                    <p><?php echo e(__('Landing, login, and register now follow one visual system for better trust and easier navigation.')); ?></p>
                 </article>
                 <article class="faith-feature-card">
                     <div class="faith-feature-dot"></div>
-                    <h3>{{ __('Faith-aligned language') }}</h3>
-                    <p>{{ __('Messaging and structure stay aligned to your ministry direction without generic corporate wording.') }}</p>
+                    <h3><?php echo e(__('Faith-aligned language')); ?></h3>
+                    <p><?php echo e(__('Messaging and structure stay aligned to your ministry direction without generic corporate wording.')); ?></p>
                 </article>
                 <article class="faith-feature-card">
                     <div class="faith-feature-dot"></div>
-                    <h3>{{ __('Unified visual identity') }}</h3>
-                    <p>{{ __('Accent styling stays consistent across public pages to reflect one trusted ministry identity.') }}</p>
+                    <h3><?php echo e(__('Unified visual identity')); ?></h3>
+                    <p><?php echo e(__('Accent styling stays consistent across public pages to reflect one trusted ministry identity.')); ?></p>
                 </article>
                 <article class="faith-feature-card">
                     <div class="faith-feature-dot"></div>
-                    <h3>{{ __('Mobile-first behavior') }}</h3>
-                    <p>{{ __('Hero and cards adapt cleanly on tablets and phones with preserved spacing and hierarchy.') }}</p>
+                    <h3><?php echo e(__('Mobile-first behavior')); ?></h3>
+                    <p><?php echo e(__('Hero and cards adapt cleanly on tablets and phones with preserved spacing and hierarchy.')); ?></p>
                 </article>
                 <article class="faith-feature-card">
                     <div class="faith-feature-dot"></div>
-                    <h3>{{ __('No legacy clutter') }}</h3>
-                    <p>{{ __('Removed legacy marketplace blocks and visuals that conflicted with your current identity.') }}</p>
+                    <h3><?php echo e(__('No legacy clutter')); ?></h3>
+                    <p><?php echo e(__('Removed legacy marketplace blocks and visuals that conflicted with your current identity.')); ?></p>
                 </article>
                 <article class="faith-feature-card">
                     <div class="faith-feature-dot"></div>
-                    <h3>{{ __('Action-ready flow') }}</h3>
-                    <p>{{ __('Visitors can move directly from landing to sign-in, registration, or plan selection without confusion.') }}</p>
+                    <h3><?php echo e(__('Action-ready flow')); ?></h3>
+                    <p><?php echo e(__('Visitors can move directly from landing to sign-in, registration, or plan selection without confusion.')); ?></p>
                 </article>
             </section>
 
             <section class="faith-bottom-cta">
                 <div>
-                    <h3>{{ __('Ready to continue with the new faith-aligned experience?') }}</h3>
-                    <p>{{ __('Start from secure sign-in or create a workspace and move directly into ministry service.') }}</p>
+                    <h3><?php echo e(__('Ready to continue with the new faith-aligned experience?')); ?></h3>
+                    <p><?php echo e(__('Start from secure sign-in or create a workspace and move directly into ministry service.')); ?></p>
                 </div>
                 <div class="faith-hero-actions">
-                    <a class="faith-btn faith-btn-primary" href="{{ Auth::check() ? route('home') : route('login') }}">
-                        {{ Auth::check() ? __('Open Dashboard') : __('Sign In') }}
+                    <a class="faith-btn faith-btn-primary" href="<?php echo e(Auth::check() ? route('home') : route('login')); ?>">
+                        <?php echo e(Auth::check() ? __('Open Dashboard') : __('Sign In')); ?>
+
                     </a>
-                    @if (empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on')
-                        <a class="faith-btn faith-btn-outline" href="{{ route('register') }}">{{ __('Create Account') }}</a>
-                    @endif
+                    <?php if(empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on'): ?>
+                        <a class="faith-btn faith-btn-outline" href="<?php echo e(route('register')); ?>"><?php echo e(__('Create Account')); ?></a>
+                    <?php endif; ?>
                 </div>
             </section>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('marketplace.marketplace', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\resources\views/marketplace/landing.blade.php ENDPATH**/ ?>

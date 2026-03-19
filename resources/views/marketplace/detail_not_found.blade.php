@@ -18,8 +18,8 @@
     <section class="bg-white padding-top padding-bottom ">
         <div class="container">
             <div class="section-title text-center">
-                <h2>{{ __('Why Choose a Dedicated Fashion Theme ')}} <b>{{ __('for Your Business?')}}</b></h2>
-                <p>{{ __('With Alligō, you can take care of the entire partner lifecycle - from onboarding through nurturing, cooperating, and rewarding. Find top performers and let go of those who aren’t a good fit.')}}}</p>
+                <h2>{{ __('Why Choose a Dedicated Fashion Theme') }} <b>{{ __('for Your Business?') }}</b></h2>
+                <p>{{ __('With Alligō, you can take care of the entire partner lifecycle - from onboarding through nurturing, cooperating, and rewarding. Find top performers and let go of those who aren’t a good fit.') }}</p>
             </div>
             @if (count($modules) > 0)
                 <div class="row product-row">
@@ -38,7 +38,7 @@
                                         <ins><span class="currency-type">{{ super_currency_format_with_sym(ModulePriceByName($module->name)['monthly_price']) }}</span> <span class="time-lbl text-muted">{{ __('/Month') }}</span></ins>
                                                     <ins><span class="currency-type">{{ super_currency_format_with_sym(ModulePriceByName($module->name)['yearly_price']) }}</span> <span class="time-lbl text-muted">{{ __('/Year') }}</span></ins>
                                     </div>
-                                    <a href="{{ route('software.details',$module->alias) }}" target="_new"  class="btn cart-btn">View Details</a>
+                                    <a href="{{ route('software.details',$module->alias) }}" target="_new"  class="btn cart-btn">{{ __('View Details') }}</a>
                                 </div>
                             </div>
                         </div>

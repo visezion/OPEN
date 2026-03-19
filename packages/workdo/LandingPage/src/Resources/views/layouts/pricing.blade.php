@@ -19,7 +19,141 @@
 @endsection
 @section('content')
     <!-- wrapper start -->
-    <div class="wrapper">
+    <div class="wrapper pricing-advanced">
+        <style>
+            .pricing-advanced .pricing-banner .common-banner-content {
+                border: 1px solid rgba(20, 40, 74, 0.12);
+                border-radius: 16px;
+                background: #ffffff;
+                padding: 34px 26px;
+            }
+            .pricing-advanced .pricing-banner .section-title p {
+                max-width: 680px;
+                margin: 10px auto 0;
+            }
+            .pricing-advanced .pricing-switch {
+                margin-top: 20px;
+                display: flex;
+                justify-content: center;
+            }
+            .pricing-advanced .pricing-switch .switch {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 999px;
+                padding: 8px 14px;
+                background: #ffffff;
+            }
+            .pricing-advanced .module-section {
+                margin-top: 10px;
+            }
+            .pricing-advanced .package-card-inner {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 14px;
+                background: #ffffff;
+                padding: 16px;
+            }
+            .pricing-advanced .pricing-live-meta {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(140px, 1fr));
+                gap: 10px;
+                margin: 14px 0 18px;
+            }
+            .pricing-advanced .live-meta-item {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 12px;
+                background: #ffffff;
+                padding: 10px 12px;
+            }
+            .pricing-advanced .live-meta-item .meta-label {
+                display: block;
+                font-size: 12px;
+                font-weight: 700;
+                color: #5d708f;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+            .pricing-advanced .live-meta-item .meta-value {
+                display: block;
+                margin-top: 3px;
+                font-size: 18px;
+                font-weight: 800;
+                color: #172b4d;
+                line-height: 1.2;
+            }
+            .pricing-advanced .product-card {
+                margin-bottom: 18px;
+            }
+            .pricing-advanced .product-card-inner {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 14px;
+                background: #ffffff;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                transition: border-color .2s ease, background-color .2s ease;
+            }
+            .pricing-advanced .product-card.active_module .product-card-inner {
+                border-color: var(--theme-color);
+                background: rgba(255, 255, 255, 0.98);
+            }
+            .pricing-advanced .product-card .product-content {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                flex: 1;
+            }
+            .pricing-advanced .product-card .product-content .btn {
+                margin-top: auto !important;
+            }
+            .pricing-advanced .module-summary-col .cart-summery {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 14px;
+                background: #ffffff;
+                position: sticky;
+                top: 96px;
+            }
+            .pricing-advanced .module-summary-col .summery-header {
+                border-bottom: 1px solid rgba(20, 40, 74, 0.12);
+            }
+            .pricing-advanced .module-summary-col .cart-footer-total-row {
+                border-top: 1px solid rgba(20, 40, 74, 0.12);
+                padding-top: 12px;
+                margin-top: 8px;
+            }
+            .pricing-advanced .review-section .review-content {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 16px;
+                background: #ffffff;
+            }
+            .pricing-advanced .faq-list .set {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 12px;
+                margin-bottom: 10px;
+                background: #ffffff;
+                overflow: hidden;
+            }
+            .pricing-advanced .faq-list .set .acnav-label {
+                background: #ffffff;
+            }
+            @media (max-width: 1199px) {
+                .pricing-advanced .pricing-live-meta {
+                    grid-template-columns: repeat(2, minmax(140px, 1fr));
+                }
+            }
+            @media (max-width: 991px) {
+                .pricing-advanced .module-summary-col .cart-summery {
+                    position: static;
+                    margin-top: 18px;
+                }
+            }
+            @media (max-width: 575px) {
+                .pricing-advanced .pricing-banner .common-banner-content {
+                    padding: 22px 16px;
+                }
+                .pricing-advanced .pricing-live-meta {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
         @if (admin_setting('custome_package') == 'on' && admin_setting('plan_package') == 'on')
                 <div class="tab-head-row">
                     <ul class="tabs d-flex justify-content-center">
@@ -89,12 +223,30 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="pricing-live-meta">
+                            <div class="live-meta-item">
+                                <span class="meta-label">{{ __('Billing') }}</span>
+                                <span class="meta-value time_period_input_label">{{ __('Monthly') }}</span>
+                            </div>
+                            <div class="live-meta-item">
+                                <span class="meta-label">{{ __('Extension') }}</span>
+                                <span class="meta-value module_counter_text">0</span>
+                            </div>
+                            <div class="live-meta-item">
+                                <span class="meta-label">{{ __('Users') }}</span>
+                                <span class="meta-value user_counter_text">0</span>
+                            </div>
+                            <div class="live-meta-item">
+                                <span class="meta-label">{{ __('WorkSpace') }}</span>
+                                <span class="meta-value workspace_counter_text">0</span>
+                            </div>
+                        </div>
                         <div class="product-selection">
                             <div class="row product-row">
                                 @if (count($modules) > 0)
                                     @foreach ($modules as $key => $module)
                                         @if (!isset($module->display) || $module->display == true)
-                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 product-card">
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 product-card user_module">
                                                 <div class="product-card-inner">
                                                     <div class="product-img">
                                                         <div class="theme-avtar">
@@ -158,7 +310,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-5 col-xl-3 col-12">
+                    <div class="col-lg-5 col-xl-3 col-12 module-summary-col">
                         <div class="cart-summery">
                             <div class="summery-header">
                                 <h5>{{ __('Basic Package') }}</h5>
@@ -473,7 +625,7 @@
                         <div class="col-lg-6 col-md-6 col-12">
                             <div class="form-group">
                                 <label class="form-label">{{ __('WorkSpace Name') }}</label>
-                                <input id="store_name" placeholder="Enter workspace" type="text" class="form-control"
+                                <input id="store_name" placeholder="{{ __('Enter ministry workspace') }}" type="text" class="form-control"
                                     name="workspace" value="" required>
                             </div>
                         </div>
@@ -520,6 +672,7 @@
                 userprice = '{{ $userpriceyearly }}';
                 planprice = '{{ $planpriceyearly }}';
             }
+            $(".time_period_input_label").text($('.switch-change').prop('checked') ? '{{ __('Yearly') }}' : '{{ __('Monthly') }}');
             var user = parseInt($('.user_counter_input').val());
             var userpricetext = userprice * user;
 
@@ -528,12 +681,7 @@
             $(".total").text(formatCurrency(total,'{{ $currency_setting }}'));
         });
         $(document).on("click", ".user_module_check", function() {
-            if ($(this).closest(".user_module").hasClass("active_module")) {
-                $(this).closest(".user_module").removeClass("active_module");
-
-            } else {
-                $(this).closest(".user_module").addClass("active_module");
-            }
+            $(this).closest(".user_module").toggleClass("active_module", $(this).is(":checked"));
             ChangeModulePrice();
             ChangePrice();
 
@@ -715,6 +863,7 @@
                 time = '/Year';
 
                 $(".time_period_input").val('Year');
+                $(".time_period_input_label").text('{{ __('Yearly') }}');
 
             } else {
                 $(".time-yearly").removeClass("active");
@@ -724,6 +873,7 @@
                 $(".m-price-yearly").addClass("d-none");
 
                 $(".time_period_input").val('Month');
+                $(".time_period_input_label").text('{{ __('Monthly') }}');
 
             }
             var userpricetext = userprice * user;

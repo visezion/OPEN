@@ -11,27 +11,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>@yield('page-title') | {{!empty(admin_setting('title_text')) ? admin_setting('title_text') :'WorkDo-Dash' }}</title>
+    <title>@yield('page-title') | {{ !empty(admin_setting('title_text')) ? admin_setting('title_text') : config('app.name', 'Openzion') }}</title>
 
-    <meta name="title" content="{{ !empty(admin_setting('meta_title')) ? admin_setting('meta_title') : 'WOrkdo Dash' }}">
-    <meta name="keywords" content="{{ !empty(admin_setting('meta_keywords')) ? admin_setting('meta_keywords') : 'WorkDo Dash,SaaS solution,Multi-workspace' }}">
-    <meta name="description" content="{{ !empty(admin_setting('meta_description')) ? admin_setting('meta_description') : 'Discover the efficiency of Dash, a user-friendly web application by WorkDo.'}}">
+    <meta name="title" content="{{ !empty(admin_setting('meta_title')) ? admin_setting('meta_title') : config('app.name', 'Openzion') }}">
+    <meta name="keywords" content="{{ !empty(admin_setting('meta_keywords')) ? admin_setting('meta_keywords') : 'ministry platform,church operations,faith teams' }}">
+    <meta name="description" content="{{ !empty(admin_setting('meta_description')) ? admin_setting('meta_description') : 'Faith-aligned platform for church administration, ministry teams, and accountable service workflows.'}}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ env('APP_URL') }}">
-    <meta property="og:title" content="{{ !empty(admin_setting('meta_title')) ? admin_setting('meta_title') : 'WOrkdo Dash' }}">
-    <meta property="og:description" content="{{ !empty(admin_setting('meta_description')) ? admin_setting('meta_description') : 'Discover the efficiency of Dash, a user-friendly web application by WorkDo.'}} ">
+    <meta property="og:title" content="{{ !empty(admin_setting('meta_title')) ? admin_setting('meta_title') : config('app.name', 'Openzion') }}">
+    <meta property="og:description" content="{{ !empty(admin_setting('meta_description')) ? admin_setting('meta_description') : 'Faith-aligned platform for church administration, ministry teams, and accountable service workflows.'}} ">
     <meta property="og:image" content="{{ get_file( (!empty(admin_setting('meta_image'))) ? (check_file(admin_setting('meta_image'))) ?  admin_setting('meta_image') : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  ) }}{{'?'.time() }}">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ env('APP_URL') }}">
-    <meta property="twitter:title" content="{{ !empty(admin_setting('meta_title')) ? admin_setting('meta_title') : 'WOrkdo Dash' }}">
-    <meta property="twitter:description" content="{{ !empty(admin_setting('meta_description')) ? admin_setting('meta_description') : 'Discover the efficiency of Dash, a user-friendly web application by WorkDo.'}} ">
+    <meta property="twitter:title" content="{{ !empty(admin_setting('meta_title')) ? admin_setting('meta_title') : config('app.name', 'Openzion') }}">
+    <meta property="twitter:description" content="{{ !empty(admin_setting('meta_description')) ? admin_setting('meta_description') : 'Faith-aligned platform for church administration, ministry teams, and accountable service workflows.'}} ">
     <meta property="twitter:image" content="{{ get_file( (!empty(admin_setting('meta_image'))) ? (check_file(admin_setting('meta_image'))) ?  admin_setting('meta_image') : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  ) }}{{'?'.time() }}">
 
-    <meta name="author" content="Workdo.io">
+    <meta name="author" content="{{ !empty(admin_setting('title_text')) ? admin_setting('title_text') : config('app.name', 'Openzion') }}">
 
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -105,7 +105,7 @@
                                 <a href="{{  url('/')  }}">{{ $settings['home_title'] }}</a>
                             </li>
                             <li class="menu-lnk">
-                                <a href="{{ route('apps.software') }}">{{ __('Add-on')}}</a>
+                                <a href="{{ route('apps.software') }}">{{ __('Ministry Add-ons') }}</a>
                             </li>
                             <li class="menu-lnk">
                                 @if(admin_setting('plan_package') == 'on')
@@ -274,7 +274,7 @@
                     <a href="{{  url('/')  }}">{{ $settings['home_title'] }}</a>
                 </li>
                 <li class="mobile-item">
-                    <a href="{{ route('apps.software') }}">{{ __('Add-on')}}</a>
+                    <a href="{{ route('apps.software') }}">{{ __('Ministry Add-ons') }}</a>
                 </li>
                 <li class="mobile-item">
                     <a href="{{ route('apps.pricing') }}">{{ __('Pricing')}}</a>

@@ -1,87 +1,91 @@
 <?php if (isset($component)) { $__componentOriginal69dc84650370d1d4dc1b42d016d7226b = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal69dc84650370d1d4dc1b42d016d7226b = $attributes; } ?>
-<?php $component = App\View\Components\GuestLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = App\View\Components\GuestLayout::resolve(['workspace' => $workspace] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('guest-layout'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\App\View\Components\GuestLayout::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['workspace' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($workspace)]); ?>
-   
-        
-            
-            <h5 class="text-1xl font-semibold text-white"><?php echo e(__('We value your feedback!')); ?></h5>
-            <p class="mt-2 text-sm text-slate-200">
-                <?php echo e(__('Share your praises, concerns, or ideas directly with the leadership team. Every comment helps us improve.')); ?>
+<?php $component->withAttributes([]); ?>
+    <div class="portal-page-head">
+        <h2 class="portal-page-title"><?php echo e(__('Share Feedback with the Leadership Team')); ?></h2>
+        <p class="portal-page-subtitle">
+            <?php echo e(__('Submit suggestions, concerns, and testimonies so your church team can respond with care and accountability.')); ?>
 
-            </p>
-        </div>
-
-        <div class="px-8 py-10">
-            <?php if($errors->any()): ?>
-                <div class="mb-4 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    <?php echo e(__('Please fix the highlighted fields before resubmitting.')); ?>
-
-                </div>
-            <?php endif; ?>
-            <?php if(session('success')): ?>
-                <div class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 mb-6">
-                    <?php echo e(session('success')); ?>
-
-                </div>
-            <?php endif; ?>
-            <form method="POST" action="<?php echo e(route('churchly.feedback.submit', ['workspace' => request()->route('workspace')])); ?>" enctype="multipart/form-data">
-                <?php echo csrf_field(); ?>
-
-                <input type="hidden" name="type" value="public">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm font-medium text-slate-700 "><?php echo e(__('Title (optional)')); ?></label>
-                        <input type="text" name="title" placeholder="Optional title" class="mt-2 block w-full  border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-                    </div>
-
-                    <div>
-                        <label class="text-sm font-medium text-slate-700 "><?php echo e(__('Name')); ?></label>
-                    <input type="text" name="name" placeholder="Optional name" class="mt-2 block w-full  border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <label class="text-sm font-medium text-slate-700 "><?php echo e(__('Email')); ?></label>
-                    <input type="email" name="email" placeholder="Optional email" class="mt-2 block w-full  border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-                </div>
-
-                <div class="mt-4">
-                    <label class="text-sm font-medium text-slate-700 "><?php echo e(__('Category')); ?></label>
-                    <select name="category" required class="mt-2 block w-full  border px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="suggestion"><?php echo e(__('Suggestion')); ?></option>
-                        <option value="complaint"><?php echo e(__('Complaint')); ?></option>
-                        <option value="praise"><?php echo e(__('Praise')); ?></option>
-                        <option value="other"><?php echo e(__('Other')); ?></option>
-                    </select>
-                </div>
-
-                <div class="mt-4">
-                    <label class="text-sm font-medium text-slate-700 "><?php echo e(__('Message')); ?></label>
-                    <textarea name="message" rows="5" required placeholder="Type your feedback..." class="mt-2 block w-full rounded-1xl border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                </div>
-
-                <div class="mt-4">
-                    <label class="text-sm font-medium text-slate-700 "><?php echo e(__('Attach File (optional)')); ?></label>
-                    <input type="file" name="attachment" class="mt-2 block w-full text-sm text-slate-600 file:border-0 file:bg-slate-100 file:px-3 file:py-2 file: file:text-slate-700 focus:outline-none" />
-                </div>
-
-                <div class="mt-6 text-right">
-                    <button type="submit" class="inline-flex items-center justify-center rounded-1xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        <?php echo e(__('Send Feedback')); ?>
-
-                    </button>
-                </div>
-            </form>
-        </div>
+        </p>
     </div>
+
+    <?php if($errors->any()): ?>
+        <div class="portal-alert error">
+            <strong><?php echo e(__('Please correct the following errors:')); ?></strong>
+            <ul style="margin: 8px 0 0 18px; padding: 0;">
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li><?php echo e($error); ?></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
+    <?php if(session('success')): ?>
+        <div class="portal-alert success">
+            <?php echo e(session('success')); ?>
+
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" action="<?php echo e(route('churchly.feedback.submit', ['workspace' => $workspace->slug ?? request()->route('workspace')])); ?>" enctype="multipart/form-data" class="portal-form">
+        <?php echo csrf_field(); ?>
+        <input type="hidden" name="type" value="public">
+
+        <div class="portal-grid">
+            <div class="portal-field">
+                <label class="portal-label"><?php echo e(__('Title (optional)')); ?></label>
+                <input type="text" name="title" value="<?php echo e(old('title')); ?>" class="portal-input" placeholder="<?php echo e(__('Short summary title')); ?>">
+            </div>
+            <div class="portal-field">
+                <label class="portal-label"><?php echo e(__('Category')); ?></label>
+                <select name="category" class="portal-select" required>
+                    <option value=""><?php echo e(__('Select category')); ?></option>
+                    <option value="suggestion" <?php if(old('category') === 'suggestion'): echo 'selected'; endif; ?>><?php echo e(__('Suggestion')); ?></option>
+                    <option value="complaint" <?php if(old('category') === 'complaint'): echo 'selected'; endif; ?>><?php echo e(__('Complaint')); ?></option>
+                    <option value="praise" <?php if(old('category') === 'praise'): echo 'selected'; endif; ?>><?php echo e(__('Praise')); ?></option>
+                    <option value="other" <?php if(old('category') === 'other'): echo 'selected'; endif; ?>><?php echo e(__('Other')); ?></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="portal-grid">
+            <div class="portal-field">
+                <label class="portal-label"><?php echo e(__('Name (optional)')); ?></label>
+                <input type="text" name="name" value="<?php echo e(old('name')); ?>" class="portal-input" placeholder="<?php echo e(__('Your name')); ?>">
+            </div>
+            <div class="portal-field">
+                <label class="portal-label"><?php echo e(__('Email (optional)')); ?></label>
+                <input type="email" name="email" value="<?php echo e(old('email')); ?>" class="portal-input" placeholder="<?php echo e(__('Your email')); ?>">
+            </div>
+        </div>
+
+        <div class="portal-field">
+            <label class="portal-label"><?php echo e(__('Message')); ?></label>
+            <textarea name="message" rows="6" required class="portal-textarea" placeholder="<?php echo e(__('Type your feedback in detail')); ?>"><?php echo e(old('message')); ?></textarea>
+        </div>
+
+        <div class="portal-grid">
+            <div class="portal-field">
+                <label class="portal-label"><?php echo e(__('Attachment (optional)')); ?></label>
+                <input type="file" name="attachment" class="portal-file-input">
+            </div>
+            <div class="portal-field" style="align-content: end;">
+                <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #425779;">
+                    <input type="checkbox" name="is_anonymous" value="1" <?php if(old('is_anonymous')): echo 'checked'; endif; ?>>
+                    <span><?php echo e(__('Submit anonymously')); ?></span>
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="portal-submit"><?php echo e(__('Send Feedback')); ?></button>
+    </form>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal69dc84650370d1d4dc1b42d016d7226b)): ?>

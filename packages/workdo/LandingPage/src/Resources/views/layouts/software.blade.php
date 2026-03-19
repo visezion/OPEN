@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-    </section>`
+    </section>
     <section class="product-listing-section padding-bottom">
         <div class="container">
             <div class="tabs-wrapper">
@@ -40,7 +40,7 @@
                     <div class="product-search">
                         <form action="{{ route('apps.software') }}">
                             <div class="input-wrapper">
-                                <input type="text" name="query" placeholder="Search product">
+                                <input type="text" name="query" placeholder="{{ __('Search ministry add-on') }}">
                                 <button type="submit" class="search-btn"><svg xmlns="http://www.w3.org/2000/svg"
                                         width="20" height="20" viewBox="0 0 20 20" fill="none">
                                         <path
@@ -121,4 +121,3 @@
 </div>
 <!-- wrapper end -->
 @endsection
-

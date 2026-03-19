@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-@php
+<?php
     $admin_settings = getAdminAllSetting();
     $brand_name = !empty($admin_settings['title_text']) ? $admin_settings['title_text'] : 'Platform';
     $brand_name = preg_replace('/\b(workdo|dash)\b/i', '', (string) $brand_name);
@@ -27,36 +27,36 @@
     if ($meta_description === '' || preg_match('/workdo|dash/i', $meta_description)) {
         $meta_description = $default_meta_description;
     }
-@endphp
+?>
 <head>
 
-    <title>@yield('page-title') | {{ $brand_name }}</title>
+    <title><?php echo $__env->yieldContent('page-title'); ?> | <?php echo e($brand_name); ?></title>
 
-    <meta name="title" content="{{ $meta_title }}">
-    <meta name="keywords" content="{{ $meta_keywords }}">
-    <meta name="description" content="{{ $meta_description }}">
+    <meta name="title" content="<?php echo e($meta_title); ?>">
+    <meta name="keywords" content="<?php echo e($meta_keywords); ?>">
+    <meta name="description" content="<?php echo e($meta_description); ?>">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ env('APP_URL') }}">
-    <meta property="og:title" content="{{ $meta_title }}">
-    <meta property="og:description" content="{{ $meta_description }} ">
-    <meta property="og:image" content="{{ get_file( (!empty($admin_settings['meta_image'])) ? (check_file($admin_settings['meta_image'])) ?  $admin_settings['meta_image'] : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  ) }}{{'?'.time() }}">
+    <meta property="og:url" content="<?php echo e(env('APP_URL')); ?>">
+    <meta property="og:title" content="<?php echo e($meta_title); ?>">
+    <meta property="og:description" content="<?php echo e($meta_description); ?> ">
+    <meta property="og:image" content="<?php echo e(get_file( (!empty($admin_settings['meta_image'])) ? (check_file($admin_settings['meta_image'])) ?  $admin_settings['meta_image'] : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  )); ?><?php echo e('?'.time()); ?>">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ env('APP_URL') }}">
-    <meta property="twitter:title" content="{{ $meta_title }}">
-    <meta property="twitter:description" content="{{ $meta_description }} ">
-    <meta property="twitter:image" content="{{ get_file( (!empty($admin_settings['meta_image'])) ? (check_file($admin_settings['meta_image'])) ?  $admin_settings['meta_image'] : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  ) }}{{'?'.time() }}">
+    <meta property="twitter:url" content="<?php echo e(env('APP_URL')); ?>">
+    <meta property="twitter:title" content="<?php echo e($meta_title); ?>">
+    <meta property="twitter:description" content="<?php echo e($meta_description); ?> ">
+    <meta property="twitter:image" content="<?php echo e(get_file( (!empty($admin_settings['meta_image'])) ? (check_file($admin_settings['meta_image'])) ?  $admin_settings['meta_image'] : 'uploads/meta/meta_image.png' : 'uploads/meta/meta_image.png'  )); ?><?php echo e('?'.time()); ?>">
 
-    <meta name="author" content="{{ $brand_name }}">
+    <meta name="author" content="<?php echo e($brand_name); ?>">
 
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 
-    <link rel="icon" href="{{ (!empty($admin_settings['favicon']) && check_file($admin_settings['favicon'])) ? get_file($admin_settings['favicon']) : get_file('uploads/logo/favicon.png')}}{{'?'.time()}}" type="image/x-icon" />
+    <link rel="icon" href="<?php echo e((!empty($admin_settings['favicon']) && check_file($admin_settings['favicon'])) ? get_file($admin_settings['favicon']) : get_file('uploads/logo/favicon.png')); ?><?php echo e('?'.time()); ?>" type="image/x-icon" />
 
 
     <link
@@ -64,19 +64,19 @@
         rel="stylesheet">
 
 
-    @if ($admin_settings['site_rtl'] == 'on')
-        <link rel="stylesheet" href="{{ asset('market_assets/css/main-style-rtl.css') }}">
-        <link rel="stylesheet" href="{{ asset('market_assets/css/responsive-rtl.css') }}">
-    @else
-        <link rel="stylesheet" href="{{ asset('market_assets/css/main-style.css') }}">
-        <link rel="stylesheet" href="{{ asset('market_assets/css/responsive.css') }}">
-    @endif
+    <?php if($admin_settings['site_rtl'] == 'on'): ?>
+        <link rel="stylesheet" href="<?php echo e(asset('market_assets/css/main-style-rtl.css')); ?>">
+        <link rel="stylesheet" href="<?php echo e(asset('market_assets/css/responsive-rtl.css')); ?>">
+    <?php else: ?>
+        <link rel="stylesheet" href="<?php echo e(asset('market_assets/css/main-style.css')); ?>">
+        <link rel="stylesheet" href="<?php echo e(asset('market_assets/css/responsive.css')); ?>">
+    <?php endif; ?>
 
-    @if($admin_settings['cust_darklayout'] == 'on')
-        <link rel="stylesheet" href="{{ asset('market_assets/css/main-style-dark.css') }}" id="main-style-link">
-    @endif
-    <link rel="stylesheet" href="{{ asset('market_assets/css/magnific-popup.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/ui-clean.css') }}">
+    <?php if($admin_settings['cust_darklayout'] == 'on'): ?>
+        <link rel="stylesheet" href="<?php echo e(asset('market_assets/css/main-style-dark.css')); ?>" id="main-style-link">
+    <?php endif; ?>
+    <link rel="stylesheet" href="<?php echo e(asset('market_assets/css/magnific-popup.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/ui-clean.css')); ?>">
     <style>
         .market-brand-text {
             color: #19273d;
@@ -246,30 +246,30 @@
     </style>
 </head>
 
-<body class="{{ !empty($admin_settings['color'])?$admin_settings['color']:'theme-1' }} ui-border-clean" >
+<body class="<?php echo e(!empty($admin_settings['color'])?$admin_settings['color']:'theme-1'); ?> ui-border-clean" >
     <!-- header start here -->
     <header class="site-header header-style-one">
         <div class="main-navigationbar">
             <div class="container">
                 <div class="navigationbar-row d-flex align-items-center justify-content-between">
                     <div class="logo-col">
-                        <a href="{{ route('start') }}">
-                            <span class="market-brand-text">{{ $brand_name }}</span>
+                        <a href="<?php echo e(route('start')); ?>">
+                            <span class="market-brand-text"><?php echo e($brand_name); ?></span>
                         </a>
                     </div>
                     <div class="menu-items-col">
                         <ul class="main-nav">
                             <li class="menu-lnk">
-                                <a href="{{  url('/')  }}">{{ __('Home')}}</a>
+                                <a href="<?php echo e(url('/')); ?>"><?php echo e(__('Home')); ?></a>
                             </li>
                             <li class="menu-lnk">
-                                <a href="{{ route('apps.software') }}">{{ __('Ministry Add-ons') }}</a>
+                                <a href="<?php echo e(route('apps.software')); ?>"><?php echo e(__('Ministry Add-ons')); ?></a>
                             </li>
                             <li class="menu-lnk">
-                                <a href="{{ route('apps.pricing') }}">{{ __('Pricing')}}</a>
+                                <a href="<?php echo e(route('apps.pricing')); ?>"><?php echo e(__('Pricing')); ?></a>
                             </li>
                             <li class="menu-lnk lnk-btn">
-                                <a href="{{ (Auth::check()) ? route('home') :route('login') }}">{{ (Auth::check()) ? __('Home') :__('Login') }}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                <a href="<?php echo e((Auth::check()) ? route('home') :route('login')); ?>"><?php echo e((Auth::check()) ? __('Home') :__('Login')); ?><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         viewBox="0 0 16 16" fill="none">
                                         <g clip-path="url(#clip0_14_726)">
                                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -301,7 +301,7 @@
     <!-- header end here -->
 
     <!-- wrapper start -->
-         @yield('content')
+         <?php echo $__env->yieldContent('content'); ?>
     <!-- wrapper end -->
 
     <!-- Footer start here -->
@@ -309,50 +309,50 @@
         <div class="container">
             <div class="footer-main">
                 <div class="footer-brand-block">
-                    <a href="{{ route('start') }}">
-                        <span class="market-brand-text">{{ $brand_name }}</span>
+                    <a href="<?php echo e(route('start')); ?>">
+                        <span class="market-brand-text"><?php echo e($brand_name); ?></span>
                     </a>
-                    <p class="footer-tagline">{{ __('Free and open source workspace for organized ministry teams, operations, and daily service coordination.') }}</p>
+                    <p class="footer-tagline"><?php echo e(__('Free and open source workspace for organized ministry teams, operations, and daily service coordination.')); ?></p>
                     <div class="footer-quick-actions">
-                        <a href="{{ route('apps.software') }}" class="footer-btn footer-btn-secondary">{{ __('Explore Ministry Add-ons') }}</a>
-                        <a href="{{ route('apps.pricing') }}" class="footer-btn footer-btn-primary">{{ __('View Pricing') }}</a>
+                        <a href="<?php echo e(route('apps.software')); ?>" class="footer-btn footer-btn-secondary"><?php echo e(__('Explore Ministry Add-ons')); ?></a>
+                        <a href="<?php echo e(route('apps.pricing')); ?>" class="footer-btn footer-btn-primary"><?php echo e(__('View Pricing')); ?></a>
                     </div>
                 </div>
                 <div class="footer-nav-grid">
                     <div class="footer-nav-group">
-                        <h4>{{ __('Platform') }}</h4>
+                        <h4><?php echo e(__('Platform')); ?></h4>
                         <ul>
-                            <li><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
-                            <li><a href="{{ route('apps.software') }}">{{ __('Ministry Add-ons') }}</a></li>
-                            <li><a href="{{ route('apps.pricing') }}">{{ __('Pricing') }}</a></li>
+                            <li><a href="<?php echo e(url('/')); ?>"><?php echo e(__('Home')); ?></a></li>
+                            <li><a href="<?php echo e(route('apps.software')); ?>"><?php echo e(__('Ministry Add-ons')); ?></a></li>
+                            <li><a href="<?php echo e(route('apps.pricing')); ?>"><?php echo e(__('Pricing')); ?></a></li>
                         </ul>
                     </div>
                     <div class="footer-nav-group">
-                        <h4>{{ __('Account') }}</h4>
+                        <h4><?php echo e(__('Account')); ?></h4>
                         <ul>
-                            <li><a href="{{ route('login') }}">{{ __('Login') }}</a></li>
-                            @if (Route::has('register'))
-                                <li><a href="{{ route('register') }}">{{ __('Register') }}</a></li>
-                            @endif
-                            <li><a href="{{ Auth::check() ? route('home') : route('login') }}">{{ __('Dashboard') }}</a></li>
+                            <li><a href="<?php echo e(route('login')); ?>"><?php echo e(__('Login')); ?></a></li>
+                            <?php if(Route::has('register')): ?>
+                                <li><a href="<?php echo e(route('register')); ?>"><?php echo e(__('Register')); ?></a></li>
+                            <?php endif; ?>
+                            <li><a href="<?php echo e(Auth::check() ? route('home') : route('login')); ?>"><?php echo e(__('Dashboard')); ?></a></li>
                         </ul>
                     </div>
                     <div class="footer-nav-group">
-                        <h4>{{ __('Support') }}</h4>
+                        <h4><?php echo e(__('Support')); ?></h4>
                         <ul>
-                            <li><a href="{{ route('apps.software') }}">{{ __('Module Library') }}</a></li>
-                            <li><a href="{{ route('apps.pricing') }}">{{ __('Plans') }}</a></li>
-                            <li><a href="{{ route('start') }}">{{ __('Back to Top') }}</a></li>
+                            <li><a href="<?php echo e(route('apps.software')); ?>"><?php echo e(__('Module Library')); ?></a></li>
+                            <li><a href="<?php echo e(route('apps.pricing')); ?>"><?php echo e(__('Plans')); ?></a></li>
+                            <li><a href="<?php echo e(route('start')); ?>"><?php echo e(__('Back to Top')); ?></a></li>
                         </ul>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>{{ __('Copyright') }} {{ date('Y') }} {{ $brand_name }}. {{ __('Built for reliable daily operations.') }}</p>
+                <p><?php echo e(__('Copyright')); ?> <?php echo e(date('Y')); ?> <?php echo e($brand_name); ?>. <?php echo e(__('Built for reliable daily operations.')); ?></p>
                 <div class="footer-meta-links">
-                    <a href="{{ route('apps.software') }}">{{ __('Ministry Add-on Library') }}</a>
-                    <a href="{{ route('apps.pricing') }}">{{ __('Pricing & Plans') }}</a>
-                    <a href="{{ route('start') }}">{{ __('Home') }}</a>
+                    <a href="<?php echo e(route('apps.software')); ?>"><?php echo e(__('Ministry Add-on Library')); ?></a>
+                    <a href="<?php echo e(route('apps.pricing')); ?>"><?php echo e(__('Pricing & Plans')); ?></a>
+                    <a href="<?php echo e(route('start')); ?>"><?php echo e(__('Home')); ?></a>
                 </div>
             </div>
         </div>
@@ -370,16 +370,16 @@
         <div class="mobile-menu-bar">
             <ul>
                 <li class="mobile-item">
-                    <a href="{{  url('/')  }}">{{ __('Home')}}</a>
+                    <a href="<?php echo e(url('/')); ?>"><?php echo e(__('Home')); ?></a>
                 </li>
                 <li class="mobile-item">
-                    <a href="{{ route('apps.software') }}">{{ __('Ministry Add-ons') }}</a>
+                    <a href="<?php echo e(route('apps.software')); ?>"><?php echo e(__('Ministry Add-ons')); ?></a>
                 </li>
                 <li class="mobile-item">
-                    <a href="{{ route('apps.pricing') }}">{{ __('Pricing')}}</a>
+                    <a href="<?php echo e(route('apps.pricing')); ?>"><?php echo e(__('Pricing')); ?></a>
                 </li>
                 <li class="mobile-item">
-                    <a href="{{ (Auth::check()) ? route('home') :route('login') }}">{{ (Auth::check()) ? __('Home') :__('Login') }}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                    <a href="<?php echo e((Auth::check()) ? route('home') :route('login')); ?>"><?php echo e((Auth::check()) ? __('Home') :__('Login')); ?><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                         viewBox="0 0 16 16" fill="none">
                         <g clip-path="url(#clip0_14_726)">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -401,18 +401,18 @@
     <div class="overlay"></div>
 
     <!--scripts start here-->
-    <script src="{{ asset('market_assets/js/jquery.min.js')}}"></script>
-    <script src="{{ asset('market_assets/js/slick.min.js')}}" defer="defer"></script>
-    @if ($admin_settings['site_rtl'] == 'on')
-        <script src="{{ asset('market_assets/js/custom-rtl.js')}}" defer="defer"></script>
-    @else
-        <script src="{{ asset('market_assets/js/custom.js')}}" defer="defer"></script>
-    @endif
-    @if($admin_settings['enable_cookie'] == 'on')
-        @include('layouts.cookie_consent')
-    @endif
+    <script src="<?php echo e(asset('market_assets/js/jquery.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('market_assets/js/slick.min.js')); ?>" defer="defer"></script>
+    <?php if($admin_settings['site_rtl'] == 'on'): ?>
+        <script src="<?php echo e(asset('market_assets/js/custom-rtl.js')); ?>" defer="defer"></script>
+    <?php else: ?>
+        <script src="<?php echo e(asset('market_assets/js/custom.js')); ?>" defer="defer"></script>
+    <?php endif; ?>
+    <?php if($admin_settings['enable_cookie'] == 'on'): ?>
+        <?php echo $__env->make('layouts.cookie_consent', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+    <?php endif; ?>
 
-    <script src="{{ asset('market_assets/js/magnific-popup.min.js')}}" defer="defer"></script>
+    <script src="<?php echo e(asset('market_assets/js/magnific-popup.min.js')); ?>" defer="defer"></script>
     <script>
         $(document).ready(function(){
             $('.img-zoom').magnificPopup({
@@ -423,8 +423,9 @@
             });
     });
     </script>
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
     <!--scripts end here-->
 </body>
 
 </html>
+<?php /**PATH C:\xampp\htdocs\OPEN\resources\views/marketplace/marketplace.blade.php ENDPATH**/ ?>

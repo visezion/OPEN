@@ -18,7 +18,77 @@
 @endsection
 @section('content')
     <!-- wrapper start -->
-    <div class="wrapper">
+    <div class="wrapper pricing-advanced">
+        <style>
+            .pricing-advanced .tab-head-row .tabs {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 12px;
+                padding: 6px;
+                background: #ffffff;
+                gap: 6px;
+            }
+            .pricing-advanced .tab-head-row .tabs .nav-link {
+                border-radius: 8px;
+                border: 1px solid transparent;
+            }
+            .pricing-advanced .tab-head-row .tabs .nav-link.active {
+                border-color: rgba(20, 40, 74, 0.16);
+            }
+            .pricing-advanced .pricing-banner .common-banner-content {
+                border: 1px solid rgba(20, 40, 74, 0.12);
+                border-radius: 16px;
+                background: #ffffff;
+                padding: 34px 26px;
+            }
+            .pricing-advanced .pricing-switch {
+                margin-top: 20px;
+                display: flex;
+                justify-content: center;
+            }
+            .pricing-advanced .pricing-switch .switch {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 999px;
+                padding: 8px 14px;
+                background: #ffffff;
+            }
+            .pricing-advanced .plan-card-section .basic-plan-card-wrap {
+                gap: 12px;
+                align-items: stretch;
+            }
+            .pricing-advanced .compare-plans,
+            .pricing-advanced .basic-plan-card {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 14px;
+                background: #ffffff;
+            }
+            .pricing-advanced .compare-plans .compare-plan-title,
+            .pricing-advanced .basic-plan-card .basic-plan {
+                border-bottom: 1px solid rgba(20, 40, 74, 0.12);
+            }
+            .pricing-advanced .compare-plan-opction li {
+                border-bottom: 1px solid rgba(20, 40, 74, 0.08);
+            }
+            .pricing-advanced .compare-plan-opction li:last-child {
+                border-bottom: 0;
+            }
+            .pricing-advanced .review-section .review-content {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 16px;
+                background: #ffffff;
+            }
+            .pricing-advanced .faq-list .set {
+                border: 1px solid rgba(20, 40, 74, 0.14);
+                border-radius: 12px;
+                margin-bottom: 10px;
+                background: #ffffff;
+                overflow: hidden;
+            }
+            @media (max-width: 991px) {
+                .pricing-advanced .pricing-banner .common-banner-content {
+                    padding: 24px 18px;
+                }
+            }
+        </style>
         @if (admin_setting('custome_package') == 'on' && admin_setting('plan_package') == 'on')
             <div class="container">
                 <div class="tab-head-row">
@@ -323,7 +393,7 @@
                         <div class="col-lg-6 col-md-6 col-12">
                             <div class="form-group">
                                 <label class="form-label">{{ __('WorkSpace Name') }}</label>
-                                <input id="store_name" placeholder="Enter workspace" type="text" class="form-control"
+                                <input id="store_name" placeholder="{{ __('Enter ministry workspace') }}" type="text" class="form-control"
                                     name="workspace" value="" required>
                             </div>
                         </div>

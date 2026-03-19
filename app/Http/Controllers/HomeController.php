@@ -12,6 +12,7 @@ use Illuminate\Routing\Controller;
 use App\Facades\ModuleFacade as Module;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {
@@ -222,23 +223,62 @@ class HomeController extends Controller
             );
         }
         $plan = Plan::first();
-        $addon = AddOn::where('name',$slug)->first();
-        if(!empty($addon) && !empty($addon->module))
-        {
-            $module = Module::find($addon->module);
-            if(!empty($module))
-            {
-                try {
-                    if(module_is_active('LandingPage'))
-                    {
-                        return view('landingpage::marketplace.index',compact('modules','module','plan'));
-                    }
-                    else{
-                        return view($module->package_name.'::marketplace.index',compact('modules','module','plan'));
-                    }
-                } catch (\Throwable $th) {
+        $slug = urldecode((string) $slug);
+        $slugLower = Str::lower(trim($slug));
+        $normalizedSlug = Str::of($slugLower)->replace(['-', '_', ' '], '')->value();
 
+        $addon = AddOn::query()
+            ->where(function ($query) use ($slugLower, $normalizedSlug) {
+                $query->whereRaw('LOWER(`name`) = ?', [$slugLower])
+                    ->orWhereRaw('LOWER(`module`) = ?', [$slugLower])
+                    ->orWhereRaw('LOWER(`package_name`) = ?', [$slugLower])
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(LOWER(`name`), '-', ''), '_', ''), ' ', '') = ?", [$normalizedSlug])
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(LOWER(`module`), '-', ''), '_', ''), ' ', '') = ?", [$normalizedSlug])
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(LOWER(`package_name`), '-', ''), '_', ''), ' ', '') = ?", [$normalizedSlug]);
+            })
+            ->first();
+
+        $module = null;
+        if (!empty($addon?->module)) {
+            $module = Module::find($addon->module);
+        }
+
+        // Fallback to module catalog matching when add_ons table values differ from URL alias.
+        if (empty($module) && !empty($modules_all)) {
+            foreach ($modules_all as $candidateModule) {
+                $candidates = [
+                    Str::lower((string) ($candidateModule->alias ?? '')),
+                    Str::lower((string) ($candidateModule->name ?? '')),
+                    Str::lower((string) ($candidateModule->package_name ?? '')),
+                ];
+
+                foreach ($candidates as $candidate) {
+                    $candidate = trim($candidate);
+                    if ($candidate === '') {
+                        continue;
+                    }
+
+                    $normalizedCandidate = Str::of($candidate)->replace(['-', '_', ' '], '')->value();
+                    if ($candidate === $slugLower || $normalizedCandidate === $normalizedSlug) {
+                        $module = $candidateModule;
+                        break 2;
+                    }
                 }
+            }
+        }
+
+        if(!empty($module))
+        {
+            try {
+                if(module_is_active('LandingPage'))
+                {
+                    return view('landingpage::marketplace.index',compact('modules','module','plan'));
+                }
+                else if (!empty($module->package_name)) {
+                    return view($module->package_name.'::marketplace.index',compact('modules','module','plan'));
+                }
+            } catch (\Throwable $th) {
+                // Keep graceful fallback to not found page.
             }
         }
 
