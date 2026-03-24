@@ -19,8 +19,13 @@ class AttendanceEvent extends Model
         'enabled_methods',
         'online_platform',
         'meeting_link',
+        'host_start_url',
+        'zoom_join_url',
         'meeting_id',
         'meeting_passcode',
+        'zoom_meeting_uuid',
+        'zoom_created_at',
+        'zoom_created_by',
         'auto_log_attendance',
         'qr_code',
         'face_ai_enabled',
@@ -33,6 +38,7 @@ class AttendanceEvent extends Model
         'auto_log_attendance' => 'boolean',
         'checkin_start_at' => 'datetime',
         'checkin_end_at' => 'datetime',
+        'zoom_created_at' => 'datetime',
     ];
 
     public function event()

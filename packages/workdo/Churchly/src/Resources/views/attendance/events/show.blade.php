@@ -9,6 +9,19 @@
 @endsection
 
 @section('page-action')
+    @if($canJoinZoomMeeting)
+        <a href="{{ route('churchly.zoom.meetings.join', $attendanceEvent->id) }}" class="btn btn-primary btn-sm">
+            <i class="ti ti-video"></i> {{ __('Join Meeting') }}
+        </a>
+    @endif
+    @if($canCreateZoomMeeting && !$canJoinZoomMeeting)
+        <form method="POST" action="{{ route('churchly.zoom.meetings.create', $event->id) }}" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="ti ti-video-plus"></i> {{ __('Create Zoom Meeting') }}
+            </button>
+        </form>
+    @endif
     <a href="{{ route('churchly.events.export.pdf', $event->id) }}" class="btn btn-danger btn-sm">
         <i class="ti ti-file-type-pdf"></i> Export PDF
     </a>
@@ -106,6 +119,38 @@
                             <p class="mb-1 text-muted small">Description</p>
                             <p class="text-dark">{!! nl2br(e($event->description ?? 'No description provided.')) !!}</p>
                         </div>
+
+                        @if($attendanceEvent)
+                            <div class="mt-4 p-3 rounded bg-light border">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <div>
+                                        <p class="mb-1 text-muted small">{{ __('Zoom Meeting') }}</p>
+                                        <strong>{{ $attendanceEvent->meeting_id ? __('Configured') : __('Not yet created') }}</strong>
+                                        @if($attendanceEvent->meeting_id)
+                                            <div class="small text-muted mt-1">
+                                                {{ __('Meeting ID') }}: {{ $attendanceEvent->meeting_id }}
+                                                @if($attendanceEvent->meeting_passcode)
+                                                    • {{ __('Passcode') }}: {{ $attendanceEvent->meeting_passcode }}
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        @if($canJoinZoomMeeting)
+                                            <a href="{{ route('churchly.zoom.meetings.join', $attendanceEvent->id) }}" class="btn btn-sm btn-outline-primary">
+                                                {{ __('Open Join Room') }}
+                                            </a>
+                                        @elseif($canCreateZoomMeeting)
+                                            <form method="POST" action="{{ route('churchly.zoom.meetings.create', $event->id) }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">{{ __('Create Zoom Meeting') }}</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Program Schedule -->

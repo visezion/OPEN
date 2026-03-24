@@ -1,28 +1,29 @@
-@extends('layouts.main')
 
-@section('page-title')
+
+<?php $__env->startSection('page-title'); ?>
     Create New Event / Service
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('page-breadcrumb')
-    {{ __('Create New Event / Service ') }}
-@endsection
+<?php $__env->startSection('page-breadcrumb'); ?>
+    <?php echo e(__('Create New Event / Service ')); ?>
 
-@push('css')
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('css'); ?>
 <style>
     .church-events-create .card {
         border: 1px solid var(--bs-border-color, #dee2e6) !important;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('page-action')
-    <a href="{{ route('churchly.events.index') }}" class="btn btn-secondary btn-sm">
+<?php $__env->startSection('page-action'); ?>
+    <a href="<?php echo e(route('churchly.events.index')); ?>" class="btn btn-secondary btn-sm">
         <i class="ti ti-arrow-left"></i> Back to List
     </a>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="row church-events-create">
     <div class="col-md-12 mb-4">
         <div class="card shadow-sm border-0">
@@ -66,8 +67,8 @@
                 <h5 class="mb-0">Event / Service Information</h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('churchly.events.store') }}" enctype="multipart/form-data">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('churchly.events.store')); ?>" enctype="multipart/form-data">
+                    <?php echo csrf_field(); ?>
                     <div class="row">
 
                         <!-- Basic Info -->
@@ -123,9 +124,9 @@
                             <label class="form-label">Lead Minister / Person-in-Charge</label>
                             <select class="form-select member-select" name="lead_id">
                                 <option value="">Select Lead</option>
-                                @foreach ($members as $member)
-                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($member->id); ?>"><?php echo e($member->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
@@ -134,9 +135,9 @@
                             <label class="form-label">Assistant / Co-Leader</label>
                             <select class="form-select member-select" name="assistant_id">
                                 <option value="">Select Assistant</option>
-                                @foreach ($members as $member)
-                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($member->id); ?>"><?php echo e($member->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
@@ -149,9 +150,9 @@
                             <label class="form-label">Branch</label>
                             <select class="form-select" name="branch_id" id="branch_id">
                                 <option value="">Select Branch</option>
-                                @foreach ($branches as $branch)
-                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $branches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $branch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($branch->id); ?>"><?php echo e($branch->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
@@ -159,24 +160,24 @@
                             <label class="form-label">Department</label>
                             <select class="form-select" name="department_id" id="department_id">
                                 <option value="">Select Department</option>
-                                @foreach ($departments as $department)
-                                    <option value="{{ $department->id }}" data-branch-id="{{ $department->branch_id }}">{{ $department->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $departments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($department->id); ?>" data-branch-id="<?php echo e($department->branch_id); ?>"><?php echo e($department->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
-                        {{-- GPS Location for Self Attendance (optional) --}}
+                        
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Latitude</label>
-                            <input type="number" step="0.0001" class="form-control" name="latitude" value="{{ old('latitude') }}" placeholder="e.g., 6.5244">
+                            <input type="number" step="0.0001" class="form-control" name="latitude" value="<?php echo e(old('latitude')); ?>" placeholder="e.g., 6.5244">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Longitude</label>
-                            <input type="number" step="0.0001" class="form-control" name="longitude" value="{{ old('longitude') }}" placeholder="e.g., 3.3792">
+                            <input type="number" step="0.0001" class="form-control" name="longitude" value="<?php echo e(old('longitude')); ?>" placeholder="e.g., 3.3792">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Radius (meters)</label>
-                            <input type="number" min="1" class="form-control" name="radius_meters" value="{{ old('radius_meters', 100) }}">
+                            <input type="number" min="1" class="form-control" name="radius_meters" value="<?php echo e(old('radius_meters', 100)); ?>">
                         </div>
 
                         <div class="col-md-12 mb-3">
@@ -216,9 +217,9 @@
                                         <!-- 🔍 Searchable Dropdown Added -->
                                         <select class="form-select member-select" name="leader[]">
                                             <option value="">Select Member</option>
-                                            @foreach ($members as $member)
-                                                <option value="{{ $member->id }}">{{ $member->name }}</option>
-                                            @endforeach
+                                            <?php $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($member->id); ?>"><?php echo e($member->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </td>
                                     <td><input type="text" class="form-control" name="note[]" placeholder="Optional note"></td>
@@ -230,62 +231,69 @@
 
                     <hr>
 
-                    {{-- Mode & Auto Log Toggle --}}
+                    
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">
-                                <i class="ti ti-building-church text-success"></i> {{ __('Mode of Attendance') }}
+                                <i class="ti ti-building-church text-success"></i> <?php echo e(__('Mode of Attendance')); ?>
+
                             </label>
                             <select name="mode" id="mode-selector" class="form-select" required>
-                                <option value="onsite">{{ __('Onsite') }}</option>
-                                <option value="online">{{ __('Online') }}</option>
-                                <option value="hybrid">{{ __('Hybrid') }}</option>
+                                <option value="onsite"><?php echo e(__('Onsite')); ?></option>
+                                <option value="online"><?php echo e(__('Online')); ?></option>
+                                <option value="hybrid"><?php echo e(__('Hybrid')); ?></option>
                             </select>
                             <small class="text-muted d-block mt-1">
-                                {{ __('Define how participants will attend this event.') }}
+                                <?php echo e(__('Define how participants will attend this event.')); ?>
+
                             </small>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold d-block">
-                                <i class="ti ti-activity text-warning"></i> {{ __('Auto Attendance Logging') }}
+                                <i class="ti ti-activity text-warning"></i> <?php echo e(__('Auto Attendance Logging')); ?>
+
                             </label>
                             <div class="form-check form-switch">
                                 <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance">
-                                <label for="auto_log_attendance" class="form-check-label">{{ __('Enable Auto Logging') }}</label>
+                                <label for="auto_log_attendance" class="form-check-label"><?php echo e(__('Enable Auto Logging')); ?></label>
                             </div>
                             <small class="text-muted d-block mt-1">
-                                {{ __('Automatically record attendance for Zoom/YouTube integrations.') }}
+                                <?php echo e(__('Automatically record attendance for Zoom/YouTube integrations.')); ?>
+
                             </small>
                         </div>
                     </div>
 
-                    @if(!empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret))
+                    <?php if(!empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret)): ?>
                         <div class="alert alert-info d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>{{ __('Zoom is connected.') }}</strong>
-                                {{ __('You can create the Zoom meeting automatically when this event is saved.') }}
+                                <strong><?php echo e(__('Zoom is connected.')); ?></strong>
+                                <?php echo e(__('You can create the Zoom meeting automatically when this event is saved.')); ?>
+
                             </div>
                             <div class="form-check form-switch mb-0">
                                 <input type="checkbox" class="form-check-input" id="create_zoom_meeting" name="create_zoom_meeting" value="1">
-                                <label for="create_zoom_meeting" class="form-check-label">{{ __('Auto-create Zoom meeting') }}</label>
+                                <label for="create_zoom_meeting" class="form-check-label"><?php echo e(__('Auto-create Zoom meeting')); ?></label>
                             </div>
                         </div>
-                    @else
+                    <?php else: ?>
                         <div class="alert alert-warning">
-                            {{ __('Zoom meeting creation is unavailable until Churchly Zoom settings are configured.') }}
-                            <a href="{{ route('churchly.zoom.index') }}" class="alert-link">{{ __('Open Zoom settings') }}</a>
-                        </div>
-                    @endif
+                            <?php echo e(__('Zoom meeting creation is unavailable until Churchly Zoom settings are configured.')); ?>
 
-                    {{-- Attendance Methods --}}
+                            <a href="<?php echo e(route('churchly.zoom.index')); ?>" class="alert-link"><?php echo e(__('Open Zoom settings')); ?></a>
+                        </div>
+                    <?php endif; ?>
+
+                    
                     <div class="mb-4">
                         <label class="form-label fw-semibold">
-                            <i class="ti ti-checks text-info"></i> {{ __('Enabled Attendance Methods') }}
+                            <i class="ti ti-checks text-info"></i> <?php echo e(__('Enabled Attendance Methods')); ?>
+
                         </label>
                        
                         <div class="row g-3">
-                            @php
+                            <?php
                                 $methods = [
                                     ['manual', 'Manual Check-in', 'ti-user-check'],
                                     ['qr', 'QR Code Scanning', 'ti-qrcode'],
@@ -294,46 +302,50 @@
                                     ['zoom', 'Zoom Attendance Sync', 'ti-video'],
                                     ['youtube', 'YouTube Live Tracking', 'ti-brand-youtube']
                                 ];
-                            @endphp
+                            ?>
 
-                            @foreach($methods as [$value, $label, $icon])
+                            <?php $__currentLoopData = $methods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$value, $label, $icon]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="col-md-6">
                                     <div class="form-check">
-                                        <input type="checkbox" name="enabled_methods[]" value="{{ $value }}" id="method-{{ $value }}" class="form-check-input">
-                                        <label for="method-{{ $value }}" class="form-check-label d-flex align-items-center">
-                                            <i class="ti {{ $icon }} text-primary me-2"></i> {{ __($label) }}
+                                        <input type="checkbox" name="enabled_methods[]" value="<?php echo e($value); ?>" id="method-<?php echo e($value); ?>" class="form-check-input">
+                                        <label for="method-<?php echo e($value); ?>" class="form-check-label d-flex align-items-center">
+                                            <i class="ti <?php echo e($icon); ?> text-primary me-2"></i> <?php echo e(__($label)); ?>
+
                                         </label>
                                     </div>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
                         <small class="text-muted d-block mt-2">
-                            {{ __('Multiple methods can be enabled simultaneously for flexibility.') }}
+                            <?php echo e(__('Multiple methods can be enabled simultaneously for flexibility.')); ?>
+
                         </small>
                     </div>
 
-                    {{-- Online Config --}}
+                    
                     <div id="online-config" class="mb-4" style="display:none;">
                         <label class="form-label fw-semibold">
-                            <i class="ti ti-video text-danger"></i> {{ __('Online Configuration (Optional)') }}
+                            <i class="ti ti-video text-danger"></i> <?php echo e(__('Online Configuration (Optional)')); ?>
+
                         </label>
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <input type="text" name="online_platform" id="online_platform" placeholder="{{ __('Platform (e.g., Zoom, YouTube)') }}" class="form-control">
+                                <input type="text" name="online_platform" id="online_platform" placeholder="<?php echo e(__('Platform (e.g., Zoom, YouTube)')); ?>" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_link" placeholder="{{ __('Meeting/Stream Link') }}" class="form-control">
+                                <input type="text" name="meeting_link" placeholder="<?php echo e(__('Meeting/Stream Link')); ?>" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_id" placeholder="{{ __('Meeting ID (Zoom)') }}" class="form-control">
+                                <input type="text" name="meeting_id" placeholder="<?php echo e(__('Meeting ID (Zoom)')); ?>" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_passcode" placeholder="{{ __('Passcode (Zoom)') }}" class="form-control">
+                                <input type="text" name="meeting_passcode" placeholder="<?php echo e(__('Passcode (Zoom)')); ?>" class="form-control">
                             </div>
                         </div>
                         <small class="text-muted d-block mt-1">
-                            {{ __('Only required for Online or Hybrid modes.') }}
+                            <?php echo e(__('Only required for Online or Hybrid modes.')); ?>
+
                         </small>
                     </div>
 
@@ -354,12 +366,12 @@
         </div>
     </div>
 
-    {{-- Right Sidebar: Tips and Notifications --}}
+    
     <div class="col-lg-3 mt-4 mt-lg-0">
-        {{-- 🧭 Instruction & Tips --}}
+        
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header  text-primary py-3">
-                <h5 class="mb-0"><i class="ti ti-bulb"></i> {{ __('Instructions & Tips') }}</h5>
+                <h5 class="mb-0"><i class="ti ti-bulb"></i> <?php echo e(__('Instructions & Tips')); ?></h5>
             </div>
             <div class="card-body small text-muted">
                 <ul class="ps-3 mb-0">
@@ -380,42 +392,43 @@
         </div>
 
 
-       {{-- Notifications --}}
-            @php
+       
+            <?php
                 $recentEvents = \Workdo\Churchly\Entities\Event::orderBy('created_at', 'desc')->take(3)->get();
-            @endphp
+            ?>
 
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-light py-2 d-flex align-items-center justify-content-between">
                     <h6 class="mb-0">
-                        <i class="ti ti-bell"></i> {{ __('Recent Notifications') }}
+                        <i class="ti ti-bell"></i> <?php echo e(__('Recent Notifications')); ?>
+
                     </h6>
-                    <a href="{{ route('churchly.events.index') }}" class="text-muted small">{{ __('View All') }}</a>
+                    <a href="<?php echo e(route('churchly.events.index')); ?>" class="text-muted small"><?php echo e(__('View All')); ?></a>
                 </div>
 
                 <div class="card-body small">
-                    @forelse($recentEvents as $event)
-                        <div class="alert alert-{{ 
-                            $event->event_type == 'worship' ? 'info' : 
+                    <?php $__empty_1 = true; $__currentLoopData = $recentEvents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <div class="alert alert-<?php echo e($event->event_type == 'worship' ? 'info' : 
                             ($event->event_type == 'meeting' ? 'warning' : 
-                            ($event->event_type == 'outreach' ? 'success' : 'secondary')) 
-                        }} mb-2 py-2">
+                            ($event->event_type == 'outreach' ? 'success' : 'secondary'))); ?> mb-2 py-2">
                             <i class="ti ti-calendar-event"></i>
-                            <strong>{{ $event->title }}</strong>
+                            <strong><?php echo e($event->title); ?></strong>
                             <br>
                             <span class="text-muted">
-                                {{ __('Scheduled for') }} {{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}
-                                @if($event->time)
-                                    {{ __('at') }} {{ \Carbon\Carbon::parse($event->time)->format('h:i A') }}
-                                @endif
+                                <?php echo e(__('Scheduled for')); ?> <?php echo e(\Carbon\Carbon::parse($event->date)->format('M d, Y')); ?>
+
+                                <?php if($event->time): ?>
+                                    <?php echo e(__('at')); ?> <?php echo e(\Carbon\Carbon::parse($event->time)->format('h:i A')); ?>
+
+                                <?php endif; ?>
                             </span>
                         </div>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <div class="text-center text-muted py-3">
                             <i class="ti ti-bell-off" style="font-size: 28px;"></i>
-                            <p class="mt-2 mb-0">{{ __('No recent event notifications yet.') }}</p>
+                            <p class="mt-2 mb-0"><?php echo e(__('No recent event notifications yet.')); ?></p>
                         </div>
-                    @endforelse
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -440,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const table = document.querySelector('#programTable tbody');
         const newRow = document.createElement('tr');
         const count = table.rows.length + 1;
-        let memberOptions = `{!! $members->map(fn($m)=>"<option value='{$m->id}'>{$m->name}</option>")->implode('') !!}`;
+        let memberOptions = `<?php echo $members->map(fn($m)=>"<option value='{$m->id}'>{$m->name}</option>")->implode(''); ?>`;
         newRow.innerHTML = `
             <td>${count}</td>
             <td><input type="text" class="form-control" name="program_item[]" placeholder="Program name"></td>
@@ -515,4 +528,6 @@ document.addEventListener('DOMContentLoaded', function() {
     syncZoomPlatform();
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\Churchly\src\Providers/../Resources/views/attendance/events/create.blade.php ENDPATH**/ ?>

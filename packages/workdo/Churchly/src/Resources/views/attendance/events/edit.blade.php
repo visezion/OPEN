@@ -51,9 +51,9 @@
                                 <i class="ti ti-switch-horizontal text-info"></i> {{ __('Mode') }}
                             </label>
                             <select name="mode" class="form-select" required>
-                                <option value="onsite" {{ $event->mode == 'onsite' ? 'selected' : '' }}>Onsite</option>
-                                <option value="online" {{ $event->mode == 'online' ? 'selected' : '' }}>Online</option>
-                                <option value="hybrid" {{ $event->mode == 'hybrid' ? 'selected' : '' }}>Hybrid</option>
+                                <option value="onsite" {{ optional($attendanceEvent)->mode == 'onsite' ? 'selected' : '' }}>Onsite</option>
+                                <option value="online" {{ optional($attendanceEvent)->mode == 'online' ? 'selected' : '' }}>Online</option>
+                                <option value="hybrid" {{ optional($attendanceEvent)->mode == 'hybrid' ? 'selected' : '' }}>Hybrid</option>
                             </select>
                         </div>
                     </div>
@@ -71,6 +71,28 @@
                         <div class="col-md-12 mt-3">
                             <label class="form-label fw-semibold"><i class="ti ti-map-pin text-secondary"></i> {{ __('Venue / Location') }}</label>
                             <input type="text" name="venue" class="form-control" value="{{ old('venue', $event->venue) }}" placeholder="{{ __('Enter venue or meeting link') }}">
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label fw-semibold">{{ __('Branch') }}</label>
+                            <select class="form-select" name="branch_id" id="branch_id">
+                                <option value="">{{ __('Select Branch') }}</option>
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}" {{ old('branch_id', optional($attendanceEvent)->branch_id) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label fw-semibold">{{ __('Department') }}</label>
+                            <select class="form-select" name="department_id" id="department_id">
+                                <option value="">{{ __('Select Department') }}</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->id }}"
+                                            data-branch-id="{{ $department->branch_id }}"
+                                            {{ old('department_id', optional($attendanceEvent)->department_id) == $department->id ? 'selected' : '' }}>
+                                        {{ $department->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         {{-- GPS Location for Self Attendance (optional) --}}
                         <div class="col-md-4 mt-3">
@@ -124,6 +146,54 @@
                     <div class="mb-4">
                         <label class="form-label fw-semibold"><i class="ti ti-align-left text-secondary"></i> {{ __('Description') }}</label>
                         <textarea name="description" rows="4" class="form-control" placeholder="{{ __('Write a brief description of the event...') }}">{{ old('description', $event->description) }}</textarea>
+                    </div>
+
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="mb-1">{{ __('Zoom Meeting') }}</h6>
+                                    <small class="text-muted">{{ __('Create or update the meeting details members will join from OPEN.') }}</small>
+                                </div>
+                                @if(optional($attendanceEvent)->meeting_id)
+                                    <a href="{{ route('churchly.zoom.meetings.join', $attendanceEvent->id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="ti ti-video"></i> {{ __('Open Join Room') }}
+                                    </a>
+                                @endif
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('Online Platform') }}</label>
+                                    <input type="text" name="online_platform" id="online_platform" class="form-control" value="{{ old('online_platform', optional($attendanceEvent)->online_platform) }}" placeholder="zoom">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('Meeting Link') }}</label>
+                                    <input type="text" name="meeting_link" class="form-control" value="{{ old('meeting_link', optional($attendanceEvent)->meeting_link) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('Meeting ID') }}</label>
+                                    <input type="text" name="meeting_id" class="form-control" value="{{ old('meeting_id', optional($attendanceEvent)->meeting_id) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('Passcode') }}</label>
+                                    <input type="text" name="meeting_passcode" class="form-control" value="{{ old('meeting_passcode', optional($attendanceEvent)->meeting_passcode) }}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance" value="1" {{ old('auto_log_attendance', optional($attendanceEvent)->auto_log_attendance) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="auto_log_attendance">{{ __('Auto attendance logging') }}</label>
+                                </div>
+                                @if(!empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret) && empty(optional($attendanceEvent)->meeting_id))
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input" id="create_zoom_meeting" name="create_zoom_meeting" value="1">
+                                        <label class="form-check-label" for="create_zoom_meeting">{{ __('Create Zoom meeting now') }}</label>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Program Schedule --}}
@@ -197,12 +267,15 @@
                  <hr>
                 <p class="fw-semibold text-dark mb-2">{{ __('To edit or modify an Attendance Menthod:') }}</p>
                 <ul class="ps-3 mb-0">
-                   
-                    <a href="{{ route('churchly.attendance_events.edit', $attendanceEvent->id) }}" 
-                    class="btn btn-sm btn-outline-warning" 
-                    title="{{ __('Edit Attendance Event') }}">
-                        <i class="ti ti-pencil">Clink to edit or modify an Attendance Menthod</i>
-                    </a>
+                    @if($attendanceEvent)
+                        <a href="{{ route('churchly.attendance_events.edit', $attendanceEvent->id) }}"
+                           class="btn btn-sm btn-outline-warning"
+                           title="{{ __('Edit Attendance Event') }}">
+                            <i class="ti ti-pencil">Clink to edit or modify an Attendance Menthod</i>
+                        </a>
+                    @else
+                        <span class="text-muted">{{ __('Attendance settings will appear after the event is saved.') }}</span>
+                    @endif
                 </ul>
                 <hr>
                 <p class="fw-semibold text-dark mb-2">{{ __('Review Comments / Descussions') }}</p><br>
@@ -240,6 +313,11 @@
 document.addEventListener('DOMContentLoaded', function () {
     const wrapper = document.getElementById('program-wrapper');
     const addBtn = document.getElementById('add-program');
+    const branchSelect = document.getElementById('branch_id');
+    const departmentSelect = document.getElementById('department_id');
+    const createZoomMeeting = document.getElementById('create_zoom_meeting');
+    const onlinePlatform = document.getElementById('online_platform');
+    const modeSelect = document.querySelector('select[name="mode"]');
 
     addBtn.addEventListener('click', () => {
         const row = document.createElement('div');
@@ -259,6 +337,41 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
         wrapper.appendChild(row);
     });
+
+    function filterDepartments() {
+        if (!branchSelect || !departmentSelect) {
+            return;
+        }
+
+        const branchId = branchSelect.value;
+
+        Array.from(departmentSelect.options).forEach((option, index) => {
+            if (index === 0) {
+                option.hidden = false;
+                return;
+            }
+
+            option.hidden = branchId !== '' && option.dataset.branchId !== branchId;
+        });
+
+        if (departmentSelect.selectedOptions[0]?.hidden) {
+            departmentSelect.value = '';
+        }
+    }
+
+    function syncZoomDefaults() {
+        if (createZoomMeeting?.checked) {
+            onlinePlatform.value = 'zoom';
+            if (modeSelect.value === 'onsite') {
+                modeSelect.value = 'online';
+            }
+        }
+    }
+
+    branchSelect?.addEventListener('change', filterDepartments);
+    createZoomMeeting?.addEventListener('change', syncZoomDefaults);
+    filterDepartments();
+    syncZoomDefaults();
 });
 </script>
 @endpush

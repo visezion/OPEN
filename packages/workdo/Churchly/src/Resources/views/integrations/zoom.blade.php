@@ -19,18 +19,65 @@
         </div>
       </div>
       <div class="card-body">
+        <div class="alert alert-info">
+          <strong>{{ __('Where to get each value') }}:</strong>
+          {{ __('Use your Zoom Marketplace app credentials for OAuth and Meeting SDK values.') }}
+          <a href="https://marketplace.zoom.us/user/build" target="_blank" rel="noopener noreferrer" class="alert-link">
+            {{ __('Open Zoom Marketplace Apps') }}
+          </a>
+        </div>
         <form method="POST" action="{{ route('churchly.zoom.save') }}">@csrf
           <div class="mb-3">
             <label class="form-label">{{ __('Account ID') }}</label>
             <input type="text" name="account_id" value="{{ old('account_id',$setting->account_id) }}" class="form-control" placeholder="zoom account id">
+            <small class="text-muted d-block mt-1">
+              {{ __('From your Zoom Server-to-Server OAuth app credentials page.') }}
+              <a href="https://marketplace.zoom.us/user/build" target="_blank" rel="noopener noreferrer">{{ __('Where to find Account ID') }}</a>
+            </small>
           </div>
           <div class="mb-3">
             <label class="form-label">{{ __('Client ID') }}</label>
             <input type="text" name="client_id" value="{{ old('client_id',$setting->client_id) }}" class="form-control" placeholder="client id">
+            <small class="text-muted d-block mt-1">
+              {{ __('Use the Client ID from the same Server-to-Server OAuth app.') }}
+              <a href="https://marketplace.zoom.us/user/build" target="_blank" rel="noopener noreferrer">{{ __('Where to find Client ID') }}</a>
+            </small>
           </div>
           <div class="mb-3">
             <label class="form-label">{{ __('Client Secret') }}</label>
             <input type="text" name="client_secret" value="{{ old('client_secret',$setting->client_secret) }}" class="form-control" placeholder="client secret">
+            <small class="text-muted d-block mt-1">
+              {{ __('Use the Client Secret from your Server-to-Server OAuth app.') }}
+              <a href="https://marketplace.zoom.us/user/build" target="_blank" rel="noopener noreferrer">{{ __('Where to find Client Secret') }}</a>
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ __('Host User ID or Email') }}</label>
+            <input type="text" name="host_user_id" value="{{ old('host_user_id',$setting->host_user_id) }}" class="form-control" placeholder="me or host user id">
+            <small class="text-muted d-block mt-1">{{ __('Used when Churchly creates scheduled meetings through Zoom.') }}</small>
+            <small class="text-muted d-block">
+              {{ __('Use a Zoom host email (recommended) or user ID from Zoom user management.') }}
+              <a href="https://zoom.us/account/user" target="_blank" rel="noopener noreferrer">{{ __('Open Zoom User Management') }}</a>
+            </small>
+          </div>
+          <hr>
+          <h6 class="mb-3">{{ __('Meeting SDK (for in-app join)') }}</h6>
+          <div class="mb-3">
+            <label class="form-label">{{ __('Meeting SDK Key') }}</label>
+            <input type="text" name="meeting_sdk_key" value="{{ old('meeting_sdk_key',$setting->meeting_sdk_key) }}" class="form-control" placeholder="sdk key">
+            <small class="text-muted d-block mt-1">
+              {{ __('From your Zoom Meeting SDK app credentials.') }}
+              <a href="https://marketplace.zoom.us/user/build" target="_blank" rel="noopener noreferrer">{{ __('Where to find SDK Key') }}</a>
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ __('Meeting SDK Secret') }}</label>
+            <input type="text" name="meeting_sdk_secret" value="{{ old('meeting_sdk_secret',$setting->meeting_sdk_secret) }}" class="form-control" placeholder="sdk secret">
+            <small class="text-muted d-block mt-1">{{ __('Required for users to join Zoom meetings inside OPEN instead of leaving the app.') }}</small>
+            <small class="text-muted d-block">
+              {{ __('Use the secret from the same Zoom Meeting SDK app.') }}
+              <a href="https://marketplace.zoom.us/user/build" target="_blank" rel="noopener noreferrer">{{ __('Where to find SDK Secret') }}</a>
+            </small>
           </div>
           <div class="row g-3">
             <div class="col-md-6">
@@ -40,12 +87,14 @@
                   <option value="{{ $m }}" {{ ($setting->interval_minutes ?? 15)==$m ? 'selected':'' }}>{{ $m<60?$m.' min':($m%1440==0?'Daily':($m/60).' hr') }}</option>
                 @endforeach
               </select>
+              <small class="text-muted d-block mt-1">{{ __('How often Churchly pulls participant attendance from Zoom.') }}</small>
             </div>
             <div class="col-md-6 align-self-end">
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" name="active" value="1" {{ $setting->active?'checked':'' }}>
                 <label class="form-check-label">{{ __('Enable Auto Sync') }}</label>
               </div>
+              <small class="text-muted d-block mt-1">{{ __('Turn on automatic background sync using the interval above.') }}</small>
             </div>
           </div>
           <div class="text-end mt-3"><button class="btn btn-primary">{{ __('Save Settings') }}</button></div>
@@ -90,4 +139,3 @@
   </div>
 </div>
 @endsection
-

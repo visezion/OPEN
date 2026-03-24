@@ -452,6 +452,9 @@ Route::middleware(['web','auth'])->group(function(){
     Route::post('churchly/zoom', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'save'])->name('churchly.zoom.save');
     Route::get('churchly/zoom/test', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'test'])->name('churchly.zoom.test');
     Route::get('churchly/zoom/sync', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'syncNow'])->name('churchly.zoom.sync');
+    Route::post('churchly/events/{event}/zoom/create', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'createForEvent'])->name('churchly.zoom.meetings.create');
+    Route::get('churchly/zoom/meetings/{attendanceEvent}/join', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'join'])->name('churchly.zoom.meetings.join');
+    Route::post('churchly/zoom/meetings/{attendanceEvent}/signature', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'signature'])->name('churchly.zoom.meetings.signature');
 });
 
 // Website CMS (admin)

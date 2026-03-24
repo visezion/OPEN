@@ -11,10 +11,14 @@ use Workdo\Churchly\Entities\EventProgram;
 use Workdo\Churchly\Entities\AttendanceEvent;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Workdo\Churchly\Http\Controllers\SmsGatewayController;
+use Workdo\Churchly\Entities\ChurchBranch;
 use Workdo\Churchly\Entities\ChurchEventReviewerComment;
 use Workdo\Churchly\Entities\ChurchDepartment;
+use Workdo\Churchly\Entities\ChurchDesignation;
+use Workdo\Churchly\Entities\ZoomSyncSetting;
 use Workdo\Churchly\Entities\ZenderWaGroup;
 use Workdo\Churchly\Http\Controllers\AttendanceRecordController;
+use Workdo\Churchly\Services\ZoomMeetingService;
 
 class EventController extends Controller
 {
@@ -34,11 +38,14 @@ class EventController extends Controller
     {
         // ✅ Fetch all active church members for dropdowns
         $members = ChurchMember::forWorkspace()->select('id', 'name')->get();
+        $branches = ChurchBranch::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
+        $departments = ChurchDepartment::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
+        $zoomSetting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
 
         // ✅ Pass members to your Blade view
-        return view('churchly::attendance.events.create', compact('members'));
+        return view('churchly::attendance.events.create', compact('members', 'branches', 'departments', 'zoomSetting'));
     }
-    public function store(Request $request)
+    public function store(Request $request, ZoomMeetingService $zoomMeetingService)
     {
         $request->validate([
             'title'       => 'required|string|max:191',
@@ -48,6 +55,8 @@ class EventController extends Controller
             'venue'       => 'nullable|string|max:191',
             'description' => 'nullable|string',
             'mode' => 'required|string|in:onsite,online,hybrid',
+            'branch_id' => 'nullable|exists:church_branches,id',
+            'department_id' => 'nullable|exists:church_departments,id',
             'latitude'    => 'nullable|numeric',
             'longitude'   => 'nullable|numeric',
             'radius_meters' => 'nullable|integer|min:1',
@@ -92,7 +101,7 @@ class EventController extends Controller
             }
         }
         // 🧩 Save  Attendance Event
-        AttendanceEvent::create([
+        $attendanceEvent = AttendanceEvent::create([
             'workspace_id' => getActiveWorkSpace(),
             'branch_id' => $request->branch_id,
             'department_id' => $request->department_id,
@@ -106,6 +115,8 @@ class EventController extends Controller
             'auto_log_attendance' => $request->auto_log_attendance ?? false,
             'created_by' => Auth::id(),
         ]);
+
+        $zoomMessage = $this->maybeCreateZoomMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService);
 
 
         // ✅ Save uploaded files (if any)
@@ -149,9 +160,15 @@ class EventController extends Controller
             $gateway->sendZenderMessage($assistant->phone, $message, 'whatsapp');
         }
         
-        return redirect()
+        $redirect = redirect()
             ->route('churchly.events.index')
             ->with('success', __('Event created successfully and submitted for review.'));
+
+        if ($zoomMessage) {
+            $redirect->with('warning', $zoomMessage);
+        }
+
+        return $redirect;
     }
 
 
@@ -556,13 +573,17 @@ public function publishAction(Request $request, $id)
             ->with('user')
             ->orderBy('commented_at', 'asc')
             ->get();
+        $canCreateZoomMeeting = $this->userCanCreateZoomMeeting($attendanceEvent);
+        $canJoinZoomMeeting = !empty($attendanceEvent?->meeting_id) && strtolower((string) $attendanceEvent?->online_platform) === 'zoom';
 
         // ✅ Send all context to the view
         return view('churchly::attendance.events.show', compact(
             'event',
             'attendanceEvent',
             'attendanceStats',
-            'reviewComments'
+            'reviewComments',
+            'canCreateZoomMeeting',
+            'canJoinZoomMeeting'
         ));
     }
 
@@ -577,25 +598,29 @@ public function publishAction(Request $request, $id)
 
     public function edit($id)
     {
-    $event = Event::with([
-                    'programs.leader',
-                    'lead',
-                    'assistant',
-                    'reviewerComments.user'
-                ])
-                ->inWorkspace()
-                ->findOrFail($id);
+        $event = Event::with([
+                'programs.leader',
+                'lead',
+                'assistant',
+                'reviewerComments.user'
+            ])
+            ->inWorkspace()
+            ->findOrFail($id);
 
-        $attendanceEvent = AttendanceEvent::findOrFail($id);
+        $attendanceEvent = AttendanceEvent::where('event_id', $id)
+            ->where('workspace_id', getActiveWorkSpace())
+            ->first();
         $events = Event::all();
+        $members = ChurchMember::forWorkspace()->select('id', 'name')->get();
+        $branches = ChurchBranch::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
+        $departments = ChurchDepartment::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
+        $zoomSetting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
 
-            $members = ChurchMember::forWorkspace()->select('id', 'name')->get();
-
-        return view('churchly::attendance.events.edit', compact('event', 'members', 'events', 'attendanceEvent'));
+        return view('churchly::attendance.events.edit', compact('event', 'members', 'events', 'attendanceEvent', 'branches', 'departments', 'zoomSetting'));
     }
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, ZoomMeetingService $zoomMeetingService)
     {
     $event = Event::findOrFail($id);
     if ($event->status === 'revision_required')
@@ -613,6 +638,8 @@ public function publishAction(Request $request, $id)
         'venue'       => 'nullable|string|max:191',
         'description' => 'nullable|string',
         'mode'        => 'required|string|in:onsite,online,hybrid',
+        'branch_id' => 'nullable|exists:church_branches,id',
+        'department_id' => 'nullable|exists:church_departments,id',
         'latitude'    => 'nullable|numeric',
         'longitude'   => 'nullable|numeric',
         'radius_meters' => 'nullable|integer|min:1',
@@ -638,6 +665,25 @@ public function publishAction(Request $request, $id)
         'updated_at'   => now(),
     ]);
 
+    $attendanceEvent = AttendanceEvent::firstOrNew([
+        'workspace_id' => getActiveWorkSpace(),
+        'event_id' => $event->id,
+    ]);
+
+    $attendanceEvent->branch_id = $request->branch_id;
+    $attendanceEvent->department_id = $request->department_id;
+    $attendanceEvent->mode = $request->mode;
+    $attendanceEvent->enabled_methods = $request->has('enabled_methods')
+        ? ($request->enabled_methods ?? [])
+        : ($attendanceEvent->enabled_methods ?? []);
+    $attendanceEvent->online_platform = $request->online_platform;
+    $attendanceEvent->meeting_link = $request->meeting_link;
+    $attendanceEvent->meeting_id = $request->meeting_id;
+    $attendanceEvent->meeting_passcode = $request->meeting_passcode;
+    $attendanceEvent->auto_log_attendance = (bool) ($request->auto_log_attendance ?? false);
+    $attendanceEvent->created_by = $attendanceEvent->created_by ?: Auth::id();
+    $attendanceEvent->save();
+
     // ✅ Refresh program items
     EventProgram::where('event_id', $id)->delete();
 
@@ -656,7 +702,7 @@ public function publishAction(Request $request, $id)
             }
         }
     }
-    if ($status = 'resubmitted')
+    if ($status === 'resubmitted')
     {
 
     // ✅ Send WhatsApp notifications to Lead & Assistant
@@ -692,9 +738,17 @@ public function publishAction(Request $request, $id)
             }
 
     }
-    return redirect()
+    $zoomMessage = $this->maybeCreateZoomMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService);
+
+    $redirect = redirect()
         ->route('churchly.events.index')
         ->with('success', __('Event updated successfully.'));
+
+    if ($zoomMessage) {
+        $redirect->with('warning', $zoomMessage);
+    }
+
+    return $redirect;
 }
 
 
@@ -865,6 +919,78 @@ public function analytics()
 }
 
 
+
+    protected function maybeCreateZoomMeetingFromRequest(Request $request, AttendanceEvent $attendanceEvent, ZoomMeetingService $zoomMeetingService): ?string
+    {
+        if (!$request->boolean('create_zoom_meeting') || $attendanceEvent->meeting_id) {
+            return null;
+        }
+
+        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+
+        if (!$setting->account_id || !$setting->client_id || !$setting->client_secret) {
+            return __('Event saved, but Zoom meeting was not created because Zoom OAuth is not configured.');
+        }
+
+        try {
+            $zoomMeetingService->createMeetingForAttendanceEvent(
+                $setting,
+                $attendanceEvent,
+                $setting->host_user_id ?: 'me'
+            );
+        } catch (\Throwable $exception) {
+            return __('Event saved, but Zoom meeting creation failed: :message', ['message' => $exception->getMessage()]);
+        }
+
+        return null;
+    }
+
+    protected function userCanCreateZoomMeeting(?AttendanceEvent $attendanceEvent): bool
+    {
+        $user = Auth::user();
+
+        if (!$user || !$attendanceEvent) {
+            return false;
+        }
+
+        if (
+            $user->isAbleTo('churchly settings manage') ||
+            $user->isAbleTo('churchly event manage') ||
+            $user->isAbleTo('churchly event create')
+        ) {
+            return true;
+        }
+
+        if (!$attendanceEvent->department_id) {
+            return false;
+        }
+
+        $churchMember = ChurchMember::forWorkspace()->where('user_id', $user->id)->first();
+
+        if (!$churchMember) {
+            return false;
+        }
+
+        $keywords = ['leader', 'head', 'pastor', 'minister', 'director', 'coordinator', 'hod'];
+        $designationIds = $churchMember->departments()
+            ->where('church_departments.id', $attendanceEvent->department_id)
+            ->withPivot('designation_id')
+            ->get()
+            ->pluck('pivot.designation_id')
+            ->filter();
+
+        if ($designationIds->isEmpty()) {
+            return false;
+        }
+
+        return ChurchDesignation::whereIn('id', $designationIds)
+            ->where(function ($query) use ($keywords) {
+                foreach ($keywords as $keyword) {
+                    $query->orWhere('name', 'like', '%' . $keyword . '%');
+                }
+            })
+            ->exists();
+    }
 
     public function destroy($id)
     {

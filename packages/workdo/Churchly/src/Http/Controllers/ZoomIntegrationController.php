@@ -26,6 +26,9 @@ public function index()
             'account_id' => 'nullable|string',
             'client_id' => 'nullable|string',
             'client_secret' => 'nullable|string',
+            'host_user_id' => 'nullable|string',
+            'meeting_sdk_key' => 'nullable|string',
+            'meeting_sdk_secret' => 'nullable|string',
             'interval_minutes' => 'required|integer|min:5|max:1440',
             'active' => 'nullable|boolean',
         ]);
