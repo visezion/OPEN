@@ -12,6 +12,7 @@ class CompanyMenuListener
     {
         $module = 'Churchly';
         $menu = $event->menu;
+        $churchMeetInstalled = class_exists(\Workdo\ChurchMeet\Providers\ChurchMeetServiceProvider::class);
         $menu->add([
             'category' => 'General',
             'title' => __('Church Dashboard'),
@@ -55,62 +56,64 @@ class CompanyMenuListener
             'permission' => 'churchly dashboard manage'
         ]);
        
-        ///////// attendance Management/////
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Event & Attendance'),
-            'icon' => 'check',
-            'name' => 'attendance',
-            'parent' => null,
-            'order' => 10,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => '',
-            'module' => $module,
-            'permission' => 'churchly dashboard manage'
-        ]);
+        if (!$churchMeetInstalled) {
+            ///////// attendance Management/////
+            $menu->add([
+                'category' => 'Church',
+                'title' => __('Event & Attendance'),
+                'icon' => 'check',
+                'name' => 'attendance',
+                'parent' => null,
+                'order' => 10,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => '',
+                'module' => $module,
+                'permission' => 'churchly dashboard manage'
+            ]);
 
-         $menu->add([
-            'category' => 'Church',
-            'title' => __('Events Management'),
-            'icon' => '',
-            'name' => 'events',
-            'parent' => 'attendance',
-            'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchly.events.index',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
+             $menu->add([
+                'category' => 'Church',
+                'title' => __('Events Management'),
+                'icon' => '',
+                'name' => 'events',
+                'parent' => 'attendance',
+                'order' => 1,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'churchly.events.index',
+                'module' => $module,
+                'permission' => 'church_settings manage'
+            ]);
 
-         $menu->add([
-            'category' => 'Church',
-            'title' => __('Event Attendance'),
-            'icon' => '',
-            'name' => 'attendance-sessions',
-            'parent' => 'attendance',
-            'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchly.attendance_events.index',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
+             $menu->add([
+                'category' => 'Church',
+                'title' => __('Event Attendance'),
+                'icon' => '',
+                'name' => 'attendance-sessions',
+                'parent' => 'attendance',
+                'order' => 1,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'churchly.attendance_events.index',
+                'module' => $module,
+                'permission' => 'church_settings manage'
+            ]);
 
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Event Stage Timer'),
-            'icon' => '',
-            'name' => 'church-timmer',
-            'parent' => 'attendance',
-            'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'timer.church',
-            'module' => $module,
-            'permission' => 'church_program_timer manage'
-        ]);
+            $menu->add([
+                'category' => 'Church',
+                'title' => __('Event Stage Timer'),
+                'icon' => '',
+                'name' => 'church-timmer',
+                'parent' => 'attendance',
+                'order' => 1,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'timer.church',
+                'module' => $module,
+                'permission' => 'church_program_timer manage'
+            ]);
+        }
 
         // Volunteer Management
         $menu->add([
@@ -242,19 +245,21 @@ class CompanyMenuListener
 
 
 
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Reports & Analytics'),
-            'icon' => '',
-            'name' => 'reports-analytics',
-            'parent' => 'attendance',
-            'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchly.attendance.reports.dashboard',
-            'module' => $module,
-            'permission' => 'church_settings manage'
-        ]);
+        if (!$churchMeetInstalled) {
+            $menu->add([
+                'category' => 'Church',
+                'title' => __('Reports & Analytics'),
+                'icon' => '',
+                'name' => 'reports-analytics',
+                'parent' => 'attendance',
+                'order' => 1,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'churchly.attendance.reports.dashboard',
+                'module' => $module,
+                'permission' => 'church_settings manage'
+            ]);
+        }
 
         $menu->add([
             'category' => 'Church',

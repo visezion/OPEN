@@ -1,0 +1,118 @@
+<?php echo e(Form::model($debitNote, array('route' => array('bill.edit.debit.updatenote',$debitNote->bill, $debitNote->id), 'method' => 'post','class'=>'needs-validation', 'novalidate'))); ?>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="form-group col-md-12">
+            <?php echo e(Form::label('debit_note', __('Debit Note'),['class'=>'form-label'])); ?><?php if (isset($component)) { $__componentOriginalbba606fec37ea04333bc269e3e165587 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalbba606fec37ea04333bc269e3e165587 = $attributes; } ?>
+<?php $component = App\View\Components\Required::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('required'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Required::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalbba606fec37ea04333bc269e3e165587)): ?>
+<?php $attributes = $__attributesOriginalbba606fec37ea04333bc269e3e165587; ?>
+<?php unset($__attributesOriginalbba606fec37ea04333bc269e3e165587); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalbba606fec37ea04333bc269e3e165587)): ?>
+<?php $component = $__componentOriginalbba606fec37ea04333bc269e3e165587; ?>
+<?php unset($__componentOriginalbba606fec37ea04333bc269e3e165587); ?>
+<?php endif; ?>
+            <div class="form-icon-user">
+                <?php echo e(Form::text('debit_note', !empty($debitNote->debitNote) ? \Workdo\Account\Entities\CustomerDebitNotes::debitNumberFormat($debitNote->debitNote->debit_id) : '',array('class'=>'form-control ','required'=>'required' , 'disabled'))); ?>
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <?php echo e(Form::label('date', __('Date'),['class'=>'form-label'])); ?><?php if (isset($component)) { $__componentOriginalbba606fec37ea04333bc269e3e165587 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalbba606fec37ea04333bc269e3e165587 = $attributes; } ?>
+<?php $component = App\View\Components\Required::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('required'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Required::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalbba606fec37ea04333bc269e3e165587)): ?>
+<?php $attributes = $__attributesOriginalbba606fec37ea04333bc269e3e165587; ?>
+<?php unset($__attributesOriginalbba606fec37ea04333bc269e3e165587); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalbba606fec37ea04333bc269e3e165587)): ?>
+<?php $component = $__componentOriginalbba606fec37ea04333bc269e3e165587; ?>
+<?php unset($__componentOriginalbba606fec37ea04333bc269e3e165587); ?>
+<?php endif; ?>
+                <?php echo e(Form::date('date',null,array('class'=>'form-control ','required'=>'required','placeholder'=>'Select Date','max' => date('Y-m-d')))); ?>
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <?php echo e(Form::label('amount', __('Amount'),['class'=>'form-label'])); ?><?php if (isset($component)) { $__componentOriginalbba606fec37ea04333bc269e3e165587 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalbba606fec37ea04333bc269e3e165587 = $attributes; } ?>
+<?php $component = App\View\Components\Required::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('required'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Required::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalbba606fec37ea04333bc269e3e165587)): ?>
+<?php $attributes = $__attributesOriginalbba606fec37ea04333bc269e3e165587; ?>
+<?php unset($__attributesOriginalbba606fec37ea04333bc269e3e165587); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalbba606fec37ea04333bc269e3e165587)): ?>
+<?php $component = $__componentOriginalbba606fec37ea04333bc269e3e165587; ?>
+<?php unset($__componentOriginalbba606fec37ea04333bc269e3e165587); ?>
+<?php endif; ?>
+                <?php echo e(Form::number('amount',null, array('class' => 'form-control','required'=>'required','min'=>'0','step'=>'0.01','placeholder'=> __('Enter Amount')))); ?>
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <?php echo e(Form::label('description', __('Description'),['class'=>'form-label'])); ?>
+
+                <?php echo e(Form::textarea('description',null, array('class' => 'form-control','rows'=>3,'placeholder'=> __('Enter Description')))); ?>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <input type="button" value="<?php echo e(__('Cancel')); ?>" class="btn btn-light" data-bs-dismiss="modal">
+    <input type="submit" value="<?php echo e(__('Update')); ?>" class="btn btn-primary">
+</div>
+<?php echo e(Form::close()); ?>
+
+
+<script>
+    $(document).ready(function () {
+        var amount = parseFloat($('#amount').val());
+        var debitNoteId = "<?php echo e($debitNote->debit_note); ?>";
+        $.ajax({
+            url: "<?php echo e(route('debit-note.price')); ?>",
+            method: 'POST',
+            data: {
+                debit_note: debitNoteId,
+                amount:amount,
+                _token: "<?php echo e(csrf_token()); ?>"
+            },
+            success: function (data) {
+                if (data !== undefined) {
+                    $('input[name="amount"]').attr('max', data);
+                    $('input[name="amount"]').attr('min', 0);
+                }
+            }
+        });
+    });
+</script>
+<?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\Account\src\Resources\views\debitNote\edit.blade.php ENDPATH**/ ?>

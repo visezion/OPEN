@@ -86,6 +86,59 @@
             margin-bottom: 18px;
         }
 
+        .churchmeet-module-page .page-header,
+        .churchmeet-module-page .card,
+        .churchmeet-module-page .table-responsive,
+        .churchmeet-module-page .modal-content,
+        .churchmeet-module-page .dropdown-menu,
+        .churchmeet-module-page .form-control,
+        .churchmeet-module-page .form-select,
+        .churchmeet-module-page .select2-container--default .select2-selection--single,
+        .churchmeet-module-page .select2-container--default .select2-selection--multiple {
+            box-shadow: none !important;
+            border-color: #d8e2ef !important;
+        }
+
+        .churchmeet-module-page .card,
+        .churchmeet-module-page .table-responsive,
+        .churchmeet-module-page .modal-content,
+        .churchmeet-module-page .dropdown-menu {
+            border-radius: 14px !important;
+            background: #ffffff !important;
+        }
+
+        .churchmeet-module-page .card-header,
+        .churchmeet-module-page .card-footer {
+            background: #ffffff !important;
+            border-color: #d8e2ef !important;
+        }
+
+        .churchmeet-module-page .table > :not(caption) > * > * {
+            border-color: #d8e2ef !important;
+        }
+
+        .churchmeet-module-page .table > thead > tr > * {
+            background: #f8fbff !important;
+            color: #5f7088 !important;
+        }
+
+        .churchmeet-module-page .btn {
+            border-radius: 10px !important;
+            box-shadow: none !important;
+        }
+
+        .churchmeet-module-page .form-control,
+        .churchmeet-module-page .form-select,
+        .churchmeet-module-page .select2-container--default .select2-selection--single,
+        .churchmeet-module-page .select2-container--default .select2-selection--multiple {
+            border-radius: 10px !important;
+            background: #ffffff !important;
+        }
+
+        .churchmeet-module-page .badge {
+            border-radius: 999px !important;
+        }
+
         body:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item > .dash-link {
             display: flex !important;
             align-items: center !important;

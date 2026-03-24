@@ -125,6 +125,7 @@ if (!function_exists('categoryIcon')) {
             'General' => 'indent-increase',
             'Addon Manager' => 'apps',
             'Finance' => 'chart-dots',
+            'Church' => 'building-church',
             'HR' => 'users',
             'Sales' => 'businessplan',
             'eCommerce' => 'shopping-cart',

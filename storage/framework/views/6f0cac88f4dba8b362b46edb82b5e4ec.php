@@ -15,11 +15,13 @@
       $is_superadmin_dashboard = $is_superadmin_user && $is_dashboard_route;
       $current_route_action = optional(request()->route())->getActionName();
       $is_churchly_route = is_string($current_route_action) && str_contains($current_route_action, 'Workdo\\Churchly\\');
+      $is_churchmeet_route = is_string($current_route_action) && str_contains($current_route_action, 'Workdo\\ChurchMeet\\');
       $body_classes = trim(
           (isset($themeColor) ? $themeColor : 'theme-1')
           . ($is_superadmin_user ? ' superadmin-page' : '')
           . ($is_superadmin_dashboard ? ' superadmin-dashboard-page' : '')
           . ($is_churchly_route ? ' churchly-module-page' : '')
+          . ($is_churchmeet_route ? ' churchmeet-module-page' : '')
       );
 ?>
 <!DOCTYPE html>

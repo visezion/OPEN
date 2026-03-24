@@ -448,13 +448,23 @@ Route::middleware(['web','auth'])->group(function() {
 });
 // Zoom Integration (admin)
 Route::middleware(['web','auth'])->group(function(){
-    Route::get('churchly/zoom', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'index'])->name('churchly.zoom.index');
-    Route::post('churchly/zoom', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'save'])->name('churchly.zoom.save');
-    Route::get('churchly/zoom/test', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'test'])->name('churchly.zoom.test');
-    Route::get('churchly/zoom/sync', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'syncNow'])->name('churchly.zoom.sync');
-    Route::post('churchly/events/{event}/zoom/create', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'createForEvent'])->name('churchly.zoom.meetings.create');
-    Route::get('churchly/zoom/meetings/{attendanceEvent}/join', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'join'])->name('churchly.zoom.meetings.join');
-    Route::post('churchly/zoom/meetings/{attendanceEvent}/signature', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'signature'])->name('churchly.zoom.meetings.signature');
+    if (class_exists(\Workdo\ChurchMeet\Providers\ChurchMeetServiceProvider::class)) {
+        Route::get('churchly/zoom', fn () => redirect()->route('churchmeet.zoom.index'))->name('churchly.zoom.index');
+        Route::post('churchly/zoom', fn () => redirect()->route('churchmeet.zoom.save', [], 307))->name('churchly.zoom.save');
+        Route::get('churchly/zoom/test', fn () => redirect()->route('churchmeet.zoom.test'))->name('churchly.zoom.test');
+        Route::get('churchly/zoom/sync', fn () => redirect()->route('churchmeet.zoom.sync'))->name('churchly.zoom.sync');
+        Route::post('churchly/events/{event}/zoom/create', fn ($event) => redirect()->route('churchmeet.zoom.meetings.create', ['event' => $event], 307))->name('churchly.zoom.meetings.create');
+        Route::get('churchly/zoom/meetings/{attendanceEvent}/join', fn ($attendanceEvent) => redirect()->route('churchmeet.zoom.meetings.join', ['attendanceEvent' => $attendanceEvent]))->name('churchly.zoom.meetings.join');
+        Route::post('churchly/zoom/meetings/{attendanceEvent}/signature', fn ($attendanceEvent) => redirect()->route('churchmeet.zoom.meetings.signature', ['attendanceEvent' => $attendanceEvent], 307))->name('churchly.zoom.meetings.signature');
+    } else {
+        Route::get('churchly/zoom', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'index'])->name('churchly.zoom.index');
+        Route::post('churchly/zoom', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'save'])->name('churchly.zoom.save');
+        Route::get('churchly/zoom/test', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'test'])->name('churchly.zoom.test');
+        Route::get('churchly/zoom/sync', [\Workdo\Churchly\Http\Controllers\ZoomIntegrationController::class,'syncNow'])->name('churchly.zoom.sync');
+        Route::post('churchly/events/{event}/zoom/create', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'createForEvent'])->name('churchly.zoom.meetings.create');
+        Route::get('churchly/zoom/meetings/{attendanceEvent}/join', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'join'])->name('churchly.zoom.meetings.join');
+        Route::post('churchly/zoom/meetings/{attendanceEvent}/signature', [\Workdo\Churchly\Http\Controllers\ZoomMeetingController::class, 'signature'])->name('churchly.zoom.meetings.signature');
+    }
 });
 
 // Website CMS (admin)

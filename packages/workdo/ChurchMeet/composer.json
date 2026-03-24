@@ -1,0 +1,25 @@
+{
+    "name": "workdo/churchmeet",
+    "description": "ChurchMeet package for church events, attendance, and Zoom integrations",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\ChurchMeet\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Victor Oluwasusi",
+            "email": "you@example.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\ChurchMeet\\Providers\\ChurchMeetServiceProvider"
+            ]
+        }
+    }
+}

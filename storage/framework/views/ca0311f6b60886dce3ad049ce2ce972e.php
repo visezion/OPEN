@@ -1,0 +1,399 @@
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Landing Page')); ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('page-breadcrumb'); ?>
+    <?php echo e(__('Landing Page')); ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('page-action'); ?>
+    <div class="d-flex" >
+        <a class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="<?php echo e(__('Qr Code')); ?>" data-bs-toggle="modal"  data-bs-target="#qrcodeModal" id="download-qr"
+        target="_blanks" >
+        <span class="text-white"><i class="fa fa-qrcode"></i></span>
+    </a>
+    <a class="btn btn-sm btn-primary btn-icon ml-0" data-bs-toggle="tooltip" data-bs-placement="bottom"
+    data-bs-original-title="<?php echo e(__('Preview')); ?>" href="<?php echo e(url('/')); ?>" target="-blank" ><span
+    class="text-white"><i class="ti ti-eye"></i></span></a>
+    </div>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <?php echo $__env->make('landingpage::landingpage.sections', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5><?php echo e(__('Details')); ?></h5>
+                        </div>
+                        <div id="p1" class="col-auto text-end text-primary h3">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="justify-content-center">
+                        <div class="col-sm-12 col-md-10 col-xxl-12">
+                            <div class="accordion accordion-flush setting-accordion" id="accordionExample">
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-1">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1"
+                                            aria-expanded="false" aria-controls="collapse1">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('Top Bar')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_top_bar_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_top_bar_active" id="is_top_bar_active"
+                                                    <?php echo e(!empty($settings['is_top_bar_active']) && $settings['is_top_bar_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="heading-1"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12">
+                                                    <div class="form-group mb-0">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.topbar.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-2">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2"
+                                            aria-expanded="false" aria-controls="collapse2">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('Banner')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_banner_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_banner_section_active" id="is_banner_section_active"
+                                                        <?php echo e(!empty($settings['is_banner_section_active']) && $settings['is_banner_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading-2"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.banner.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-3">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3"
+                                            aria-expanded="false" aria-controls="collapse3">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('Features')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_features_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_features_section_active" id="is_features_section_active"
+                                                    <?php echo e(!empty($settings['is_features_section_active']) && $settings['is_features_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading-3"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.features.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-4">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4"
+                                            aria-expanded="false" aria-controls="collapse4">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('Reviews')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_reviews_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_reviews_section_active" id="is_reviews_section_active"
+                                                        <?php echo e(!empty($settings['is_reviews_section_active']) && $settings['is_reviews_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading-4"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.reviews.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-5">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5"
+                                            aria-expanded="false" aria-controls="collapse5">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('Screenshots')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_screenshots_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_screenshots_section_active" id="is_screenshots_section_active"
+                                                    <?php echo e(!empty($settings['is_screenshots_section_active']) && $settings['is_screenshots_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading-5"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.screenshots.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-6">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6"
+                                            aria-expanded="false" aria-controls="collapse6">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('Dedicated')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_dedicated_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_dedicated_section_active" id="is_dedicated_section_active"
+                                                    <?php echo e(!empty($settings['is_dedicated_section_active']) && $settings['is_dedicated_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse6" class="accordion-collapse collapse" aria-labelledby="heading-6"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.dedicated.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-7">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7"
+                                            aria-expanded="false" aria-controls="collapse7">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('PackageDetails')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_package_details_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_package_details_section_active" id="is_package_details_section_active"
+                                                    <?php echo e(!empty($settings['is_package_details_section_active']) && $settings['is_package_details_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse7" class="accordion-collapse collapse" aria-labelledby="heading-7"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.packagedetails.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-8">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8"
+                                            aria-expanded="false" aria-controls="collapse8">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('FAQ')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_faq_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_faq_section_active" id="is_faq_section_active"
+                                                    <?php echo e(!empty($settings['is_faq_section_active']) && $settings['is_faq_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse8" class="accordion-collapse collapse" aria-labelledby="heading-8"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.faq.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item ">
+                                    <h2 class="accordion-header" id="heading-9">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse9"
+                                            aria-expanded="false" aria-controls="collapse9">
+                                            <span class="d-flex align-items-center">
+
+                                                <?php echo e(__('BuildTech')); ?>
+
+                                            </span>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2"><?php echo e(__('On/Off')); ?>:</span>
+                                                <div class="form-check form-switch custom-switch-v1">
+                                                    <input type="hidden" name="is_buildtech_section_active" value="off">
+                                                    <input type="checkbox" class="form-check-input input-primary" name="is_buildtech_section_active"  id="is_buildtech_section_active"
+                                                    <?php echo e(!empty($settings['is_buildtech_section_active']) && $settings['is_buildtech_section_active'] == 'on' ? 'checked="checked"' : ''); ?> >
+                                                    <label class="form-check-label" for="customswitchv1-1"></label>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse9" class="accordion-collapse collapse" aria-labelledby="heading-9"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="row gy-4">
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="form-group">
+                                                        <?php echo $__env->make('landingpage::landingpage.details.buildtech.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('css'); ?>
+    <link href="<?php echo e(asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.css')); ?>" rel="stylesheet">
+<?php $__env->stopPush(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+    <script src="<?php echo e(asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.js')); ?>"></script>
+
+    <script>
+        $(document).ready(function () {
+        $(".h3 a").hover(function() {
+            $(this).miniPreview({ prefetch: 'pageload' });
+        });
+        $('.form-switch input[type="checkbox"]').on('change', function () {
+            var checkbox = $(this);
+            var formData = {};
+
+            var checkboxName = checkbox.attr('name');
+            var checkboxStatus = checkbox.prop('checked') ? 'on' : 'off';
+
+            formData[checkboxName] = checkboxStatus;
+
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo e(route("change.blocks.store.ajax")); ?>',
+                data: formData,
+                success: function (data) {
+                    // Handle success, if needed
+                    toastrs('success', data.success , 'success');
+
+                },
+                error: function (error) {
+                    // Handle errors, if needed
+                    toastrs('Error', 'Something went wrong!!!', 'error');
+                }
+            });
+        });
+    });
+    </script>
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\LandingPage\src\Resources\views\landingpage\details\index.blade.php ENDPATH**/ ?>

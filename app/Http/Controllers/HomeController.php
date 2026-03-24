@@ -12,6 +12,7 @@ use Illuminate\Routing\Controller;
 use App\Facades\ModuleFacade as Module;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 
 class HomeController extends Controller
@@ -206,22 +207,8 @@ class HomeController extends Controller
     }
     public function SoftwareDetails($slug)
     {
-        $modules_all = Module::all();
-        $modules = [];
-        if(count($modules_all) > 0)
-        {
-            $pick = min(6, count($modules_all));
-            $randomKeys = array_rand($modules_all, $pick);
-
-            if (!is_array($randomKeys)) {
-                $randomKeys = [$randomKeys];
-            }
-
-            $modules = array_intersect_key(
-                $modules_all,
-                array_flip($randomKeys)
-            );
-        }
+        $modules_all = Module::allModules();
+        $modules = $this->pickMarketplaceModules($modules_all);
         $plan = Plan::first();
         $slug = urldecode((string) $slug);
         $slugLower = Str::lower(trim($slug));
@@ -274,9 +261,16 @@ class HomeController extends Controller
                 {
                     return view('landingpage::marketplace.index',compact('modules','module','plan'));
                 }
-                else if (!empty($module->package_name)) {
-                    return view($module->package_name.'::marketplace.index',compact('modules','module','plan'));
+
+                $detailView = $this->resolveMarketplaceDetailView($module);
+                if (!empty($detailView)) {
+                    return view($detailView, compact('modules', 'module', 'plan'));
                 }
+
+                $layout = 'marketplace.marketplace';
+                $marketplaceAssets = $this->getMarketplaceAssets($module);
+
+                return view('marketplace.detail', compact('modules', 'module', 'plan', 'layout', 'marketplaceAssets'));
             } catch (\Throwable $th) {
                 // Keep graceful fallback to not found page.
             }
@@ -290,6 +284,67 @@ class HomeController extends Controller
 
         return view('marketplace.detail_not_found',compact('modules','layout'));
 
+    }
+
+    private function pickMarketplaceModules(array $modulesAll): array
+    {
+        $visibleModules = array_values(array_filter($modulesAll, function ($module) {
+            return !isset($module->display) || $module->display == true;
+        }));
+
+        if (count($visibleModules) === 0) {
+            return [];
+        }
+
+        $pick = min(6, count($visibleModules));
+        $randomKeys = array_rand($visibleModules, $pick);
+
+        if (!is_array($randomKeys)) {
+            $randomKeys = [$randomKeys];
+        }
+
+        return array_values(array_intersect_key($visibleModules, array_flip($randomKeys)));
+    }
+
+    private function resolveMarketplaceDetailView($module): ?string
+    {
+        $namespaces = array_filter(array_unique([
+            $module->package_name ?? null,
+            Str::lower((string) ($module->name ?? '')),
+            Str::lower((string) ($module->alias ?? '')),
+            Str::of((string) ($module->name ?? ''))->replace(['-', '_', ' '], '')->lower()->value(),
+            Str::of((string) ($module->package_name ?? ''))->replace(['-', '_', ' '], '')->lower()->value(),
+        ]));
+
+        foreach ($namespaces as $namespace) {
+            $view = $namespace . '::marketplace.index';
+            if (View::exists($view)) {
+                return $view;
+            }
+        }
+
+        return null;
+    }
+
+    private function getMarketplaceAssets($module): array
+    {
+        $assetPath = base_path('packages/workdo/' . ($module->name ?? '') . '/src/marketplace');
+        if (!File::isDirectory($assetPath)) {
+            return [];
+        }
+
+        return collect(File::files($assetPath))
+            ->filter(function ($file) {
+                return in_array(strtolower($file->getExtension()), ['png', 'jpg', 'jpeg', 'webp', 'gif']);
+            })
+            ->sortBy(function ($file) {
+                return $file->getFilename();
+            })
+            ->map(function ($file) use ($module) {
+                return url('/packages/workdo/' . $module->name . '/src/marketplace/' . $file->getFilename());
+            })
+            ->values()
+            ->all();
     }
 
     public function Software(Request $request)
