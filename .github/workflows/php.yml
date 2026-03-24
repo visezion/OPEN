@@ -105,6 +105,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deploy-package
+          path: artifact
 
       - name: Preflight checks (PHP/Composer on runner)
         run: |
@@ -130,9 +131,13 @@ jobs:
             echo "ERROR: Deploy path not found: $DEPLOY_PATH"
             exit 1
           fi
+          if [ ! -f "artifact/deploy.tar.gz" ]; then
+            echo "ERROR: Deploy artifact not found at artifact/deploy.tar.gz"
+            exit 1
+          fi
           rm -rf deploy-package
           mkdir -p deploy-package
-          tar -xzf deploy.tar.gz -C deploy-package
+          tar -xzf artifact/deploy.tar.gz -C deploy-package
           rsync -az --delete \
             --exclude '.git/' \
             --exclude '.github/' \

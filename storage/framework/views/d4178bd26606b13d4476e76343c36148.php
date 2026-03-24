@@ -1,1 +1,0 @@
-<?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\Churchly\src\Resources\views\sms\settings.blade.php ENDPATH**/ ?>
