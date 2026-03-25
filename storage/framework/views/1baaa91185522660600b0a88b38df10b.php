@@ -4,352 +4,187 @@
     <link rel="stylesheet" href="https://source.zoom.us/5.1.4/css/bootstrap.css">
     <link rel="stylesheet" href="https://source.zoom.us/5.1.4/css/react-select.css">
     <style>
-        .zoom-join-page {
-            --zoom-ink: #17324d;
-            --zoom-muted: #6b7d90;
-            --zoom-line: #d7e0e8;
-            --zoom-soft: #f6f8fb;
-            --zoom-primary: #1f5f93;
-            --zoom-primary-soft: #ecf4fb;
-            --zoom-success: #2e7d5a;
-            --zoom-success-soft: #edf8f1;
-            --zoom-warning: #9c6a14;
-            --zoom-warning-soft: #fff6e6;
-            --zoom-danger: #a13b3b;
-            --zoom-danger-soft: #fdeeee;
-            color: var(--zoom-ink);
-        }
-
-        .zoom-join-page .card {
-            border: 1px solid var(--zoom-line) !important;
-            border-radius: 14px;
+        .churchmeet-zoom-join .card {
+            border: 1px solid #d8e2ef !important;
             box-shadow: none !important;
+            border-radius: 10px;
             background: #fff;
         }
 
-        .zoom-join-page .card-body,
-        .zoom-join-page .card-header {
-            padding: 1.2rem 1.25rem;
+        .churchmeet-zoom-join .join-hero {
+            border-top: 3px solid #245f86 !important;
+            background: linear-gradient(180deg, rgba(36, 95, 134, 0.05), rgba(36, 95, 134, 0)), #fff;
         }
 
-        .zoom-join-page .card-header {
-            background: #fff;
-            border-bottom: 1px solid rgba(215, 224, 232, 0.9) !important;
+        .churchmeet-zoom-join .hero-copy,
+        .churchmeet-zoom-join .muted-copy {
+            color: #6b7d90 !important;
         }
 
-        .zoom-hero {
-            overflow: hidden;
-            border-top: 3px solid var(--zoom-primary);
-            background: linear-gradient(135deg, rgba(31, 95, 147, 0.05), rgba(31, 95, 147, 0)), #fff;
-        }
-
-        .zoom-eyebrow {
+        .churchmeet-zoom-join .chip {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            padding: 0.35rem 0.8rem;
+            padding: 0.35rem 0.75rem;
             border-radius: 999px;
-            background: var(--zoom-primary-soft);
-            color: var(--zoom-primary);
-            font-size: 0.74rem;
+            background: #eef4fa;
+            color: #245f86;
+            border: 1px solid #d8e2ef;
+            font-size: 0.75rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }
 
-        .zoom-hero-title {
-            margin: 0.9rem 0 0.55rem;
-            font-size: clamp(1.75rem, 2.6vw, 2.35rem);
-            line-height: 1.1;
-            font-weight: 800;
-            color: #102840;
+        .churchmeet-zoom-join .kpi-card {
+            background: #f7fafc;
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            padding: 0.8rem 0.9rem;
+            height: 100%;
         }
 
-        .zoom-hero-copy {
-            max-width: 760px;
-            margin: 0;
-            color: var(--zoom-muted);
-            line-height: 1.7;
-        }
-
-        .zoom-hero-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 0.9rem;
-            margin-top: 1.25rem;
-        }
-
-        .zoom-hero-stat,
-        .zoom-note,
-        .zoom-step {
-            border: 1px solid rgba(215, 224, 232, 0.9);
-            border-radius: 12px;
-            background: var(--zoom-soft);
-        }
-
-        .zoom-hero-stat {
-            padding: 0.95rem 1rem;
-        }
-
-        .zoom-hero-stat small,
-        .zoom-meta-label,
-        .zoom-section-label {
+        .churchmeet-zoom-join .kpi-label {
             display: block;
-            color: var(--zoom-muted);
             font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
             text-transform: uppercase;
-        }
-
-        .zoom-hero-stat strong {
-            display: block;
-            margin-top: 0.45rem;
-            font-size: 1.55rem;
-            line-height: 1;
-            color: #102840;
-        }
-
-        .zoom-hero-stat span,
-        .zoom-meta-value-sub,
-        .zoom-note p {
-            display: block;
-            margin-top: 0.4rem;
-            color: var(--zoom-muted);
-            font-size: 0.84rem;
-            line-height: 1.6;
-        }
-
-        .zoom-meta-grid {
-            display: grid;
-            gap: 0.85rem;
-        }
-
-        .zoom-meta-row {
-            display: grid;
-            grid-template-columns: minmax(0, 120px) 1fr;
-            gap: 0.85rem;
-            align-items: start;
-            padding-bottom: 0.85rem;
-            border-bottom: 1px solid rgba(215, 224, 232, 0.8);
-        }
-
-        .zoom-meta-row:last-child {
-            padding-bottom: 0;
-            border-bottom: 0;
-        }
-
-        .zoom-meta-value {
+            letter-spacing: 0.06em;
+            color: #6b7d90;
             font-weight: 700;
-            color: #102840;
+        }
+
+        .churchmeet-zoom-join .kpi-value {
+            display: block;
+            margin-top: 0.35rem;
+            color: #19324a;
+            font-size: 1rem;
+            font-weight: 700;
             word-break: break-word;
         }
 
-        .zoom-platform-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            padding: 0.3rem 0.65rem;
-            border-radius: 999px;
-            background: var(--zoom-primary-soft);
-            color: var(--zoom-primary);
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .zoom-readiness {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.8rem;
-            padding: 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(215, 224, 232, 0.9);
-        }
-
-        .zoom-readiness.is-ready {
-            background: var(--zoom-success-soft);
-            border-color: rgba(46, 125, 90, 0.18);
-        }
-
-        .zoom-readiness.is-warn {
-            background: var(--zoom-warning-soft);
-            border-color: rgba(156, 106, 20, 0.18);
-        }
-
-        .zoom-readiness-icon {
-            width: 42px;
-            height: 42px;
-            flex: 0 0 42px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-
-        .zoom-readiness.is-ready .zoom-readiness-icon {
-            background: rgba(46, 125, 90, 0.12);
-            color: var(--zoom-success);
-        }
-
-        .zoom-readiness.is-warn .zoom-readiness-icon {
-            background: rgba(156, 106, 20, 0.12);
-            color: var(--zoom-warning);
-        }
-
-        .zoom-readiness-title {
-            font-weight: 800;
-            color: #102840;
-        }
-
-        .zoom-readiness-copy {
-            margin-top: 0.25rem;
-            color: var(--zoom-muted);
-            line-height: 1.65;
-        }
-
-        .zoom-actions-inline {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-top: 0.85rem;
-        }
-
-        .zoom-checklist {
+        .churchmeet-zoom-join .meta-grid {
             display: grid;
-            gap: 0.7rem;
+            gap: 0.75rem;
         }
 
-        .zoom-step {
+        .churchmeet-zoom-join .meta-item {
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            padding: 0.75rem 0.85rem;
+            background: #fff;
+        }
+
+        .churchmeet-zoom-join .meta-item label {
+            display: block;
+            margin: 0;
+            color: #6b7d90;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .churchmeet-zoom-join .meta-item span {
+            display: block;
+            margin-top: 0.28rem;
+            color: #19324a;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .churchmeet-zoom-join .checklist {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .churchmeet-zoom-join .check-item {
             display: flex;
-            gap: 0.8rem;
+            gap: 0.7rem;
             align-items: flex-start;
-            padding: 0.85rem 0.95rem;
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            background: #f7fafc;
+            padding: 0.75rem 0.85rem;
         }
 
-        .zoom-step-index {
-            width: 30px;
-            height: 30px;
-            flex: 0 0 30px;
+        .churchmeet-zoom-join .check-index {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 28px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border: 1px solid #d8e2ef;
+            border-radius: 8px;
             background: #fff;
-            border: 1px solid rgba(215, 224, 232, 0.95);
-            font-size: 0.83rem;
+            color: #245f86;
             font-weight: 800;
-            color: var(--zoom-primary);
+            font-size: 0.8rem;
         }
 
-        .zoom-step strong {
+        .churchmeet-zoom-join .check-item strong {
+            color: #19324a;
+            font-size: 0.9rem;
             display: block;
-            font-size: 0.94rem;
-            color: #102840;
         }
 
-        .zoom-step span {
-            display: block;
-            margin-top: 0.18rem;
-            color: var(--zoom-muted);
-            font-size: 0.83rem;
-            line-height: 1.55;
-        }
-
-        .zoom-room-card {
-            overflow: hidden;
-        }
-
-        .zoom-room-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 1rem;
-            align-items: start;
-        }
-
-        .zoom-room-title {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #102840;
-        }
-
-        .zoom-room-copy {
-            margin: 0.25rem 0 0;
-            color: var(--zoom-muted);
-            line-height: 1.6;
-        }
-
-        .zoom-room-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.55rem;
-        }
-
-        .zoom-room-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.38rem 0.7rem;
-            border-radius: 999px;
-            border: 1px solid rgba(215, 224, 232, 0.95);
-            background: var(--zoom-soft);
-            color: var(--zoom-muted);
-            font-size: 0.78rem;
-            font-weight: 700;
+        .churchmeet-zoom-join .check-item p {
+            margin: 0.2rem 0 0;
+            color: #6b7d90;
+            font-size: 0.82rem;
+            line-height: 1.5;
         }
 
         .zoom-status-panel {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.95rem 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(215, 224, 232, 0.95);
-            background: var(--zoom-soft);
-            color: #102840;
-            margin-bottom: 1rem;
+            gap: 0.7rem;
+            padding: 0.9rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #d8e2ef;
+            background: #f7fafc;
+            color: #19324a;
+            margin-bottom: 0.9rem;
         }
 
         .zoom-status-panel::before {
             content: "";
-            width: 11px;
-            height: 11px;
+            width: 10px;
+            height: 10px;
             border-radius: 999px;
-            background: var(--zoom-primary);
-            box-shadow: 0 0 0 5px rgba(31, 95, 147, 0.12);
-            flex: 0 0 11px;
+            background: #245f86;
+            box-shadow: 0 0 0 4px rgba(36, 95, 134, 0.12);
+            flex: 0 0 10px;
         }
 
         .zoom-status-panel.is-success {
-            background: var(--zoom-success-soft);
-            border-color: rgba(46, 125, 90, 0.18);
+            background: #edf7f1;
+            border-color: rgba(46, 125, 90, 0.24);
         }
 
         .zoom-status-panel.is-success::before {
-            background: var(--zoom-success);
-            box-shadow: 0 0 0 5px rgba(46, 125, 90, 0.12);
+            background: #2f7b58;
+            box-shadow: 0 0 0 4px rgba(47, 123, 88, 0.12);
         }
 
         .zoom-status-panel.is-warning {
-            background: var(--zoom-warning-soft);
-            border-color: rgba(156, 106, 20, 0.18);
+            background: #fff7ea;
+            border-color: rgba(149, 102, 28, 0.24);
         }
 
         .zoom-status-panel.is-warning::before {
-            background: var(--zoom-warning);
-            box-shadow: 0 0 0 5px rgba(156, 106, 20, 0.12);
+            background: #95661c;
+            box-shadow: 0 0 0 4px rgba(149, 102, 28, 0.12);
         }
 
         .zoom-status-panel.is-danger {
-            background: var(--zoom-danger-soft);
-            border-color: rgba(161, 59, 59, 0.18);
+            background: #fceeee;
+            border-color: rgba(162, 67, 67, 0.24);
         }
 
         .zoom-status-panel.is-danger::before {
-            background: var(--zoom-danger);
-            box-shadow: 0 0 0 5px rgba(161, 59, 59, 0.12);
+            background: #a24343;
+            box-shadow: 0 0 0 4px rgba(162, 67, 67, 0.12);
         }
 
         #zmmtg-root {
@@ -357,29 +192,16 @@
         }
 
         #meetingSDKElement {
-            min-height: 720px;
-            background: linear-gradient(180deg, rgba(12, 26, 43, 0.08), rgba(12, 26, 43, 0.02)), #f3f6fa;
-            border: 1px solid rgba(215, 224, 232, 0.95);
-            border-radius: 14px;
+            min-height: 74vh;
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
             overflow: hidden;
-        }
-
-        .zoom-note {
-            padding: 0.9rem 1rem;
-        }
-
-        .zoom-note p {
-            margin: 0.3rem 0 0;
+            background: linear-gradient(180deg, rgba(25, 50, 74, 0.06), rgba(25, 50, 74, 0.02)), #f4f7fb;
         }
 
         @media (max-width: 991.98px) {
-            .zoom-hero-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .zoom-meta-row {
-                grid-template-columns: 1fr;
-                gap: 0.35rem;
+            #meetingSDKElement {
+                min-height: 62vh;
             }
         }
     </style>
@@ -405,116 +227,126 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
-    <div class="zoom-join-page">
-        <div class="card zoom-hero mb-4">
-            <div class="card-body">
-                <span class="zoom-eyebrow"><i class="ti ti-video"></i><?php echo e(__('ChurchMeet Live Room')); ?></span>
-                <h2 class="zoom-hero-title"><?php echo e($attendanceEvent->event->title ?? __('Zoom Meeting')); ?></h2>
-                <p class="zoom-hero-copy"><?php echo e(__('Launch, monitor, and join this live church meeting without leaving OPEN. Meeting access, readiness, and room status are kept together on one operational screen.')); ?></p>
-                <div class="zoom-hero-grid">
-                    <div class="zoom-hero-stat">
-                        <small><?php echo e(__('Meeting Number')); ?></small>
-                        <strong><?php echo e($attendanceEvent->meeting_id ?? '-'); ?></strong>
-                        <span><?php echo e(__('Primary Zoom identifier for this session.')); ?></span>
+    <?php
+        $eventTitle = optional($attendanceEvent->event)->title ?: __('Zoom Meeting');
+        $rawMeetingId = trim((string) ($attendanceEvent->meeting_id ?? ''));
+        $parsedMeetingNumber = null;
+
+        foreach ([(string) $attendanceEvent->zoom_join_url, (string) $attendanceEvent->meeting_link] as $zoomUrl) {
+            if ($zoomUrl !== '' && preg_match('#/(?:j|wc|s)/(\d{9,})#', $zoomUrl, $matches)) {
+                $parsedMeetingNumber = $matches[1];
+                break;
+            }
+        }
+
+        $displayMeetingNumber = $parsedMeetingNumber ?: ($rawMeetingId !== '' ? preg_replace('/\D+/', '', $rawMeetingId) : '-');
+        $normalizedStoredMeetingId = $rawMeetingId !== '' ? preg_replace('/\D+/', '', $rawMeetingId) : null;
+        $meetingNumberMismatch = $parsedMeetingNumber && $normalizedStoredMeetingId && $normalizedStoredMeetingId !== $parsedMeetingNumber;
+    ?>
+
+    <div class="churchmeet-zoom-join">
+        <div class="card join-hero mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                    <div>
+                        <span class="chip"><i class="ti ti-brand-zoom"></i><?php echo e(__('ChurchMeet Live Room')); ?></span>
+                        <h3 class="mt-3 mb-1"><?php echo e($eventTitle); ?></h3>
+                        <p class="hero-copy mb-0"><?php echo e(__('Join this Zoom meeting inside OPEN. Meeting session status and fallback controls stay on this page.')); ?></p>
                     </div>
-                    <div class="zoom-hero-stat">
-                        <small><?php echo e(__('Access Mode')); ?></small>
-                        <strong><?php echo e($meetingSdkEnabled ? __('In-App Join') : __('Fallback Link')); ?></strong>
-                        <span><?php echo e($meetingSdkEnabled ? __('Meeting SDK is available for embedded access.') : __('Zoom credentials still need to be completed.')); ?></span>
-                    </div>
-                    <div class="zoom-hero-stat">
-                        <small><?php echo e(__('Role Access')); ?></small>
-                        <strong><?php echo e($canStartMeeting ? __('Host + Member') : __('Member Join')); ?></strong>
-                        <span><?php echo e($canStartMeeting ? __('This account can start the meeting and monitor the room.') : __('This account can join the active session.')); ?></span>
+                    <div class="text-end">
+                        <span class="badge bg-light text-dark border"><?php echo e(strtoupper((string) ($attendanceEvent->online_platform ?: 'zoom'))); ?></span>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="row g-3 mb-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="kpi-card">
+                    <span class="kpi-label"><?php echo e(__('Meeting Number')); ?></span>
+                    <span class="kpi-value"><?php echo e($displayMeetingNumber ?: '-'); ?></span>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="kpi-card">
+                    <span class="kpi-label"><?php echo e(__('Join Mode')); ?></span>
+                    <span class="kpi-value"><?php echo e($meetingSdkEnabled ? __('In-App SDK') : __('External Fallback')); ?></span>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="kpi-card">
+                    <span class="kpi-label"><?php echo e(__('Host Access')); ?></span>
+                    <span class="kpi-value"><?php echo e($canStartMeeting ? __('Available') : __('Member Only')); ?></span>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="kpi-card">
+                    <span class="kpi-label"><?php echo e(__('Passcode')); ?></span>
+                    <span class="kpi-value"><?php echo e($attendanceEvent->meeting_passcode ?: '-'); ?></span>
+                </div>
+            </div>
+        </div>
+
+        <?php if($meetingNumberMismatch): ?>
+            <div class="alert alert-warning border mb-3">
+                <?php echo e(__('Stored meeting ID differs from Zoom join URL number. The system will use the Zoom URL meeting number to avoid join failures.')); ?>
+
+            </div>
+        <?php endif; ?>
+
         <div class="row g-3">
             <div class="col-xl-4">
                 <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="mb-1"><?php echo e(__('Session Details')); ?></h5>
-                        <p class="text-muted mb-0"><?php echo e(__('Core Zoom metadata for this event room.')); ?></p>
+                    <div class="card-header bg-light py-3">
+                        <h6 class="mb-0"><?php echo e(__('Meeting Details')); ?></h6>
                     </div>
                     <div class="card-body">
-                        <div class="zoom-meta-grid">
-                            <div class="zoom-meta-row">
-                                <div class="zoom-meta-label"><?php echo e(__('Meeting ID')); ?></div>
-                                <div class="zoom-meta-value"><?php echo e($attendanceEvent->meeting_id ?? '-'); ?></div>
+                        <div class="meta-grid">
+                            <div class="meta-item">
+                                <label><?php echo e(__('Stored Meeting ID')); ?></label>
+                                <span><?php echo e($attendanceEvent->meeting_id ?: '-'); ?></span>
                             </div>
-                            <div class="zoom-meta-row">
-                                <div class="zoom-meta-label"><?php echo e(__('Passcode')); ?></div>
-                                <div>
-                                    <div class="zoom-meta-value"><?php echo e($attendanceEvent->meeting_passcode ?: '-'); ?></div>
-                                    <span class="zoom-meta-value-sub"><?php echo e(__('Use this only if Zoom prompts outside the embedded room.')); ?></span>
-                                </div>
+                            <div class="meta-item">
+                                <label><?php echo e(__('Resolved Number')); ?></label>
+                                <span><?php echo e($displayMeetingNumber ?: '-'); ?></span>
                             </div>
-                            <div class="zoom-meta-row">
-                                <div class="zoom-meta-label"><?php echo e(__('Platform')); ?></div>
-                                <div><span class="zoom-platform-pill"><i class="ti ti-brand-zoom"></i><?php echo e(ucfirst($attendanceEvent->online_platform ?: 'zoom')); ?></span></div>
+                            <div class="meta-item">
+                                <label><?php echo e(__('Passcode')); ?></label>
+                                <span><?php echo e($attendanceEvent->meeting_passcode ?: '-'); ?></span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="mb-1"><?php echo e(__('Readiness')); ?></h5>
-                        <p class="text-muted mb-0"><?php echo e(__('Current meeting access and fallback options.')); ?></p>
-                    </div>
-                    <div class="card-body">
-                        <div class="zoom-readiness <?php echo e($meetingSdkEnabled ? 'is-ready' : 'is-warn'); ?>">
-                            <span class="zoom-readiness-icon"><i class="ti <?php echo e($meetingSdkEnabled ? 'ti-check' : 'ti-alert-triangle'); ?>"></i></span>
-                            <div>
-                                <div class="zoom-readiness-title"><?php echo e($meetingSdkEnabled ? __('Embedded room is ready') : __('Embedded room not fully configured')); ?></div>
-                                <div class="zoom-readiness-copy"><?php echo e($meetingSdkEnabled ? __('Meeting SDK credentials are available, so users can join inside OPEN and keep church activity in one place.') : __('Users can still open Zoom directly, but Meeting SDK keys should be configured to restore the in-app room.')); ?></div>
-                                <div class="zoom-actions-inline">
-                                    <?php if($meeting_link = $attendanceEvent->meeting_link): ?>
-                                        <a href="<?php echo e($meeting_link); ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
-                                            <i class="ti ti-external-link me-1"></i><?php echo e(__('Open Zoom Fallback')); ?>
-
-                                        </a>
-                                    <?php endif; ?>
-                                    <?php if (! ($meetingSdkEnabled)): ?>
-                                        <a href="<?php echo e(route('churchmeet.integrations.index')); ?>" class="btn btn-sm btn-light">
-                                            <i class="ti ti-settings me-1"></i><?php echo e(__('Open Integrations')); ?>
-
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
+                            <div class="meta-item">
+                                <label><?php echo e(__('Join URL')); ?></label>
+                                <span><?php echo e($attendanceEvent->meeting_link ?: '-'); ?></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-1"><?php echo e(__('Join Flow')); ?></h5>
-                        <p class="text-muted mb-0"><?php echo e(__('What this screen is doing behind the scenes.')); ?></p>
+                    <div class="card-header bg-light py-3">
+                        <h6 class="mb-0"><?php echo e(__('Join Checklist')); ?></h6>
                     </div>
                     <div class="card-body">
-                        <div class="zoom-checklist">
-                            <div class="zoom-step">
-                                <span class="zoom-step-index">1</span>
+                        <div class="checklist">
+                            <div class="check-item">
+                                <span class="check-index">1</span>
                                 <div>
-                                    <strong><?php echo e(__('Secure session request')); ?></strong>
-                                    <span><?php echo e(__('OPEN requests a server-generated Zoom signature before opening the room.')); ?></span>
+                                    <strong><?php echo e(__('Load secure signature')); ?></strong>
+                                    <p><?php echo e(__('OPEN requests a server-generated Zoom signature before join.')); ?></p>
                                 </div>
                             </div>
-                            <div class="zoom-step">
-                                <span class="zoom-step-index">2</span>
+                            <div class="check-item">
+                                <span class="check-index">2</span>
                                 <div>
-                                    <strong><?php echo e(__('Embedded room first')); ?></strong>
-                                    <span><?php echo e(__('The page tries the in-app component view before any external fallback.')); ?></span>
+                                    <strong><?php echo e(__('Try embedded view first')); ?></strong>
+                                    <p><?php echo e(__('The page starts with embedded SDK join for in-app experience.')); ?></p>
                                 </div>
                             </div>
-                            <div class="zoom-step">
-                                <span class="zoom-step-index">3</span>
+                            <div class="check-item">
+                                <span class="check-index">3</span>
                                 <div>
-                                    <strong><?php echo e(__('Client fallback if needed')); ?></strong>
-                                    <span><?php echo e(__('If embedded mode cannot initialize, the client view is used automatically.')); ?></span>
+                                    <strong><?php echo e(__('Fallback to client view')); ?></strong>
+                                    <p><?php echo e(__('If embedded client is unavailable, Zoom client view is used.')); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -523,17 +355,15 @@
             </div>
 
             <div class="col-xl-8">
-                <div class="card zoom-room-card">
-                    <div class="card-header">
-                        <div class="zoom-room-header">
-                            <div>
-                                <h5 class="zoom-room-title"><?php echo e(__('Live Meeting Room')); ?></h5>
-                                <p class="zoom-room-copy"><?php echo e(__('Keep this page open while the room loads. Status updates and Zoom initialization messages will appear below.')); ?></p>
-                            </div>
-                            <div class="zoom-room-badges">
-                                <span class="zoom-room-badge"><i class="ti ti-shield-check"></i><?php echo e(__('Secure Signature')); ?></span>
-                                <span class="zoom-room-badge"><i class="ti ti-app-window"></i><?php echo e(__('In-App Experience')); ?></span>
-                            </div>
+                <div class="card">
+                    <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1"><?php echo e(__('Live Meeting Room')); ?></h6>
+                            <p class="muted-copy mb-0 small"><?php echo e(__('Keep this page open while the room initializes.')); ?></p>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-light text-dark border"><?php echo e(__('Secure Signature')); ?></span>
+                            <span class="badge bg-light text-dark border"><?php echo e(__('In-App Join')); ?></span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -542,10 +372,6 @@
 
                         </div>
                         <div id="meetingSDKElement"></div>
-                        <div class="zoom-note mt-3">
-                            <small class="zoom-section-label"><?php echo e(__('Operator Note')); ?></small>
-                            <p><?php echo e(__('If this room cannot load because of SDK or browser restrictions, use the fallback Zoom link from the left panel while keeping event activity managed inside ChurchMeet.')); ?></p>
-                        </div>
                     </div>
                 </div>
             </div>
