@@ -12,6 +12,20 @@
 @endsection
 
 @section('content')
+@php
+    $currentPlatform = old('online_platform', optional($attendanceEvent)->online_platform ?: ($zoomSetting->preferred_platform ?: 'jitsi'));
+    $currentMeetingLink = old('meeting_link', optional($attendanceEvent)->meeting_link);
+    $currentJitsiDomain = old('jitsi_domain');
+
+    if (!$currentJitsiDomain && $currentPlatform === 'jitsi' && !empty($currentMeetingLink)) {
+        $currentJitsiDomain = parse_url($currentMeetingLink, PHP_URL_HOST) ?: preg_replace('#^https?://#i', '', (string) $currentMeetingLink);
+        $currentJitsiDomain = strtok((string) $currentJitsiDomain, '/');
+    }
+
+    if (!$currentJitsiDomain) {
+        $currentJitsiDomain = $zoomSetting->jitsi_server_domain ?: 'meet.jit.si';
+    }
+@endphp
 <div class="row">
     {{-- Left Column: Form --}}
     <div class="col-lg-9">
@@ -152,11 +166,11 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <h6 class="mb-1">{{ __('Zoom Meeting') }}</h6>
-                                    <small class="text-muted">{{ __('Create or update the meeting details members will join from OPEN.') }}</small>
+                                    <h6 class="mb-1">{{ __('Online Meeting') }}</h6>
+                                    <small class="text-muted">{{ __('Create or update Zoom or Jitsi meeting details members will join from OPEN.') }}</small>
                                 </div>
-                                @if(optional($attendanceEvent)->meeting_id)
-                                    <a href="{{ route('churchmeet.zoom.meetings.join', $attendanceEvent->id) }}" class="btn btn-sm btn-outline-primary">
+                                @if(optional($attendanceEvent)->meeting_id || (optional($attendanceEvent)->online_platform === 'jitsi' && optional($attendanceEvent)->meeting_link))
+                                    <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->id) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="ti ti-video"></i> {{ __('Open Join Room') }}
                                     </a>
                                 @endif
@@ -165,19 +179,29 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">{{ __('Online Platform') }}</label>
-                                    <input type="text" name="online_platform" id="online_platform" class="form-control" value="{{ old('online_platform', optional($attendanceEvent)->online_platform) }}" placeholder="zoom">
+                                    <select name="online_platform" id="online_platform" class="form-select">
+                                        <option value="">{{ __('Select Online Platform') }}</option>
+                                        <option value="zoom" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'zoom' ? 'selected' : '' }}>{{ __('Zoom') }}</option>
+                                        <option value="jitsi" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'jitsi' ? 'selected' : '' }}>{{ __('Jitsi Meet') }}</option>
+                                        <option value="youtube" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'youtube' ? 'selected' : '' }}>{{ __('YouTube') }}</option>
+                                        <option value="custom" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'custom' ? 'selected' : '' }}>{{ __('Custom Link') }}</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">{{ __('Meeting Link') }}</label>
                                     <input type="text" name="meeting_link" class="form-control" value="{{ old('meeting_link', optional($attendanceEvent)->meeting_link) }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">{{ __('Meeting ID') }}</label>
+                                    <label class="form-label">{{ __('Meeting ID / Jitsi Room') }}</label>
                                     <input type="text" name="meeting_id" class="form-control" value="{{ old('meeting_id', optional($attendanceEvent)->meeting_id) }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">{{ __('Passcode') }}</label>
+                                    <label class="form-label">{{ __('Passcode (Zoom only)') }}</label>
                                     <input type="text" name="meeting_passcode" class="form-control" value="{{ old('meeting_passcode', optional($attendanceEvent)->meeting_passcode) }}">
+                                </div>
+                                <div class="col-md-6" id="jitsi-domain-wrap">
+                                    <label class="form-label">{{ __('Jitsi Domain') }}</label>
+                                    <input type="text" id="jitsi_domain" name="jitsi_domain" class="form-control" value="{{ $currentJitsiDomain }}" placeholder="meet.jit.si">
                                 </div>
                             </div>
 
@@ -192,6 +216,10 @@
                                         <label class="form-check-label" for="create_zoom_meeting">{{ __('Create Zoom meeting now') }}</label>
                                     </div>
                                 @endif
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" id="create_jitsi_meeting" name="create_jitsi_meeting" value="1">
+                                    <label class="form-check-label" for="create_jitsi_meeting">{{ __('Create / refresh Jitsi room') }}</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -316,8 +344,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const branchSelect = document.getElementById('branch_id');
     const departmentSelect = document.getElementById('department_id');
     const createZoomMeeting = document.getElementById('create_zoom_meeting');
+    const createJitsiMeeting = document.getElementById('create_jitsi_meeting');
     const onlinePlatform = document.getElementById('online_platform');
     const modeSelect = document.querySelector('select[name="mode"]');
+    const jitsiDomainWrap = document.getElementById('jitsi-domain-wrap');
+    const jitsiDomainInput = document.getElementById('jitsi_domain');
 
     addBtn.addEventListener('click', () => {
         const row = document.createElement('div');
@@ -362,16 +393,67 @@ document.addEventListener('DOMContentLoaded', function () {
     function syncZoomDefaults() {
         if (createZoomMeeting?.checked) {
             onlinePlatform.value = 'zoom';
+            if (createJitsiMeeting) {
+                createJitsiMeeting.checked = false;
+            }
             if (modeSelect.value === 'onsite') {
                 modeSelect.value = 'online';
             }
         }
     }
 
+    function syncJitsiDefaults() {
+        if (createJitsiMeeting?.checked) {
+            onlinePlatform.value = 'jitsi';
+            if (createZoomMeeting) {
+                createZoomMeeting.checked = false;
+            }
+            if (modeSelect.value === 'onsite') {
+                modeSelect.value = 'online';
+            }
+        }
+    }
+
+    function toggleJitsiDomain() {
+        if (jitsiDomainWrap) {
+            jitsiDomainWrap.style.display = onlinePlatform.value === 'jitsi' ? '' : 'none';
+        }
+    }
+
+    function syncPlatformToggles() {
+        if (!onlinePlatform) {
+            return;
+        }
+
+        if (onlinePlatform.value === 'zoom') {
+            createZoomMeeting && (createZoomMeeting.checked = createZoomMeeting.checked || false);
+            createJitsiMeeting && (createJitsiMeeting.checked = false);
+        }
+
+        if (onlinePlatform.value === 'jitsi') {
+            createJitsiMeeting && (createJitsiMeeting.checked = true);
+            createZoomMeeting && (createZoomMeeting.checked = false);
+            if (modeSelect.value === 'onsite') {
+                modeSelect.value = 'online';
+            }
+            if (jitsiDomainInput && !jitsiDomainInput.value.trim()) {
+                jitsiDomainInput.value = 'meet.jit.si';
+            }
+        }
+    }
+
     branchSelect?.addEventListener('change', filterDepartments);
     createZoomMeeting?.addEventListener('change', syncZoomDefaults);
+    createJitsiMeeting?.addEventListener('change', syncJitsiDefaults);
+    onlinePlatform?.addEventListener('change', function () {
+        syncPlatformToggles();
+        toggleJitsiDomain();
+    });
     filterDepartments();
     syncZoomDefaults();
+    syncJitsiDefaults();
+    syncPlatformToggles();
+    toggleJitsiDomain();
 });
 </script>
 @endpush

@@ -86,6 +86,7 @@ const switchBtn = document.getElementById('switchBtn');
 const startBtn = document.getElementById('startBtn');
 const camControls = document.getElementById('camControls');
 const readerEl = document.getElementById('reader');
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
 
 let html5QrCode, currentCameraId, lastScan = '';
 let offlineQueue = JSON.parse(localStorage.getItem('offlineScans') || "[]");
@@ -145,8 +146,14 @@ function markAttendance(qrData) {
 
     fetch(markUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: JSON.stringify({ qr: qrData })
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({ qr: qrData, _token: csrfToken })
     })
     .then(r => r.json())
     .then(res => {

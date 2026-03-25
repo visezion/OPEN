@@ -128,14 +128,14 @@ class CompanyMenuListener
 
         $menu->add([
             'category' => 'Church',
-            'title' => __('Zoom Integration'),
+            'title' => __('Integrations'),
             'icon' => '',
-            'name' => 'churchmeet-zoom',
+            'name' => 'churchmeet-integrations',
             'parent' => 'churchmeet-tools-group',
             'order' => 1,
             'ignore_if' => [],
             'depend_on' => [],
-            'route' => 'churchmeet.zoom.index',
+            'route' => 'churchmeet.integrations.index',
             'module' => $module,
             'permission' => 'churchly settings manage',
         ]);

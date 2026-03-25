@@ -171,7 +171,7 @@
                     <div class="dms-login-actions">
                         <label class="form-check dms-remember mb-0" for="remember">
                             <input class="form-check-input" type="checkbox" name="remember" id="remember"
-                                {{ old('remember') ? 'checked' : '' }}>
+                                {{ old('remember', true) ? 'checked' : '' }}>
                             <span class="form-check-label">{{ __('Remember me') }}</span>
                         </label>
                         @if (Route::has('password.request'))

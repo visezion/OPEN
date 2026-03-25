@@ -46,6 +46,11 @@ class ZoomMeetingController extends Controller
         $attendanceEvent = AttendanceEvent::with('event')->where('workspace_id', getActiveWorkSpace())->findOrFail($attendanceEventId);
 
         $this->authorizeMeetingJoin($attendanceEvent);
+        $meetingNumber = $this->normalizeMeetingNumber((string) $attendanceEvent->meeting_id);
+
+        if (!$meetingNumber) {
+            return back()->with('error', __('Zoom meeting number is invalid. Update the event meeting ID or recreate the Zoom meeting.'));
+        }
 
         $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
 
@@ -67,10 +72,18 @@ class ZoomMeetingController extends Controller
             return response()->json(['message' => 'Zoom meeting is not configured for this event.'], 422);
         }
 
+        $meetingNumber = $this->normalizeMeetingNumber((string) $attendanceEvent->meeting_id);
+
+        if (!$meetingNumber) {
+            return response()->json([
+                'message' => 'Zoom meeting number is invalid. Use numeric meeting ID only or recreate the Zoom meeting.',
+            ], 422);
+        }
+
         $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
 
         try {
-            $signature = $zoomMeetingService->makeMeetingSdkSignature($setting, (string) $attendanceEvent->meeting_id, 0);
+            $signature = $zoomMeetingService->makeMeetingSdkSignature($setting, $meetingNumber, 0);
         } catch (\Throwable $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }
@@ -78,7 +91,7 @@ class ZoomMeetingController extends Controller
         return response()->json([
             'signature' => $signature,
             'sdkKey' => $setting->meeting_sdk_key,
-            'meetingNumber' => (string) $attendanceEvent->meeting_id,
+            'meetingNumber' => $meetingNumber,
             'password' => $attendanceEvent->meeting_passcode,
             'userName' => Auth::user()?->name ?: 'Church Member',
             'userEmail' => Auth::user()?->email,
@@ -166,5 +179,16 @@ class ZoomMeetingController extends Controller
                 }
             })
             ->exists();
+    }
+
+    protected function normalizeMeetingNumber(string $meetingId): ?string
+    {
+        $digitsOnly = preg_replace('/\D+/', '', trim($meetingId));
+
+        if (!$digitsOnly || strlen($digitsOnly) < 9) {
+            return null;
+        }
+
+        return $digitsOnly;
     }
 }

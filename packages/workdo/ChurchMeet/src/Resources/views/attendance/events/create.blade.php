@@ -1,187 +1,185 @@
 @extends('layouts.main')
 
 @section('page-title')
-    Create New Event / Service
+    {{ __('Create Event') }}
 @endsection
 
 @section('page-breadcrumb')
-    {{ __('Create New Event / Service ') }}
+    {{ __('ChurchMeet') }},{{ __('Create Event') }}
 @endsection
 
 @push('css')
 <style>
     .church-events-create .card {
-        border: 1px solid var(--bs-border-color, #dee2e6) !important;
+        border: 1px solid #d8e2ef !important;
+        box-shadow: none !important;
+    }
+
+    .church-events-create .create-hero {
+        border-top: 3px solid #245f86 !important;
+        background: linear-gradient(180deg, rgba(36, 95, 134, 0.06), rgba(36, 95, 134, 0)), #fff;
+    }
+
+    .church-events-create .section-copy,
+    .church-events-create .text-muted {
+        color: #6b7d90 !important;
+    }
+
+    .church-events-create .quick-card {
+        background: #f7fafc;
+        border-radius: 12px;
+        border: 1px solid #d8e2ef;
+        padding: 1rem;
+    }
+
+    .church-events-create .quick-card strong {
+        color: #19324a;
+    }
+
+    .church-events-create .aside-sticky {
+        position: sticky;
+        top: 92px;
+    }
+
+    @media (max-width: 991.98px) {
+        .church-events-create .aside-sticky {
+            position: static;
+        }
     }
 </style>
 @endpush
 
 @section('page-action')
-    <a href="{{ route('churchmeet.events.index') }}" class="btn btn-secondary btn-sm">
-        <i class="ti ti-arrow-left"></i> Back to List
+    <a href="{{ route('churchmeet.events.index') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
     </a>
 @endsection
 
 @section('content')
 <div class="row church-events-create">
     <div class="col-md-12 mb-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-muted mb-0">Event Workflow</h6>
-                    <span class="small text-secondary">Status: <strong class="text-primary">Draft</strong></span>
-                </div>
-
-                <div class="progress-container" style="position: relative;">
-                    <div class="progress" style="height: 10px; background: #f1f1f1; border-radius: 10px;">
-                        <div id="progressBar" class="progress-bar bg-primary" style="width: 25%; border-radius: 10px;"></div>
+        <div class="card create-hero">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between gap-3 align-items-start">
+                    <div>
+                        <h4 class="mb-2">{{ __('Create a New Event') }}</h4>
+                        <p class="section-copy mb-0">{{ __('Start with the basics first. Meeting settings and advanced options are kept lower down so the page stays easier to use.') }}</p>
                     </div>
-
-                    <ul class="d-flex justify-content-between list-unstyled position-absolute w-100 top-0" style="margin-top: -10px;">
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-primary text-white mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">1</div>
-                            <small>Draft</small>
-                        </li>
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-light text-muted border mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">2</div>
-                            <small>Review</small>
-                        </li>
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-light text-muted border mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">3</div>
-                            <small>Approver</small>
-                        </li>
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-light text-muted border mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">4</div>
-                            <small>Publish</small>
-                        </li>
-                    </ul><br>
+                    <span class="badge bg-light text-primary border">{{ __('Draft Stage') }}</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-md-9">
-        <div class="card shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">Event / Service Information</h5>
+        <div class="card">
+            <div class="card-header bg-white p-4">
+                <h5 class="mb-1">{{ __('Basic Details') }}</h5>
+                <p class="section-copy mb-0">{{ __('Fill the core event information first. Most events can be created with just this section and the attendance mode.') }}</p>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <form method="POST" action="{{ route('churchmeet.events.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
 
                         <!-- Basic Info -->
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Event Title <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="title" required>
+                            <label class="form-label">{{ __('Event Title') }} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="title" value="{{ old('title') }}" placeholder="{{ __('Sunday Worship Service') }}" required>
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Event Type</label>
+                            <label class="form-label">{{ __('Event Type') }}</label>
                             <select class="form-select" name="event_type">
-                                <option value="service">Service</option>
-                                <option value="meeting">Meeting</option>
-                                <option value="training">Training</option>
-                                <option value="rehearsal">Rehearsal</option>
-                                <option value="outreach">Outreach</option>
-                                <option value="other">Other</option>
+                                <option value="service" {{ old('event_type', 'service') === 'service' ? 'selected' : '' }}>Service</option>
+                                <option value="meeting" {{ old('event_type') === 'meeting' ? 'selected' : '' }}>Meeting</option>
+                                <option value="training" {{ old('event_type') === 'training' ? 'selected' : '' }}>Training</option>
+                                <option value="rehearsal" {{ old('event_type') === 'rehearsal' ? 'selected' : '' }}>Rehearsal</option>
+                                <option value="outreach" {{ old('event_type') === 'outreach' ? 'selected' : '' }}>Outreach</option>
+                                <option value="other" {{ old('event_type') === 'other' ? 'selected' : '' }}>Other</option>
                             </select>
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Status</label>
-                            <select class="form-select" name="status">
-                                <option value="draft">Draft</option>
-                                <option value="upcoming">Upcoming</option>
-                                <option value="ongoing">Ongoing</option>
-                                <option value="completed">Completed</option>
+                            <label class="form-label">{{ __('Attendance Mode') }}</label>
+                            <select name="mode" id="mode-selector" class="form-select" required>
+                                <option value="onsite" {{ old('mode', 'onsite') === 'onsite' ? 'selected' : '' }}>{{ __('Onsite') }}</option>
+                                <option value="online" {{ old('mode') === 'online' ? 'selected' : '' }}>{{ __('Online') }}</option>
+                                <option value="hybrid" {{ old('mode') === 'hybrid' ? 'selected' : '' }}>{{ __('Hybrid') }}</option>
                             </select>
                         </div>
 
                         <!-- Scheduling -->
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Start Date & Time</label>
-                            <input type="datetime-local" class="form-control" name="start_time">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ __('Start Date & Time') }}</label>
+                            <input type="datetime-local" class="form-control" name="start_time" value="{{ old('start_time') }}">
                         </div>
 
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">End Date & Time</label>
-                            <input type="datetime-local" class="form-control" name="end_time">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ __('End Date & Time') }}</label>
+                            <input type="datetime-local" class="form-control" name="end_time" value="{{ old('end_time') }}">
                         </div>
 
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Recurrence</label>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ __('Recurrence') }}</label>
                             <select class="form-select" name="recurrence">
-                                <option value="none">None</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="monthly">Monthly</option>
+                                <option value="none" {{ old('recurrence', 'none') === 'none' ? 'selected' : '' }}>None</option>
+                                <option value="daily" {{ old('recurrence') === 'daily' ? 'selected' : '' }}>Daily</option>
+                                <option value="weekly" {{ old('recurrence') === 'weekly' ? 'selected' : '' }}>Weekly</option>
+                                <option value="monthly" {{ old('recurrence') === 'monthly' ? 'selected' : '' }}>Monthly</option>
                             </select>
                         </div>
 
                         <!-- Ã°Å¸â€Â Searchable Dropdown Added -->
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Lead Minister / Person-in-Charge</label>
+                            <label class="form-label">{{ __('Lead Minister / Person-in-Charge') }}</label>
                             <select class="form-select member-select" name="lead_id">
-                                <option value="">Select Lead</option>
+                                <option value="">{{ __('Select Lead') }}</option>
                                 @foreach ($members as $member)
-                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
+                                    <option value="{{ $member->id }}" {{ old('lead_id') == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <!-- Ã°Å¸â€Â Searchable Dropdown Added -->
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Assistant / Co-Leader</label>
+                            <label class="form-label">{{ __('Assistant / Co-Leader') }}</label>
                             <select class="form-select member-select" name="assistant_id">
-                                <option value="">Select Assistant</option>
+                                <option value="">{{ __('Select Assistant') }}</option>
                                 @foreach ($members as $member)
-                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
+                                    <option value="{{ $member->id }}" {{ old('assistant_id') == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Venue / Link</label>
-                            <input type="text" class="form-control" name="venue" placeholder="e.g., Main Hall or Zoom Link">
+                            <label class="form-label">{{ __('Venue / Link') }}</label>
+                            <input type="text" class="form-control" name="venue" value="{{ old('venue') }}" placeholder="{{ __('Main Hall or meeting address') }}">
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Branch</label>
+                            <label class="form-label">{{ __('Branch') }}</label>
                             <select class="form-select" name="branch_id" id="branch_id">
-                                <option value="">Select Branch</option>
+                                <option value="">{{ __('Select Branch') }}</option>
                                 @foreach ($branches as $branch)
-                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                    <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Department</label>
+                            <label class="form-label">{{ __('Department') }}</label>
                             <select class="form-select" name="department_id" id="department_id">
-                                <option value="">Select Department</option>
+                                <option value="">{{ __('Select Department') }}</option>
                                 @foreach ($departments as $department)
-                                    <option value="{{ $department->id }}" data-branch-id="{{ $department->branch_id }}">{{ $department->name }}</option>
+                                    <option value="{{ $department->id }}" data-branch-id="{{ $department->branch_id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
                                 @endforeach
                             </select>
-                        </div>
-
-                        {{-- GPS Location for Self Attendance (optional) --}}
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Latitude</label>
-                            <input type="number" step="0.0001" class="form-control" name="latitude" value="{{ old('latitude') }}" placeholder="e.g., 6.5244">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Longitude</label>
-                            <input type="number" step="0.0001" class="form-control" name="longitude" value="{{ old('longitude') }}" placeholder="e.g., 3.3792">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Radius (meters)</label>
-                            <input type="number" min="1" class="form-control" name="radius_meters" value="{{ old('radius_meters', 100) }}">
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <label class="form-label">Description / Notes</label>
-                            <textarea class="form-control" rows="3" name="description" placeholder="Describe this event..."></textarea>
+                            <label class="form-label">{{ __('Description / Notes') }}</label>
+                            <textarea class="form-control" rows="3" name="description" placeholder="{{ __('Briefly describe this event...') }}">{{ old('description') }}</textarea>
                         </div>
                     </div>
 
@@ -230,33 +228,14 @@
 
                     <hr>
 
-                    {{-- Mode & Auto Log Toggle --}}
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="ti ti-building-church text-success"></i> {{ __('Mode of Attendance') }}
-                            </label>
-                            <select name="mode" id="mode-selector" class="form-select" required>
-                                <option value="onsite">{{ __('Onsite') }}</option>
-                                <option value="online">{{ __('Online') }}</option>
-                                <option value="hybrid">{{ __('Hybrid') }}</option>
-                            </select>
-                            <small class="text-muted d-block mt-1">
-                                {{ __('Define how participants will attend this event.') }}
-                            </small>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h6 class="mb-1">{{ __('Attendance & Meeting Tools') }}</h6>
+                            <small class="text-muted">{{ __('Use these only if the event needs attendance automation or an online room.') }}</small>
                         </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold d-block">
-                                <i class="ti ti-activity text-warning"></i> {{ __('Auto Attendance Logging') }}
-                            </label>
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance">
-                                <label for="auto_log_attendance" class="form-check-label">{{ __('Enable Auto Logging') }}</label>
-                            </div>
-                            <small class="text-muted d-block mt-1">
-                                {{ __('Automatically record attendance for Zoom/YouTube integrations.') }}
-                            </small>
+                        <div class="form-check form-switch mb-0">
+                            <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance" value="1" {{ old('auto_log_attendance') ? 'checked' : '' }}>
+                            <label for="auto_log_attendance" class="form-check-label">{{ __('Auto Log') }}</label>
                         </div>
                     </div>
 
@@ -273,10 +252,21 @@
                         </div>
                     @else
                         <div class="alert alert-warning">
-                            {{ __('Zoom meeting creation is unavailable until Churchly Zoom settings are configured.') }}
-                            <a href="{{ route('churchmeet.zoom.index') }}" class="alert-link">{{ __('Open Zoom settings') }}</a>
+                            {{ __('Zoom meeting creation is unavailable until ChurchMeet integration settings are configured.') }}
+                            <a href="{{ route('churchmeet.integrations.index') }}" class="alert-link">{{ __('Open Integration settings') }}</a>
                         </div>
                     @endif
+
+                    <div class="alert alert-light border d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ __('Jitsi is available.') }}</strong>
+                            {{ __('Use Jitsi as a free in-app meeting alternative without Zoom credentials.') }}
+                        </div>
+                        <div class="form-check form-switch mb-0">
+                            <input type="checkbox" class="form-check-input" id="create_jitsi_meeting" name="create_jitsi_meeting" value="1">
+                            <label for="create_jitsi_meeting" class="form-check-label">{{ __('Auto-create Jitsi room') }}</label>
+                        </div>
+                    </div>
 
                     {{-- Attendance Methods --}}
                     <div class="mb-4">
@@ -292,6 +282,7 @@
                                     ['kiosk', 'Kiosk Self Check-in', 'ti-device-ipad'],
                                     ['face_ai', 'Face AI Detection', 'ti-camera'],
                                     ['zoom', 'Zoom Attendance Sync', 'ti-video'],
+                                    ['jitsi', 'Jitsi Meeting Room', 'ti-brand-tabler'],
                                     ['youtube', 'YouTube Live Tracking', 'ti-brand-youtube']
                                 ];
                             @endphp
@@ -315,39 +306,64 @@
                     {{-- Online Config --}}
                     <div id="online-config" class="mb-4" style="display:none;">
                         <label class="form-label fw-semibold">
-                            <i class="ti ti-video text-danger"></i> {{ __('Online Configuration (Optional)') }}
+                            <i class="ti ti-video text-danger"></i> {{ __('Online Meeting Details') }}
                         </label>
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <input type="text" name="online_platform" id="online_platform" placeholder="{{ __('Platform (e.g., Zoom, YouTube)') }}" class="form-control">
+                                <select name="online_platform" id="online_platform" class="form-select">
+                                    <option value="">{{ __('Select Online Platform') }}</option>
+                                    <option value="zoom" {{ old('online_platform', $zoomSetting->preferred_platform) === 'zoom' ? 'selected' : '' }}>{{ __('Zoom') }}</option>
+                                    <option value="jitsi" {{ old('online_platform', $zoomSetting->preferred_platform ?: 'jitsi') === 'jitsi' ? 'selected' : '' }}>{{ __('Jitsi Meet') }}</option>
+                                    <option value="youtube" {{ old('online_platform') === 'youtube' ? 'selected' : '' }}>{{ __('YouTube') }}</option>
+                                    <option value="custom" {{ old('online_platform') === 'custom' ? 'selected' : '' }}>{{ __('Custom Link') }}</option>
+                                </select>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_link" placeholder="{{ __('Meeting/Stream Link') }}" class="form-control">
+                                <input type="text" name="meeting_link" value="{{ old('meeting_link') }}" placeholder="{{ __('Meeting/Stream Link') }}" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_id" placeholder="{{ __('Meeting ID (Zoom)') }}" class="form-control">
+                                <input type="text" name="meeting_id" value="{{ old('meeting_id') }}" placeholder="{{ __('Meeting ID or Jitsi Room Name') }}" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_passcode" placeholder="{{ __('Passcode (Zoom)') }}" class="form-control">
+                                <input type="text" name="meeting_passcode" value="{{ old('meeting_passcode') }}" placeholder="{{ __('Passcode (Zoom only)') }}" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="jitsi_domain" id="jitsi_domain" value="{{ old('jitsi_domain', $zoomSetting->jitsi_server_domain ?: 'meet.jit.si') }}" placeholder="{{ __('Jitsi Domain (optional, defaults to meet.jit.si)') }}" class="form-control">
                             </div>
                         </div>
                         <small class="text-muted d-block mt-1">
-                            {{ __('Only required for Online or Hybrid modes.') }}
+                            {{ __('Only required for Online or Hybrid modes. For Jitsi, the room name becomes the meeting ID.') }}
                         </small>
                     </div>
 
                     <hr>
 
-                    <!-- File Upload -->
-                    <div class="mb-3">
-                        <label class="form-label">Upload Files (Optional)</label>
-                        <input type="file" class="form-control" name="files[]" multiple>
-                    </div>
+                    <details class="mb-3">
+                        <summary>{{ __('Advanced Options') }}</summary>
+                        <div class="row mt-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">{{ __('Latitude') }}</label>
+                                <input type="number" step="0.0001" class="form-control" name="latitude" value="{{ old('latitude') }}" placeholder="6.5244">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">{{ __('Longitude') }}</label>
+                                <input type="number" step="0.0001" class="form-control" name="longitude" value="{{ old('longitude') }}" placeholder="3.3792">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">{{ __('Radius (meters)') }}</label>
+                                <input type="number" min="1" class="form-control" name="radius_meters" value="{{ old('radius_meters', 100) }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">{{ __('Upload Files (Optional)') }}</label>
+                                <input type="file" class="form-control" name="files[]" multiple>
+                            </div>
+                        </div>
+                    </details>
 
                     <div class="text-end">
-                        <button type="submit" class="btn btn-primary"><i class="ti ti-send"></i> Submit Event for Review</button>
-                        <button type="reset" class="btn btn-light">Clear</button>
+                        <button type="submit" class="btn btn-primary"><i class="ti ti-send"></i> {{ __('Submit Event for Review') }}</button>
+                        <button type="reset" class="btn btn-light">{{ __('Clear') }}</button>
                     </div>
                 </form>
             </div>
@@ -359,7 +375,8 @@
         {{-- Ã°Å¸Â§Â­ Instruction & Tips --}}
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header  text-primary py-3">
-                <h5 class="mb-0"><i class="ti ti-bulb"></i> {{ __('Instructions & Tips') }}</h5>
+                <h5 class="mb-1"><i class="ti ti-bulb me-1"></i> {{ __('Quick Guide') }}</h5>
+                <p class="section-copy mb-0">{{ __('Use the shortest path possible for normal events.') }}</p>
             </div>
             <div class="card-body small text-muted">
                 <ul class="ps-3 mb-0">
@@ -381,41 +398,28 @@
 
 
        {{-- Notifications --}}
-            @php
-                $recentEvents = \Workdo\ChurchMeet\Entities\Event::orderBy('created_at', 'desc')->take(3)->get();
-            @endphp
-
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light py-2 d-flex align-items-center justify-content-between">
-                    <h6 class="mb-0">
-                        <i class="ti ti-bell"></i> {{ __('Recent Notifications') }}
-                    </h6>
-                    <a href="{{ route('churchmeet.events.index') }}" class="text-muted small">{{ __('View All') }}</a>
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0">{{ __('Current Defaults') }}</h6>
                 </div>
 
                 <div class="card-body small">
-                    @forelse($recentEvents as $event)
-                        <div class="alert alert-{{ 
-                            $event->event_type == 'worship' ? 'info' : 
-                            ($event->event_type == 'meeting' ? 'warning' : 
-                            ($event->event_type == 'outreach' ? 'success' : 'secondary')) 
-                        }} mb-2 py-2">
-                            <i class="ti ti-calendar-event"></i>
-                            <strong>{{ $event->title }}</strong>
-                            <br>
-                            <span class="text-muted">
-                                {{ __('Scheduled for') }} {{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}
-                                @if($event->time)
-                                    {{ __('at') }} {{ \Carbon\Carbon::parse($event->time)->format('h:i A') }}
-                                @endif
-                            </span>
-                        </div>
-                    @empty
-                        <div class="text-center text-muted py-3">
-                            <i class="ti ti-bell-off" style="font-size: 28px;"></i>
-                            <p class="mt-2 mb-0">{{ __('No recent event notifications yet.') }}</p>
-                        </div>
-                    @endforelse
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">{{ __('Workflow') }}</span>
+                        <strong>{{ __('Draft -> Review') }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">{{ __('Default Method') }}</span>
+                        <strong>{{ __('Manual') }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">{{ __('Zoom') }}</span>
+                        <strong>{{ !empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret) ? __('Ready') : __('Needs setup') }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">{{ __('Jitsi') }}</span>
+                        <strong>{{ __('Ready') }}</strong>
+                    </div>
                 </div>
             </div>
 
@@ -423,7 +427,6 @@
 </div>
 
 <!-- Ã¢Å“â€¦ Include Select2 -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
@@ -468,7 +471,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const modeSelector = document.getElementById('mode-selector');
     const onlineConfig = document.getElementById('online-config');
     const createZoomMeeting = document.getElementById('create_zoom_meeting');
+    const createJitsiMeeting = document.getElementById('create_jitsi_meeting');
     const onlinePlatform = document.getElementById('online_platform');
+    const jitsiDomain = document.getElementById('jitsi_domain');
     const branchSelect = document.getElementById('branch_id');
     const departmentSelect = document.getElementById('department_id');
 
@@ -480,6 +485,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function syncZoomPlatform() {
         if (createZoomMeeting && createZoomMeeting.checked) {
             onlinePlatform.value = 'zoom';
+            if (createJitsiMeeting) {
+                createJitsiMeeting.checked = false;
+            }
+            if (modeSelector.value === 'onsite') {
+                modeSelector.value = 'online';
+            }
+            toggleOnlineSection();
+        }
+    }
+
+    function syncJitsiPlatform() {
+        if (createJitsiMeeting && createJitsiMeeting.checked) {
+            onlinePlatform.value = 'jitsi';
+            if (createZoomMeeting) {
+                createZoomMeeting.checked = false;
+            }
             if (modeSelector.value === 'onsite') {
                 modeSelector.value = 'online';
             }
@@ -506,13 +527,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     modeSelector.addEventListener('change', toggleOnlineSection);
     branchSelect.addEventListener('change', filterDepartments);
+    function toggleJitsiDomain() {
+        if (!jitsiDomain) {
+            return;
+        }
+
+        jitsiDomain.closest('.col-md-6').style.display = onlinePlatform.value === 'jitsi' ? '' : 'none';
+    }
+
     if (createZoomMeeting) {
         createZoomMeeting.addEventListener('change', syncZoomPlatform);
     }
+    if (createJitsiMeeting) {
+        createJitsiMeeting.addEventListener('change', syncJitsiPlatform);
+    }
+    onlinePlatform.addEventListener('change', toggleJitsiDomain);
 
     filterDepartments();
     toggleOnlineSection(); // initialize on load
     syncZoomPlatform();
+    syncJitsiPlatform();
+    toggleJitsiDomain();
 });
 </script>
 @endsection

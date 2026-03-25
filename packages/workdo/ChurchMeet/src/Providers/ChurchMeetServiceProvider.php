@@ -21,6 +21,7 @@ class ChurchMeetServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'churchmeet');
+        $this->loadMigrationsFrom(__DIR__ . '/../../Database/Migrations');
 
         $this->app->afterResolving(\Illuminate\Console\Scheduling\Schedule::class, function ($schedule) {
             $schedule->command('churchmeet:zoom-sync')->everyFiveMinutes();

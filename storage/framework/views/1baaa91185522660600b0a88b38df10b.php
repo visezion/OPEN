@@ -1,8 +1,6 @@
-@extends('layouts.main')
+<?php $__env->startSection('page-title', __('Join Zoom Meeting')); ?>
 
-@section('page-title', __('Join Zoom Meeting'))
-
-@push('css')
+<?php $__env->startPush('css'); ?>
     <link rel="stylesheet" href="https://source.zoom.us/5.1.4/css/bootstrap.css">
     <link rel="stylesheet" href="https://source.zoom.us/5.1.4/css/react-select.css">
     <style>
@@ -385,46 +383,49 @@
             }
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('page-action')
-    @if($canStartMeeting)
-        <a href="{{ $attendanceEvent->host_start_url }}" target="_blank" rel="noopener" class="btn btn-warning btn-sm">
-            <i class="ti ti-player-play"></i> {{ __('Start As Host') }}
+<?php $__env->startSection('page-action'); ?>
+    <?php if($canStartMeeting): ?>
+        <a href="<?php echo e($attendanceEvent->host_start_url); ?>" target="_blank" rel="noopener" class="btn btn-warning btn-sm">
+            <i class="ti ti-player-play"></i> <?php echo e(__('Start As Host')); ?>
+
         </a>
-    @endif
-    @if($attendanceEvent->meeting_link)
-        <a href="{{ $attendanceEvent->meeting_link }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
-            <i class="ti ti-external-link"></i> {{ __('Open Zoom Fallback') }}
+    <?php endif; ?>
+    <?php if($attendanceEvent->meeting_link): ?>
+        <a href="<?php echo e($attendanceEvent->meeting_link); ?>" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+            <i class="ti ti-external-link"></i> <?php echo e(__('Open Zoom Fallback')); ?>
+
         </a>
-    @endif
-    <a href="{{ route('churchmeet.events.show', $attendanceEvent->event_id) }}" class="btn btn-light btn-sm">
-        <i class="ti ti-arrow-left"></i> {{ __('Back to Event') }}
+    <?php endif; ?>
+    <a href="<?php echo e(route('churchmeet.events.show', $attendanceEvent->event_id)); ?>" class="btn btn-light btn-sm">
+        <i class="ti ti-arrow-left"></i> <?php echo e(__('Back to Event')); ?>
+
     </a>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="zoom-join-page">
         <div class="card zoom-hero mb-4">
             <div class="card-body">
-                <span class="zoom-eyebrow"><i class="ti ti-video"></i>{{ __('ChurchMeet Live Room') }}</span>
-                <h2 class="zoom-hero-title">{{ $attendanceEvent->event->title ?? __('Zoom Meeting') }}</h2>
-                <p class="zoom-hero-copy">{{ __('Launch, monitor, and join this live church meeting without leaving OPEN. Meeting access, readiness, and room status are kept together on one operational screen.') }}</p>
+                <span class="zoom-eyebrow"><i class="ti ti-video"></i><?php echo e(__('ChurchMeet Live Room')); ?></span>
+                <h2 class="zoom-hero-title"><?php echo e($attendanceEvent->event->title ?? __('Zoom Meeting')); ?></h2>
+                <p class="zoom-hero-copy"><?php echo e(__('Launch, monitor, and join this live church meeting without leaving OPEN. Meeting access, readiness, and room status are kept together on one operational screen.')); ?></p>
                 <div class="zoom-hero-grid">
                     <div class="zoom-hero-stat">
-                        <small>{{ __('Meeting Number') }}</small>
-                        <strong>{{ $attendanceEvent->meeting_id ?? '-' }}</strong>
-                        <span>{{ __('Primary Zoom identifier for this session.') }}</span>
+                        <small><?php echo e(__('Meeting Number')); ?></small>
+                        <strong><?php echo e($attendanceEvent->meeting_id ?? '-'); ?></strong>
+                        <span><?php echo e(__('Primary Zoom identifier for this session.')); ?></span>
                     </div>
                     <div class="zoom-hero-stat">
-                        <small>{{ __('Access Mode') }}</small>
-                        <strong>{{ $meetingSdkEnabled ? __('In-App Join') : __('Fallback Link') }}</strong>
-                        <span>{{ $meetingSdkEnabled ? __('Meeting SDK is available for embedded access.') : __('Zoom credentials still need to be completed.') }}</span>
+                        <small><?php echo e(__('Access Mode')); ?></small>
+                        <strong><?php echo e($meetingSdkEnabled ? __('In-App Join') : __('Fallback Link')); ?></strong>
+                        <span><?php echo e($meetingSdkEnabled ? __('Meeting SDK is available for embedded access.') : __('Zoom credentials still need to be completed.')); ?></span>
                     </div>
                     <div class="zoom-hero-stat">
-                        <small>{{ __('Role Access') }}</small>
-                        <strong>{{ $canStartMeeting ? __('Host + Member') : __('Member Join') }}</strong>
-                        <span>{{ $canStartMeeting ? __('This account can start the meeting and monitor the room.') : __('This account can join the active session.') }}</span>
+                        <small><?php echo e(__('Role Access')); ?></small>
+                        <strong><?php echo e($canStartMeeting ? __('Host + Member') : __('Member Join')); ?></strong>
+                        <span><?php echo e($canStartMeeting ? __('This account can start the meeting and monitor the room.') : __('This account can join the active session.')); ?></span>
                     </div>
                 </div>
             </div>
@@ -434,25 +435,25 @@
             <div class="col-xl-4">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h5 class="mb-1">{{ __('Session Details') }}</h5>
-                        <p class="text-muted mb-0">{{ __('Core Zoom metadata for this event room.') }}</p>
+                        <h5 class="mb-1"><?php echo e(__('Session Details')); ?></h5>
+                        <p class="text-muted mb-0"><?php echo e(__('Core Zoom metadata for this event room.')); ?></p>
                     </div>
                     <div class="card-body">
                         <div class="zoom-meta-grid">
                             <div class="zoom-meta-row">
-                                <div class="zoom-meta-label">{{ __('Meeting ID') }}</div>
-                                <div class="zoom-meta-value">{{ $attendanceEvent->meeting_id ?? '-' }}</div>
+                                <div class="zoom-meta-label"><?php echo e(__('Meeting ID')); ?></div>
+                                <div class="zoom-meta-value"><?php echo e($attendanceEvent->meeting_id ?? '-'); ?></div>
                             </div>
                             <div class="zoom-meta-row">
-                                <div class="zoom-meta-label">{{ __('Passcode') }}</div>
+                                <div class="zoom-meta-label"><?php echo e(__('Passcode')); ?></div>
                                 <div>
-                                    <div class="zoom-meta-value">{{ $attendanceEvent->meeting_passcode ?: '-' }}</div>
-                                    <span class="zoom-meta-value-sub">{{ __('Use this only if Zoom prompts outside the embedded room.') }}</span>
+                                    <div class="zoom-meta-value"><?php echo e($attendanceEvent->meeting_passcode ?: '-'); ?></div>
+                                    <span class="zoom-meta-value-sub"><?php echo e(__('Use this only if Zoom prompts outside the embedded room.')); ?></span>
                                 </div>
                             </div>
                             <div class="zoom-meta-row">
-                                <div class="zoom-meta-label">{{ __('Platform') }}</div>
-                                <div><span class="zoom-platform-pill"><i class="ti ti-brand-zoom"></i>{{ ucfirst($attendanceEvent->online_platform ?: 'zoom') }}</span></div>
+                                <div class="zoom-meta-label"><?php echo e(__('Platform')); ?></div>
+                                <div><span class="zoom-platform-pill"><i class="ti ti-brand-zoom"></i><?php echo e(ucfirst($attendanceEvent->online_platform ?: 'zoom')); ?></span></div>
                             </div>
                         </div>
                     </div>
@@ -460,26 +461,28 @@
 
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h5 class="mb-1">{{ __('Readiness') }}</h5>
-                        <p class="text-muted mb-0">{{ __('Current meeting access and fallback options.') }}</p>
+                        <h5 class="mb-1"><?php echo e(__('Readiness')); ?></h5>
+                        <p class="text-muted mb-0"><?php echo e(__('Current meeting access and fallback options.')); ?></p>
                     </div>
                     <div class="card-body">
-                        <div class="zoom-readiness {{ $meetingSdkEnabled ? 'is-ready' : 'is-warn' }}">
-                            <span class="zoom-readiness-icon"><i class="ti {{ $meetingSdkEnabled ? 'ti-check' : 'ti-alert-triangle' }}"></i></span>
+                        <div class="zoom-readiness <?php echo e($meetingSdkEnabled ? 'is-ready' : 'is-warn'); ?>">
+                            <span class="zoom-readiness-icon"><i class="ti <?php echo e($meetingSdkEnabled ? 'ti-check' : 'ti-alert-triangle'); ?>"></i></span>
                             <div>
-                                <div class="zoom-readiness-title">{{ $meetingSdkEnabled ? __('Embedded room is ready') : __('Embedded room not fully configured') }}</div>
-                                <div class="zoom-readiness-copy">{{ $meetingSdkEnabled ? __('Meeting SDK credentials are available, so users can join inside OPEN and keep church activity in one place.') : __('Users can still open Zoom directly, but Meeting SDK keys should be configured to restore the in-app room.') }}</div>
+                                <div class="zoom-readiness-title"><?php echo e($meetingSdkEnabled ? __('Embedded room is ready') : __('Embedded room not fully configured')); ?></div>
+                                <div class="zoom-readiness-copy"><?php echo e($meetingSdkEnabled ? __('Meeting SDK credentials are available, so users can join inside OPEN and keep church activity in one place.') : __('Users can still open Zoom directly, but Meeting SDK keys should be configured to restore the in-app room.')); ?></div>
                                 <div class="zoom-actions-inline">
-                                    @if($meeting_link = $attendanceEvent->meeting_link)
-                                        <a href="{{ $meeting_link }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
-                                            <i class="ti ti-external-link me-1"></i>{{ __('Open Zoom Fallback') }}
+                                    <?php if($meeting_link = $attendanceEvent->meeting_link): ?>
+                                        <a href="<?php echo e($meeting_link); ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                                            <i class="ti ti-external-link me-1"></i><?php echo e(__('Open Zoom Fallback')); ?>
+
                                         </a>
-                                    @endif
-                                    @unless($meetingSdkEnabled)
-                                        <a href="{{ route('churchmeet.integrations.index') }}" class="btn btn-sm btn-light">
-                                            <i class="ti ti-settings me-1"></i>{{ __('Open Integrations') }}
+                                    <?php endif; ?>
+                                    <?php if (! ($meetingSdkEnabled)): ?>
+                                        <a href="<?php echo e(route('churchmeet.integrations.index')); ?>" class="btn btn-sm btn-light">
+                                            <i class="ti ti-settings me-1"></i><?php echo e(__('Open Integrations')); ?>
+
                                         </a>
-                                    @endunless
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -488,30 +491,30 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-1">{{ __('Join Flow') }}</h5>
-                        <p class="text-muted mb-0">{{ __('What this screen is doing behind the scenes.') }}</p>
+                        <h5 class="mb-1"><?php echo e(__('Join Flow')); ?></h5>
+                        <p class="text-muted mb-0"><?php echo e(__('What this screen is doing behind the scenes.')); ?></p>
                     </div>
                     <div class="card-body">
                         <div class="zoom-checklist">
                             <div class="zoom-step">
                                 <span class="zoom-step-index">1</span>
                                 <div>
-                                    <strong>{{ __('Secure session request') }}</strong>
-                                    <span>{{ __('OPEN requests a server-generated Zoom signature before opening the room.') }}</span>
+                                    <strong><?php echo e(__('Secure session request')); ?></strong>
+                                    <span><?php echo e(__('OPEN requests a server-generated Zoom signature before opening the room.')); ?></span>
                                 </div>
                             </div>
                             <div class="zoom-step">
                                 <span class="zoom-step-index">2</span>
                                 <div>
-                                    <strong>{{ __('Embedded room first') }}</strong>
-                                    <span>{{ __('The page tries the in-app component view before any external fallback.') }}</span>
+                                    <strong><?php echo e(__('Embedded room first')); ?></strong>
+                                    <span><?php echo e(__('The page tries the in-app component view before any external fallback.')); ?></span>
                                 </div>
                             </div>
                             <div class="zoom-step">
                                 <span class="zoom-step-index">3</span>
                                 <div>
-                                    <strong>{{ __('Client fallback if needed') }}</strong>
-                                    <span>{{ __('If embedded mode cannot initialize, the client view is used automatically.') }}</span>
+                                    <strong><?php echo e(__('Client fallback if needed')); ?></strong>
+                                    <span><?php echo e(__('If embedded mode cannot initialize, the client view is used automatically.')); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -524,33 +527,34 @@
                     <div class="card-header">
                         <div class="zoom-room-header">
                             <div>
-                                <h5 class="zoom-room-title">{{ __('Live Meeting Room') }}</h5>
-                                <p class="zoom-room-copy">{{ __('Keep this page open while the room loads. Status updates and Zoom initialization messages will appear below.') }}</p>
+                                <h5 class="zoom-room-title"><?php echo e(__('Live Meeting Room')); ?></h5>
+                                <p class="zoom-room-copy"><?php echo e(__('Keep this page open while the room loads. Status updates and Zoom initialization messages will appear below.')); ?></p>
                             </div>
                             <div class="zoom-room-badges">
-                                <span class="zoom-room-badge"><i class="ti ti-shield-check"></i>{{ __('Secure Signature') }}</span>
-                                <span class="zoom-room-badge"><i class="ti ti-app-window"></i>{{ __('In-App Experience') }}</span>
+                                <span class="zoom-room-badge"><i class="ti ti-shield-check"></i><?php echo e(__('Secure Signature')); ?></span>
+                                <span class="zoom-room-badge"><i class="ti ti-app-window"></i><?php echo e(__('In-App Experience')); ?></span>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
                         <div id="zoom-status" class="zoom-status-panel is-info">
-                            {{ __('Preparing Zoom meeting room...') }}
+                            <?php echo e(__('Preparing Zoom meeting room...')); ?>
+
                         </div>
                         <div id="meetingSDKElement"></div>
                         <div class="zoom-note mt-3">
-                            <small class="zoom-section-label">{{ __('Operator Note') }}</small>
-                            <p>{{ __('If this room cannot load because of SDK or browser restrictions, use the fallback Zoom link from the left panel while keeping event activity managed inside ChurchMeet.') }}</p>
+                            <small class="zoom-section-label"><?php echo e(__('Operator Note')); ?></small>
+                            <p><?php echo e(__('If this room cannot load because of SDK or browser restrictions, use the fallback Zoom link from the left panel while keeping event activity managed inside ChurchMeet.')); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
-    @if($meetingSdkEnabled)
+<?php $__env->startPush('scripts'); ?>
+    <?php if($meetingSdkEnabled): ?>
         <script src="https://source.zoom.us/5.1.4/lib/vendor/react.min.js" data-zoom-vendor="react" onload="this.dataset.loaded='1'"></script>
         <script src="https://source.zoom.us/5.1.4/lib/vendor/react-dom.min.js" data-zoom-vendor="react-dom" onload="this.dataset.loaded='1'"></script>
         <script src="https://source.zoom.us/5.1.4/lib/vendor/redux.min.js" data-zoom-vendor="redux" onload="this.dataset.loaded='1'"></script>
@@ -561,7 +565,7 @@
             document.addEventListener('DOMContentLoaded', async function () {
                 const statusBox = document.getElementById('zoom-status');
                 const rootElement = document.getElementById('meetingSDKElement');
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || @json(csrf_token());
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || <?php echo json_encode(csrf_token(), 15, 512) ?>;
                 const zoomEmbeddedSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-embedded-5.1.4.min.js';
                 const zoomClientSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-5.1.4.min.js';
                 const zoomVendorScripts = [
@@ -674,7 +678,7 @@
 
                     return await new Promise((resolve, reject) => {
                         ZoomMtg.init({
-                            leaveUrl: @json(route('churchmeet.events.show', $attendanceEvent->event_id)),
+                            leaveUrl: <?php echo json_encode(route('churchmeet.events.show', $attendanceEvent->event_id), 512) ?>,
                             patchJsMedia: true,
                             leaveOnPageUnload: true,
                             success: function () {
@@ -703,7 +707,7 @@
                 try {
                     setStatus('Requesting secure Zoom session...', 'info');
 
-                    const response = await fetch(@json(route('churchmeet.zoom.meetings.signature', $attendanceEvent->id)), {
+                    const response = await fetch(<?php echo json_encode(route('churchmeet.zoom.meetings.signature', $attendanceEvent->id), 512) ?>, {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
@@ -759,7 +763,7 @@
                 }
             });
         </script>
-    @else
+    <?php else: ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const statusBox = document.getElementById('zoom-status');
@@ -767,5 +771,7 @@
                 statusBox.textContent = 'Embedded Zoom join is unavailable until Meeting SDK credentials are configured.';
             });
         </script>
-    @endif
-@endpush
+    <?php endif; ?>
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\ChurchMeet\src\Providers/../Resources/views/integrations/zoom_join.blade.php ENDPATH**/ ?>

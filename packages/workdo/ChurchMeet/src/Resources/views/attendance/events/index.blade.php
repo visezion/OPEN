@@ -79,7 +79,7 @@
                                         <small class="text-muted">{{ Str::limit($event->description, 60) }}</small>
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}</td>
-                                    <td> {{ $event->start_time ? date('h:i A', strtotime($event->start_time)) : 'Ã¢â‚¬â€' }} -  {{ $event->end_time ? date('h:i A', strtotime($event->end_time)) : 'Ã¢â‚¬â€' }}</td>
+                                    <td>{{ $event->start_time ? date('h:i A', strtotime($event->start_time)) : '-' }} - {{ $event->end_time ? date('h:i A', strtotime($event->end_time)) : '-' }}</td>
                                     <td>
                                         <span class="badge bg-{{ $event->event_type == 'worship' ? 'info' : ($event->event_type == 'meeting' ? 'warning' : 'secondary') }}">
                                             {{ ucfirst($event->event_type) }}
@@ -91,7 +91,7 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group" role="group">
+                                        <div class="d-inline-flex flex-wrap gap-1 justify-content-center" role="group" aria-label="{{ __('Event actions') }}">
                                             <a href="{{ route('churchmeet.events.approve', $event->id) }}" class="btn btn-sm btn-outline-success" title="{{ __('View Approval') }}">
                                                 <i class="ti ti-checks"></i>
                                             </a>     
@@ -144,15 +144,15 @@
         {{-- Instruction Tips --}}
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header  text-white py-2">
-                <h5 class="mb-0"><i class="ti ti-bulb"></i> {{ __('Instruction & Tips') }}</h6>
+                <h5 class="mb-0"><i class="ti ti-bulb"></i> {{ __('Instruction & Tips') }}</h5>
             </div>
             <div class="card-body small text-muted">
                 <ul class="ps-3 mb-0">
-                    <li>Use the <strong>Filter</strong> bar to quickly find specific events by type or date.</li>
-                    <li>Click <strong>Ã¢â‚¬Å“ViewÃ¢â‚¬Â</strong> to open full event details including description and participants.</li>
-                    <li>Use <strong>Ã¢â‚¬Å“EditÃ¢â‚¬Â</strong> to update the eventÃ¢â‚¬â„¢s date, time, or venue.</li>
-                    <li>Only delete an event if itÃ¢â‚¬â„¢s canceled Ã¢â‚¬â€ this action cannot be undone.</li>
-                    <li>Completed or past events are automatically archived in the database.</li>
+                    <li>{{ __('Use the Filter bar to quickly find specific events by type or date.') }}</li>
+                    <li>{{ __('Click View to open full event details including description and participants.') }}</li>
+                    <li>{{ __('Use Edit to update the event date, time, or venue.') }}</li>
+                    <li>{{ __('Only delete an event if it is canceled. This action cannot be undone.') }}</li>
+                    <li>{{ __('Completed or past events are automatically archived in the database.') }}</li>
                 </ul>
             </div>
         </div>
@@ -197,4 +197,5 @@
     </div>
 </div>
 @endsection
+
 

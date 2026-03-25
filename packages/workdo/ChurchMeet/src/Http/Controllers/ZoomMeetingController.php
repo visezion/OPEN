@@ -46,6 +46,11 @@ class ZoomMeetingController extends Controller
         $attendanceEvent = AttendanceEvent::with('event')->where('workspace_id', getActiveWorkSpace())->findOrFail($attendanceEventId);
 
         $this->authorizeMeetingJoin($attendanceEvent);
+        $meetingNumber = $this->resolveMeetingNumber($attendanceEvent);
+
+        if (!$meetingNumber) {
+            return back()->with('error', __('Zoom meeting number is invalid. Update the event meeting details or recreate the Zoom meeting.'));
+        }
 
         $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
 
@@ -62,15 +67,18 @@ class ZoomMeetingController extends Controller
         $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($attendanceEventId);
 
         $this->authorizeMeetingJoin($attendanceEvent);
+        $meetingNumber = $this->resolveMeetingNumber($attendanceEvent);
 
-        if (!$attendanceEvent->meeting_id) {
-            return response()->json(['message' => 'Zoom meeting is not configured for this event.'], 422);
+        if (!$meetingNumber) {
+            return response()->json([
+                'message' => 'Zoom meeting number is invalid. Update the event meeting details or recreate the Zoom meeting.',
+            ], 422);
         }
 
         $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
 
         try {
-            $signature = $zoomMeetingService->makeMeetingSdkSignature($setting, (string) $attendanceEvent->meeting_id, 0);
+            $signature = $zoomMeetingService->makeMeetingSdkSignature($setting, $meetingNumber, 0);
         } catch (\Throwable $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }
@@ -78,7 +86,7 @@ class ZoomMeetingController extends Controller
         return response()->json([
             'signature' => $signature,
             'sdkKey' => $setting->meeting_sdk_key,
-            'meetingNumber' => (string) $attendanceEvent->meeting_id,
+            'meetingNumber' => $meetingNumber,
             'password' => $attendanceEvent->meeting_passcode,
             'userName' => Auth::user()?->name ?: 'Church Member',
             'userEmail' => Auth::user()?->email,
@@ -123,7 +131,7 @@ class ZoomMeetingController extends Controller
     protected function authorizeMeetingJoin(AttendanceEvent $attendanceEvent): void
     {
         abort_unless(Auth::check(), 403);
-        abort_if(!$attendanceEvent->meeting_id, 404, __('Zoom meeting not found for this event.'));
+        abort_if(!$this->resolveMeetingNumber($attendanceEvent), 404, __('Zoom meeting not found for this event.'));
     }
 
     protected function userCanManageZoom(?AttendanceEvent $attendanceEvent = null): bool
@@ -166,6 +174,51 @@ class ZoomMeetingController extends Controller
                 }
             })
             ->exists();
+    }
+
+    protected function normalizeMeetingNumber(string $meetingId): ?string
+    {
+        $digitsOnly = preg_replace('/\D+/', '', trim($meetingId));
+
+        if (!$digitsOnly || strlen($digitsOnly) < 9) {
+            return null;
+        }
+
+        return $digitsOnly;
+    }
+
+    protected function resolveMeetingNumber(AttendanceEvent $attendanceEvent): ?string
+    {
+        $fromJoinUrl = $this->extractMeetingNumberFromUrl((string) $attendanceEvent->zoom_join_url);
+        if ($fromJoinUrl) {
+            return $fromJoinUrl;
+        }
+
+        $fromMeetingLink = $this->extractMeetingNumberFromUrl((string) $attendanceEvent->meeting_link);
+        if ($fromMeetingLink) {
+            return $fromMeetingLink;
+        }
+
+        return $this->normalizeMeetingNumber((string) $attendanceEvent->meeting_id);
+    }
+
+    protected function extractMeetingNumberFromUrl(string $url): ?string
+    {
+        if ($url === '') {
+            return null;
+        }
+
+        $path = (string) parse_url($url, PHP_URL_PATH);
+
+        if ($path !== '' && preg_match('#/(?:j|wc|s)/(\d{9,})#', $path, $matches)) {
+            return $matches[1];
+        }
+
+        if (preg_match('/(?:[?&](?:meetingNumber|meeting_id|mn)=)(\d{9,})/i', $url, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 }
 

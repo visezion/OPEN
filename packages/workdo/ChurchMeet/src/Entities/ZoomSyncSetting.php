@@ -10,6 +10,10 @@ class ZoomSyncSetting extends Model
 
     protected $fillable = [
         'workspace_id',
+        'preferred_platform',
+        'jitsi_enabled',
+        'jitsi_server_domain',
+        'jitsi_room_prefix',
         'account_id',
         'client_id',
         'client_secret',
@@ -27,6 +31,7 @@ class ZoomSyncSetting extends Model
 
     protected $casts = [
         'active' => 'boolean',
+        'jitsi_enabled' => 'boolean',
         'token_expires_at' => 'datetime',
         'last_synced_at' => 'datetime',
     ];

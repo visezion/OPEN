@@ -18,6 +18,7 @@ use Workdo\ChurchMeet\Entities\ChurchDesignation;
 use Workdo\ChurchMeet\Entities\ZoomSyncSetting;
 use Workdo\ChurchMeet\Entities\ZenderWaGroup;
 use Workdo\ChurchMeet\Http\Controllers\AttendanceRecordController;
+use Workdo\ChurchMeet\Services\JitsiMeetingService;
 use Workdo\ChurchMeet\Services\ZoomMeetingService;
 
 class EventController extends Controller
@@ -45,7 +46,7 @@ class EventController extends Controller
         // Ã¢Å“â€¦ Pass members to your Blade view
         return view('churchmeet::attendance.events.create', compact('members', 'branches', 'departments', 'zoomSetting'));
     }
-    public function store(Request $request, ZoomMeetingService $zoomMeetingService)
+    public function store(Request $request, ZoomMeetingService $zoomMeetingService, JitsiMeetingService $jitsiMeetingService)
     {
         $request->validate([
             'title'       => 'required|string|max:191',
@@ -116,7 +117,7 @@ class EventController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        $zoomMessage = $this->maybeCreateZoomMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService);
+        $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService, $jitsiMeetingService);
 
 
         // Ã¢Å“â€¦ Save uploaded files (if any)
@@ -164,8 +165,8 @@ class EventController extends Controller
             ->route('churchmeet.events.index')
             ->with('success', __('Event created successfully and submitted for review.'));
 
-        if ($zoomMessage) {
-            $redirect->with('warning', $zoomMessage);
+        if ($meetingMessage) {
+            $redirect->with('warning', $meetingMessage);
         }
 
         return $redirect;
@@ -569,12 +570,22 @@ public function publishAction(Request $request, $id)
             : 'Not specified';
 
         // Ã¢Å“â€¦ Prepare comment thread for discussion view
+        $event->formatted_start = $event->start_time
+            ? \Carbon\Carbon::parse($event->start_time)->format('D, M j, Y g:i A')
+            : 'Not specified';
+        $event->formatted_end = $event->end_time
+            ? \Carbon\Carbon::parse($event->end_time)->format('D, M j, Y g:i A')
+            : 'Not specified';
+
         $reviewComments = $event->reviewerComments()
             ->with('user')
             ->orderBy('commented_at', 'asc')
             ->get();
-        $canCreateZoomMeeting = $this->userCanCreateZoomMeeting($attendanceEvent);
-        $canJoinZoomMeeting = !empty($attendanceEvent?->meeting_id) && strtolower((string) $attendanceEvent?->online_platform) === 'zoom';
+        $meetingPlatform = strtolower((string) ($attendanceEvent?->online_platform ?? ''));
+        $canCreateOnlineMeeting = $this->userCanCreateOnlineMeeting($attendanceEvent);
+        $canCreateZoomMeeting = $canCreateOnlineMeeting && $meetingPlatform !== 'jitsi';
+        $canCreateJitsiMeeting = $canCreateOnlineMeeting && $meetingPlatform === 'jitsi';
+        $canJoinOnlineMeeting = $this->canJoinOnlineMeeting($attendanceEvent);
 
         // Ã¢Å“â€¦ Send all context to the view
         return view('churchmeet::attendance.events.show', compact(
@@ -583,7 +594,9 @@ public function publishAction(Request $request, $id)
             'attendanceStats',
             'reviewComments',
             'canCreateZoomMeeting',
-            'canJoinZoomMeeting'
+            'canCreateJitsiMeeting',
+            'canJoinOnlineMeeting',
+            'meetingPlatform'
         ));
     }
 
@@ -620,7 +633,7 @@ public function publishAction(Request $request, $id)
     }
 
 
-    public function update(Request $request, $id, ZoomMeetingService $zoomMeetingService)
+    public function update(Request $request, $id, ZoomMeetingService $zoomMeetingService, JitsiMeetingService $jitsiMeetingService)
     {
     $event = Event::findOrFail($id);
     if ($event->status === 'revision_required')
@@ -738,14 +751,14 @@ public function publishAction(Request $request, $id)
             }
 
     }
-    $zoomMessage = $this->maybeCreateZoomMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService);
+    $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService, $jitsiMeetingService);
 
     $redirect = redirect()
         ->route('churchmeet.events.index')
         ->with('success', __('Event updated successfully.'));
 
-    if ($zoomMessage) {
-        $redirect->with('warning', $zoomMessage);
+    if ($meetingMessage) {
+        $redirect->with('warning', $meetingMessage);
     }
 
     return $redirect;
@@ -920,32 +933,55 @@ public function analytics()
 
 
 
-    protected function maybeCreateZoomMeetingFromRequest(Request $request, AttendanceEvent $attendanceEvent, ZoomMeetingService $zoomMeetingService): ?string
+    protected function maybeCreateOnlineMeetingFromRequest(
+        Request $request,
+        AttendanceEvent $attendanceEvent,
+        ZoomMeetingService $zoomMeetingService,
+        JitsiMeetingService $jitsiMeetingService
+    ): ?string
     {
-        if (!$request->boolean('create_zoom_meeting') || $attendanceEvent->meeting_id) {
+        $platform = strtolower((string) $request->input('online_platform'));
+
+        if ($request->boolean('create_zoom_meeting')) {
+            if ($attendanceEvent->meeting_id) {
+                return null;
+            }
+
+            $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+
+            if (!$setting->account_id || !$setting->client_id || !$setting->client_secret) {
+                return __('Event saved, but Zoom meeting was not created because Zoom OAuth is not configured.');
+            }
+
+            try {
+                $zoomMeetingService->createMeetingForAttendanceEvent(
+                    $setting,
+                    $attendanceEvent,
+                    $setting->host_user_id ?: 'me'
+                );
+            } catch (\Throwable $exception) {
+                return __('Event saved, but Zoom meeting creation failed: :message', ['message' => $exception->getMessage()]);
+            }
+
             return null;
         }
 
-        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
-
-        if (!$setting->account_id || !$setting->client_id || !$setting->client_secret) {
-            return __('Event saved, but Zoom meeting was not created because Zoom OAuth is not configured.');
-        }
-
-        try {
-            $zoomMeetingService->createMeetingForAttendanceEvent(
-                $setting,
-                $attendanceEvent,
-                $setting->host_user_id ?: 'me'
-            );
-        } catch (\Throwable $exception) {
-            return __('Event saved, but Zoom meeting creation failed: :message', ['message' => $exception->getMessage()]);
+        if ($request->boolean('create_jitsi_meeting') || $platform === 'jitsi') {
+            try {
+                $jitsiMeetingService->createRoomForAttendanceEvent(
+                    $attendanceEvent,
+                    $request->input('jitsi_domain'),
+                    $request->input('meeting_id')
+                );
+            } catch (\Throwable $exception) {
+                return __('Event saved, but Jitsi room creation failed: :message', ['message' => $exception->getMessage()]);
+            }
         }
 
         return null;
     }
 
-    protected function userCanCreateZoomMeeting(?AttendanceEvent $attendanceEvent): bool
+    protected function userCanCreateOnlineMeeting(?AttendanceEvent $attendanceEvent): bool
     {
         $user = Auth::user();
 
@@ -990,6 +1026,25 @@ public function analytics()
                 }
             })
             ->exists();
+    }
+
+    protected function canJoinOnlineMeeting(?AttendanceEvent $attendanceEvent): bool
+    {
+        if (!$attendanceEvent) {
+            return false;
+        }
+
+        $platform = strtolower((string) $attendanceEvent->online_platform);
+
+        if ($platform === 'zoom') {
+            return !empty($attendanceEvent->meeting_id);
+        }
+
+        if ($platform === 'jitsi') {
+            return !empty($attendanceEvent->meeting_id) || !empty($attendanceEvent->meeting_link);
+        }
+
+        return false;
     }
 
     public function destroy($id)

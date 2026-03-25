@@ -26,6 +26,11 @@ class ClearLegacyCookies
             'openzion_open_session_v2',
             $activeSessionCookie,
         ]));
+        // Never delete the currently active session cookie on alternate paths.
+        $legacyCookies = array_values(array_filter(
+            $legacyCookies,
+            static fn (string $cookieName): bool => $cookieName !== $activeSessionCookie
+        ));
 
         foreach ($legacyPaths as $path) {
             foreach ($legacyCookies as $cookieName) {

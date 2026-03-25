@@ -66,7 +66,10 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! Auth::attempt(['email' =>$this->email, 'password' =>$this->password,'id'=>$id], $this->boolean('remember'))) {
+        // Keep web sessions persistent by default; explicit logout will still end the session.
+        $remember = $this->has('remember') ? $this->boolean('remember') : true;
+
+        if (! Auth::attempt(['email' =>$this->email, 'password' =>$this->password,'id'=>$id], $remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
