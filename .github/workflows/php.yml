@@ -169,6 +169,7 @@ jobs:
 
       - name: Deploy Laravel project to Hestia
         run: |
+          set -e
           if [ ! -d "$DEPLOY_PATH" ]; then
             echo "ERROR: Deploy path not found: $DEPLOY_PATH"
             exit 1
@@ -180,7 +181,7 @@ jobs:
           rm -rf deploy-package
           mkdir -p deploy-package
           tar -xzf artifact/deploy.tar.gz -C deploy-package
-          rsync -az --delete \
+          rsync -az --delete --force \
             --exclude '.git/' \
             --exclude '.github/' \
             --exclude '.env' \
@@ -189,6 +190,8 @@ jobs:
             --exclude 'bootstrap/cache/' \
             deploy-package/ "$DEPLOY_PATH"/
           cd "$DEPLOY_PATH"
+          rm -f bootstrap/cache/*.php || true
+          php artisan package:discover --ansi
           php artisan migrate --force --graceful
           php artisan config:cache
           php artisan route:cache
