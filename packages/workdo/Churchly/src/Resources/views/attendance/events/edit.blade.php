@@ -11,6 +11,10 @@
     </a>
 @endsection
 
+@push('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@endpush
+
 @section('content')
 <div class="row">
     {{-- Left Column: Form --}}
@@ -124,7 +128,7 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold"><i class="ti ti-user-star text-info"></i> {{ __('Lead Minister') }}</label>
-                            <select name="lead_id" class="form-select">
+                            <select name="lead_id" class="form-select member-select">
                                 <option value="">-- Select Lead Minister --</option>
                                 @foreach($members as $member)
                                     <option value="{{ $member->id }}" {{ $event->lead_id == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
@@ -133,7 +137,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold"><i class="ti ti-user-plus text-success"></i> {{ __('Assistant / Co-Leader') }}</label>
-                            <select name="assistant_id" class="form-select">
+                            <select name="assistant_id" class="form-select member-select">
                                 <option value="">-- Select Assistant --</option>
                                 @foreach($members as $member)
                                     <option value="{{ $member->id }}" {{ $event->assistant_id == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
@@ -209,7 +213,7 @@
                                         <input type="number" name="duration[]" class="form-control" value="{{ $program->duration }}" placeholder="{{ __('Min') }}">
                                     </div>
                                     <div class="col-md-3">
-                                        <select name="leader[]" class="form-select">
+                                        <select name="leader[]" class="form-select member-select">
                                             <option value="">-- Leader --</option>
                                             @foreach($members as $member)
                                                 <option value="{{ $member->id }}" {{ $program->leader_id == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
@@ -309,6 +313,7 @@
 
 {{-- JS for adding new program items --}}
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const wrapper = document.getElementById('program-wrapper');
@@ -319,6 +324,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const onlinePlatform = document.getElementById('online_platform');
     const modeSelect = document.querySelector('select[name="mode"]');
 
+    function initializeMemberSelect(scope = document) {
+        if (!(window.$ && $.fn && $.fn.select2)) {
+            return;
+        }
+
+        $(scope).find('.member-select').each(function () {
+            const $select = $(this);
+            if ($select.hasClass('select2-hidden-accessible')) {
+                return;
+            }
+
+            $select.select2({
+                placeholder: 'Search member...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    }
+
     addBtn.addEventListener('click', () => {
         const row = document.createElement('div');
         row.classList.add('row', 'mb-3', 'program-item');
@@ -326,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="col-md-4"><input type="text" name="program_item[]" class="form-control" placeholder="Program Item"></div>
             <div class="col-md-2"><input type="number" name="duration[]" class="form-control" placeholder="Min"></div>
             <div class="col-md-3">
-                <select name="leader[]" class="form-select">
+                <select name="leader[]" class="form-select member-select">
                     <option value="">-- Leader --</option>
                     @foreach($members as $member)
                         <option value="{{ $member->id }}">{{ $member->name }}</option>
@@ -336,6 +360,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="col-md-3"><input type="text" name="note[]" class="form-control" placeholder="Notes (optional)"></div>
         `;
         wrapper.appendChild(row);
+        initializeMemberSelect(row);
     });
 
     function filterDepartments() {
@@ -372,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
     createZoomMeeting?.addEventListener('change', syncZoomDefaults);
     filterDepartments();
     syncZoomDefaults();
+    initializeMemberSelect();
 });
 </script>
 @endpush

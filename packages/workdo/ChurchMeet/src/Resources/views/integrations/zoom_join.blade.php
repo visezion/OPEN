@@ -389,6 +389,7 @@
                 const statusBox = document.getElementById('zoom-status');
                 const rootElement = document.getElementById('meetingSDKElement');
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || @json(csrf_token());
+                const meetingPresenceUrl = @json(route('churchmeet.meetings.presence', $attendanceEvent->id));
                 const zoomEmbeddedSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-embedded-5.1.4.min.js';
                 const zoomClientSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-5.1.4.min.js';
                 const zoomVendorScripts = [
@@ -398,6 +399,9 @@
                     { selector: 'script[data-zoom-vendor="redux-thunk"]', src: 'https://source.zoom.us/5.1.4/lib/vendor/redux-thunk.min.js' },
                     { selector: 'script[data-zoom-vendor="lodash"]', src: 'https://source.zoom.us/5.1.4/lib/vendor/lodash.min.js' },
                 ];
+                let joinPresenceSent = false;
+                let leavePresenceSent = false;
+                let clientStatusListenerBound = false;
 
                 function setStatus(message, type = 'info') {
                     const classMap = {
@@ -417,6 +421,44 @@
 
                 function getZoomClientSdk() {
                     return window.ZoomMtg || null;
+                }
+
+                async function sendPresence(action = 'join', keepalive = false) {
+                    if (action === 'join' && joinPresenceSent) {
+                        return;
+                    }
+
+                    if (action === 'leave' && leavePresenceSent) {
+                        return;
+                    }
+
+                    const response = await fetch(meetingPresenceUrl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        keepalive: keepalive,
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            _token: csrfToken,
+                            action: action
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Attendance update failed.');
+                    }
+
+                    if (action === 'join') {
+                        joinPresenceSent = true;
+                    }
+
+                    if (action === 'leave') {
+                        leavePresenceSent = true;
+                    }
                 }
 
                 async function ensureScript(selector, src, errorMessage) {
@@ -499,6 +541,15 @@
                     rootElement.style.background = '#ffffff';
                     document.getElementById('zmmtg-root')?.style.setProperty('display', 'block');
 
+                    if (!clientStatusListenerBound && typeof ZoomMtg.inMeetingServiceListener === 'function') {
+                        clientStatusListenerBound = true;
+                        ZoomMtg.inMeetingServiceListener('onMeetingStatus', function (data) {
+                            if (Number(data?.meetingStatus) === 3) {
+                                sendPresence('leave', true).catch(() => {});
+                            }
+                        });
+                    }
+
                     return await new Promise((resolve, reject) => {
                         ZoomMtg.init({
                             leaveUrl: @json(route('churchmeet.events.show', $attendanceEvent->event_id)),
@@ -512,7 +563,12 @@
                                     passWord: payload.password || '',
                                     userName: payload.userName,
                                     userEmail: payload.userEmail || '',
-                                    success: function () {
+                                    success: async function () {
+                                        try {
+                                            await sendPresence('join');
+                                        } catch (presenceError) {
+                                            console.warn(presenceError);
+                                        }
                                         resolve();
                                     },
                                     error: function (error) {
@@ -560,6 +616,15 @@
                         const ZoomEmbedded = await ensureZoomEmbeddedSdk();
                         const client = ZoomEmbedded.createClient();
 
+                        if (typeof client.on === 'function') {
+                            client.on('connection-change', function (payload) {
+                                const state = String(payload?.state || '').toLowerCase();
+                                if (state.includes('closed') || state.includes('disconnect')) {
+                                    sendPresence('leave', true).catch(() => {});
+                                }
+                            });
+                        }
+
                         await client.init({
                             zoomAppRoot: rootElement,
                             language: 'en-US',
@@ -575,6 +640,12 @@
                             userName: payload.userName,
                             userEmail: payload.userEmail || '',
                         });
+
+                        try {
+                            await sendPresence('join');
+                        } catch (presenceError) {
+                            console.warn(presenceError);
+                        }
                     } catch (embeddedError) {
                         setStatus('Embedded view unavailable. Switching to Zoom client view...', 'warning');
                         await joinWithClientView(payload);
@@ -584,6 +655,10 @@
                 } catch (error) {
                     setStatus(error.message || 'Zoom meeting failed to load.', 'danger');
                 }
+
+                window.addEventListener('beforeunload', function () {
+                    sendPresence('leave', true).catch(() => {});
+                });
             });
         </script>
     @else

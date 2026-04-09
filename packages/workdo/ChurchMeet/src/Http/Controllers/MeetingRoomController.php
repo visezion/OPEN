@@ -4,6 +4,8 @@ namespace Workdo\ChurchMeet\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Workdo\ChurchMeet\Entities\AttendanceEvent;
@@ -73,7 +75,7 @@ class MeetingRoomController extends Controller
         abort(404, __('This event does not have a supported online meeting room.'));
     }
 
-    public function markPresence(int $attendanceEventId): JsonResponse
+    public function markPresence(Request $request, int $attendanceEventId): JsonResponse
     {
         $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($attendanceEventId);
 
@@ -84,20 +86,77 @@ class MeetingRoomController extends Controller
             ->where('user_id', $user->id)
             ->value('id') ?? $user->id;
 
-        AttendanceRecord::updateOrCreate(
-            [
-                'attendance_event_id' => $attendanceEvent->id,
-                'member_id' => $memberId,
-            ],
-            [
-                'workspace_id' => getActiveWorkSpace(),
-                'status' => 'present',
-                'check_in_time' => now(),
-                'device_used' => 'online',
-            ]
-        );
+        $action = strtolower((string) $request->input('action', 'join'));
+        if (!in_array($action, ['join', 'leave'], true)) {
+            $action = 'join';
+        }
 
-        return response()->json(['ok' => true]);
+        $record = AttendanceRecord::firstOrNew([
+            'attendance_event_id' => $attendanceEvent->id,
+            'member_id' => $memberId,
+        ]);
+
+        $record->workspace_id = getActiveWorkSpace();
+        $record->status = 'present';
+        $record->device_used = $attendanceEvent->online_platform ?: 'online';
+
+        $now = Carbon::now();
+
+        if (!$record->check_in_time) {
+            $record->check_in_time = $now;
+        }
+
+        if ($action === 'join') {
+            // Re-open active session if user reconnects.
+            $record->check_out_time = null;
+        } else {
+            $record->check_out_time = $now;
+        }
+
+        $record->save();
+
+        $stats = $this->buildPresenceStats($attendanceEvent, $record);
+
+        return response()->json([
+            'ok' => true,
+            'action' => $action,
+            'stats' => $stats,
+            'check_in_time' => $record->check_in_time ? Carbon::parse($record->check_in_time)->toDateTimeString() : null,
+            'check_out_time' => $record->check_out_time ? Carbon::parse($record->check_out_time)->toDateTimeString() : null,
+        ]);
+    }
+
+    protected function buildPresenceStats(AttendanceEvent $attendanceEvent, AttendanceRecord $record): array
+    {
+        $checkIn = $record->check_in_time ? Carbon::parse($record->check_in_time) : null;
+        $checkOut = $record->check_out_time ? Carbon::parse($record->check_out_time) : null;
+        $effectiveEnd = $checkOut ?: Carbon::now();
+
+        $joinedSeconds = $checkIn ? max(0, $checkIn->diffInSeconds($effectiveEnd)) : 0;
+
+        $meetingSeconds = null;
+        $event = $attendanceEvent->event;
+        if (!empty($event?->start_time) && !empty($event?->end_time)) {
+            $start = Carbon::parse($event->start_time);
+            $end = Carbon::parse($event->end_time);
+            $meetingSeconds = max(0, $start->diffInSeconds($end, false));
+            if ($meetingSeconds === 0) {
+                $meetingSeconds = null;
+            }
+        }
+
+        $attendancePercent = null;
+        if (!empty($meetingSeconds)) {
+            $attendancePercent = round(min(100, ($joinedSeconds / $meetingSeconds) * 100), 2);
+        }
+
+        return [
+            'joined_seconds' => $joinedSeconds,
+            'joined_minutes' => (int) floor($joinedSeconds / 60),
+            'meeting_seconds' => $meetingSeconds,
+            'meeting_minutes' => $meetingSeconds ? (int) floor($meetingSeconds / 60) : null,
+            'attendance_percent' => $attendancePercent,
+        ];
     }
 
     protected function resolveAttendanceEvent(Event $event): AttendanceEvent

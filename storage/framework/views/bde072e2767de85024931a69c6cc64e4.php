@@ -1,14 +1,16 @@
-@extends('layouts.main')
 
-@section('page-title')
-    {{ __('Create Event') }}
-@endsection
 
-@section('page-breadcrumb')
-    {{ __('ChurchMeet') }},{{ __('Create Event') }}
-@endsection
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Create Event')); ?>
 
-@push('css')
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('page-breadcrumb'); ?>
+    <?php echo e(__('ChurchMeet')); ?>,<?php echo e(__('Create Event')); ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('css'); ?>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .church-events-create .card {
@@ -84,25 +86,26 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('page-action')
-    <a href="{{ route('churchmeet.events.index') }}" class="btn btn-outline-secondary btn-sm">
-        <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
+<?php $__env->startSection('page-action'); ?>
+    <a href="<?php echo e(route('churchmeet.events.index')); ?>" class="btn btn-outline-secondary btn-sm">
+        <i class="ti ti-arrow-left"></i> <?php echo e(__('Back to Events')); ?>
+
     </a>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="row church-events-create">
     <div class="col-md-12 mb-4">
         <div class="card create-hero">
             <div class="card-body p-4">
                 <div class="d-flex flex-wrap justify-content-between gap-3 align-items-start">
                     <div>
-                        <h4 class="mb-2">{{ __('Create a New Event') }}</h4>
-                        <p class="section-copy mb-0">{{ __('Start with the basics first. Meeting settings and advanced options are kept lower down so the page stays easier to use.') }}</p>
+                        <h4 class="mb-2"><?php echo e(__('Create a New Event')); ?></h4>
+                        <p class="section-copy mb-0"><?php echo e(__('Start with the basics first. Meeting settings and advanced options are kept lower down so the page stays easier to use.')); ?></p>
                     </div>
-                    <span class="badge bg-light text-primary border">{{ __('Draft Stage') }}</span>
+                    <span class="badge bg-light text-primary border"><?php echo e(__('Draft Stage')); ?></span>
                 </div>
             </div>
         </div>
@@ -111,140 +114,140 @@
     <div class="col-md-9">
         <div class="card">
             <div class="card-header bg-white p-4">
-                <h5 class="mb-1">{{ __('Basic Details') }}</h5>
-                <p class="section-copy mb-0">{{ __('Fill the core event information first. Most events can be created with just this section and the attendance mode.') }}</p>
+                <h5 class="mb-1"><?php echo e(__('Basic Details')); ?></h5>
+                <p class="section-copy mb-0"><?php echo e(__('Fill the core event information first. Most events can be created with just this section and the attendance mode.')); ?></p>
             </div>
             <div class="card-body p-4">
-                <form method="POST" action="{{ route('churchmeet.events.store') }}" enctype="multipart/form-data">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('churchmeet.events.store')); ?>" enctype="multipart/form-data">
+                    <?php echo csrf_field(); ?>
                     <div id="smartWarnings"></div>
                     <div class="row">
 
                         <!-- Basic Info -->
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">{{ __('Event Title') }} <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="title" value="{{ old('title') }}" placeholder="{{ __('Sunday Worship Service') }}" required>
+                            <label class="form-label"><?php echo e(__('Event Title')); ?> <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="title" value="<?php echo e(old('title')); ?>" placeholder="<?php echo e(__('Sunday Worship Service')); ?>" required>
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Event Type') }}</label>
+                            <label class="form-label"><?php echo e(__('Event Type')); ?></label>
                             <select class="form-select" name="event_type" id="event_type">
-                                <option value="service" {{ old('event_type', 'service') === 'service' ? 'selected' : '' }}>Service</option>
-                                <option value="meeting" {{ old('event_type') === 'meeting' ? 'selected' : '' }}>Meeting</option>
-                                <option value="training" {{ old('event_type') === 'training' ? 'selected' : '' }}>Training</option>
-                                <option value="rehearsal" {{ old('event_type') === 'rehearsal' ? 'selected' : '' }}>Rehearsal</option>
-                                <option value="outreach" {{ old('event_type') === 'outreach' ? 'selected' : '' }}>Outreach</option>
-                                <option value="other" {{ old('event_type') === 'other' ? 'selected' : '' }}>Other</option>
+                                <option value="service" <?php echo e(old('event_type', 'service') === 'service' ? 'selected' : ''); ?>>Service</option>
+                                <option value="meeting" <?php echo e(old('event_type') === 'meeting' ? 'selected' : ''); ?>>Meeting</option>
+                                <option value="training" <?php echo e(old('event_type') === 'training' ? 'selected' : ''); ?>>Training</option>
+                                <option value="rehearsal" <?php echo e(old('event_type') === 'rehearsal' ? 'selected' : ''); ?>>Rehearsal</option>
+                                <option value="outreach" <?php echo e(old('event_type') === 'outreach' ? 'selected' : ''); ?>>Outreach</option>
+                                <option value="other" <?php echo e(old('event_type') === 'other' ? 'selected' : ''); ?>>Other</option>
                             </select>
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Attendance Mode') }}</label>
+                            <label class="form-label"><?php echo e(__('Attendance Mode')); ?></label>
                             <select name="mode" id="mode-selector" class="form-select" required>
-                                <option value="onsite" {{ old('mode', 'onsite') === 'onsite' ? 'selected' : '' }}>{{ __('Onsite') }}</option>
-                                <option value="online" {{ old('mode') === 'online' ? 'selected' : '' }}>{{ __('Online') }}</option>
-                                <option value="hybrid" {{ old('mode') === 'hybrid' ? 'selected' : '' }}>{{ __('Hybrid') }}</option>
+                                <option value="onsite" <?php echo e(old('mode', 'onsite') === 'onsite' ? 'selected' : ''); ?>><?php echo e(__('Onsite')); ?></option>
+                                <option value="online" <?php echo e(old('mode') === 'online' ? 'selected' : ''); ?>><?php echo e(__('Online')); ?></option>
+                                <option value="hybrid" <?php echo e(old('mode') === 'hybrid' ? 'selected' : ''); ?>><?php echo e(__('Hybrid')); ?></option>
                             </select>
                         </div>
 
                         <!-- Scheduling -->
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Start Date & Time') }}</label>
-                            <input type="datetime-local" class="form-control" id="start_time" name="start_time" value="{{ old('start_time') }}">
+                            <label class="form-label"><?php echo e(__('Start Date & Time')); ?></label>
+                            <input type="datetime-local" class="form-control" id="start_time" name="start_time" value="<?php echo e(old('start_time')); ?>">
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('End Date & Time') }}</label>
-                            <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="{{ old('end_time') }}">
+                            <label class="form-label"><?php echo e(__('End Date & Time')); ?></label>
+                            <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="<?php echo e(old('end_time')); ?>">
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Recurrence') }}</label>
+                            <label class="form-label"><?php echo e(__('Recurrence')); ?></label>
                             <select class="form-select" name="recurrence">
-                                <option value="none" {{ old('recurrence', 'none') === 'none' ? 'selected' : '' }}>None</option>
-                                <option value="daily" {{ old('recurrence') === 'daily' ? 'selected' : '' }}>Daily</option>
-                                <option value="weekly" {{ old('recurrence') === 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                <option value="monthly" {{ old('recurrence') === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                                <option value="none" <?php echo e(old('recurrence', 'none') === 'none' ? 'selected' : ''); ?>>None</option>
+                                <option value="daily" <?php echo e(old('recurrence') === 'daily' ? 'selected' : ''); ?>>Daily</option>
+                                <option value="weekly" <?php echo e(old('recurrence') === 'weekly' ? 'selected' : ''); ?>>Weekly</option>
+                                <option value="monthly" <?php echo e(old('recurrence') === 'monthly' ? 'selected' : ''); ?>>Monthly</option>
                             </select>
                         </div>
 
                         <!-- Ã°Å¸â€Â Searchable Dropdown Added -->
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Lead Minister / Person-in-Charge') }}</label>
+                            <label class="form-label"><?php echo e(__('Lead Minister / Person-in-Charge')); ?></label>
                             <select class="form-select member-select" id="lead_id" name="lead_id">
-                                <option value="">{{ __('Select Lead') }}</option>
-                                @foreach ($members as $member)
-                                    <option value="{{ $member->id }}" {{ old('lead_id') == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
-                                @endforeach
+                                <option value=""><?php echo e(__('Select Lead')); ?></option>
+                                <?php $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($member->id); ?>" <?php echo e(old('lead_id') == $member->id ? 'selected' : ''); ?>><?php echo e($member->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
                         <!-- Ã°Å¸â€Â Searchable Dropdown Added -->
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Assistant / Co-Leader') }}</label>
+                            <label class="form-label"><?php echo e(__('Assistant / Co-Leader')); ?></label>
                             <select class="form-select member-select" id="assistant_id" name="assistant_id">
-                                <option value="">{{ __('Select Assistant') }}</option>
-                                @foreach ($members as $member)
-                                    <option value="{{ $member->id }}" {{ old('assistant_id') == $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
-                                @endforeach
+                                <option value=""><?php echo e(__('Select Assistant')); ?></option>
+                                <?php $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($member->id); ?>" <?php echo e(old('assistant_id') == $member->id ? 'selected' : ''); ?>><?php echo e($member->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">{{ __('Venue / Link') }}</label>
-                            <input type="text" class="form-control" name="venue" value="{{ old('venue') }}" placeholder="{{ __('Main Hall or meeting address') }}">
+                            <label class="form-label"><?php echo e(__('Venue / Link')); ?></label>
+                            <input type="text" class="form-control" name="venue" value="<?php echo e(old('venue')); ?>" placeholder="<?php echo e(__('Main Hall or meeting address')); ?>">
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Branch') }}</label>
+                            <label class="form-label"><?php echo e(__('Branch')); ?></label>
                             <select class="form-select" name="branch_id" id="branch_id">
-                                <option value="">{{ __('Select Branch') }}</option>
-                                @foreach ($branches as $branch)
-                                    <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                                @endforeach
+                                <option value=""><?php echo e(__('Select Branch')); ?></option>
+                                <?php $__currentLoopData = $branches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $branch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($branch->id); ?>" <?php echo e(old('branch_id') == $branch->id ? 'selected' : ''); ?>><?php echo e($branch->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">{{ __('Department') }}</label>
+                            <label class="form-label"><?php echo e(__('Department')); ?></label>
                             <select class="form-select" name="department_id" id="department_id">
-                                <option value="">{{ __('Select Department') }}</option>
-                                @foreach ($departments as $department)
-                                    <option value="{{ $department->id }}" data-branch-id="{{ $department->branch_id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
-                                @endforeach
+                                <option value=""><?php echo e(__('Select Department')); ?></option>
+                                <?php $__currentLoopData = $departments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($department->id); ?>" data-branch-id="<?php echo e($department->branch_id); ?>" <?php echo e(old('department_id') == $department->id ? 'selected' : ''); ?>><?php echo e($department->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <label class="form-label">{{ __('Description / Notes') }}</label>
-                            <textarea class="form-control" rows="3" name="description" placeholder="{{ __('Briefly describe this event...') }}">{{ old('description') }}</textarea>
+                            <label class="form-label"><?php echo e(__('Description / Notes')); ?></label>
+                            <textarea class="form-control" rows="3" name="description" placeholder="<?php echo e(__('Briefly describe this event...')); ?>"><?php echo e(old('description')); ?></textarea>
                         </div>
 
                         <div class="col-12">
                             <div class="smart-panel mb-2">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
-                                        <h6 class="mb-1">{{ __('Smart Schedule Assistant') }}</h6>
-                                        <small class="text-muted">{{ __('Auto-calculate duration, suggest end time, and preview timeline.') }}</small>
+                                        <h6 class="mb-1"><?php echo e(__('Smart Schedule Assistant')); ?></h6>
+                                        <small class="text-muted"><?php echo e(__('Auto-calculate duration, suggest end time, and preview timeline.')); ?></small>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" id="applySuggestedEnd">{{ __('Use Suggested End Time') }}</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="applySuggestedEnd"><?php echo e(__('Use Suggested End Time')); ?></button>
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-md-4">
                                         <div class="smart-kpi">
-                                            <span class="smart-kpi-label">{{ __('Program Duration') }}</span>
-                                            <span class="smart-kpi-value" id="smartTotalDuration">0 {{ __('min') }}</span>
+                                            <span class="smart-kpi-label"><?php echo e(__('Program Duration')); ?></span>
+                                            <span class="smart-kpi-value" id="smartTotalDuration">0 <?php echo e(__('min')); ?></span>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="smart-kpi">
-                                            <span class="smart-kpi-label">{{ __('Suggested End') }}</span>
+                                            <span class="smart-kpi-label"><?php echo e(__('Suggested End')); ?></span>
                                             <span class="smart-kpi-value" id="smartSuggestedEnd">-</span>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="smart-kpi">
-                                            <span class="smart-kpi-label">{{ __('Duration Gap') }}</span>
+                                            <span class="smart-kpi-label"><?php echo e(__('Duration Gap')); ?></span>
                                             <span class="smart-kpi-value" id="smartDurationGap">-</span>
                                         </div>
                                     </div>
@@ -284,9 +287,9 @@
                                         <!-- Ã°Å¸â€Â Searchable Dropdown Added -->
                                         <select class="form-select member-select" name="leader[]">
                                             <option value="">Select Member</option>
-                                            @foreach ($members as $member)
-                                                <option value="{{ $member->id }}">{{ $member->name }}</option>
-                                            @endforeach
+                                            <?php $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($member->id); ?>"><?php echo e($member->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </td>
                                     <td><input type="text" class="form-control" name="note[]" placeholder="Optional note"></td>
@@ -298,22 +301,22 @@
 
                     <div class="smart-panel mt-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0">{{ __('Timeline Preview') }}</h6>
-                            <small class="text-muted">{{ __('Generated from start time plus each item duration.') }}</small>
+                            <h6 class="mb-0"><?php echo e(__('Timeline Preview')); ?></h6>
+                            <small class="text-muted"><?php echo e(__('Generated from start time plus each item duration.')); ?></small>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover align-middle mb-0 smart-timeline-table">
                                 <thead>
                                     <tr>
                                         <th style="width: 50px;">#</th>
-                                        <th>{{ __('Program') }}</th>
-                                        <th style="width: 140px;">{{ __('Duration') }}</th>
-                                        <th style="width: 240px;">{{ __('Time Slot') }}</th>
+                                        <th><?php echo e(__('Program')); ?></th>
+                                        <th style="width: 140px;"><?php echo e(__('Duration')); ?></th>
+                                        <th style="width: 240px;"><?php echo e(__('Time Slot')); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="smartTimelineBody">
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted py-2">{{ __('Add start time and program items to preview timeline.') }}</td>
+                                        <td colspan="4" class="text-center text-muted py-2"><?php echo e(__('Add start time and program items to preview timeline.')); ?></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -324,52 +327,56 @@
 
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
-                            <h6 class="mb-1">{{ __('Attendance & Meeting Tools') }}</h6>
-                            <small class="text-muted">{{ __('Use these only if the event needs attendance automation or an online room.') }}</small>
+                            <h6 class="mb-1"><?php echo e(__('Attendance & Meeting Tools')); ?></h6>
+                            <small class="text-muted"><?php echo e(__('Use these only if the event needs attendance automation or an online room.')); ?></small>
                         </div>
                         <div class="form-check form-switch mb-0">
-                            <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance" value="1" {{ old('auto_log_attendance') ? 'checked' : '' }}>
-                            <label for="auto_log_attendance" class="form-check-label">{{ __('Auto Log') }}</label>
+                            <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance" value="1" <?php echo e(old('auto_log_attendance') ? 'checked' : ''); ?>>
+                            <label for="auto_log_attendance" class="form-check-label"><?php echo e(__('Auto Log')); ?></label>
                         </div>
                     </div>
 
-                    @if(!empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret))
+                    <?php if(!empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret)): ?>
                         <div class="alert alert-info d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>{{ __('Zoom is connected.') }}</strong>
-                                {{ __('You can create the Zoom meeting automatically when this event is saved.') }}
+                                <strong><?php echo e(__('Zoom is connected.')); ?></strong>
+                                <?php echo e(__('You can create the Zoom meeting automatically when this event is saved.')); ?>
+
                             </div>
                             <div class="form-check form-switch mb-0">
-                                <input type="checkbox" class="form-check-input" id="create_zoom_meeting" name="create_zoom_meeting" value="1" {{ old('create_zoom_meeting') ? 'checked' : '' }}>
-                                <label for="create_zoom_meeting" class="form-check-label">{{ __('Auto-create Zoom meeting') }}</label>
+                                <input type="checkbox" class="form-check-input" id="create_zoom_meeting" name="create_zoom_meeting" value="1" <?php echo e(old('create_zoom_meeting') ? 'checked' : ''); ?>>
+                                <label for="create_zoom_meeting" class="form-check-label"><?php echo e(__('Auto-create Zoom meeting')); ?></label>
                             </div>
                         </div>
-                    @else
+                    <?php else: ?>
                         <div class="alert alert-warning">
-                            {{ __('Zoom meeting creation is unavailable until ChurchMeet integration settings are configured.') }}
-                            <a href="{{ route('churchmeet.integrations.index') }}" class="alert-link">{{ __('Open Integration settings') }}</a>
+                            <?php echo e(__('Zoom meeting creation is unavailable until ChurchMeet integration settings are configured.')); ?>
+
+                            <a href="<?php echo e(route('churchmeet.integrations.index')); ?>" class="alert-link"><?php echo e(__('Open Integration settings')); ?></a>
                         </div>
-                    @endif
+                    <?php endif; ?>
 
                     <div class="alert alert-light border d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>{{ __('Jitsi is available.') }}</strong>
-                            {{ __('Use Jitsi as a free in-app meeting alternative without Zoom credentials.') }}
+                            <strong><?php echo e(__('Jitsi is available.')); ?></strong>
+                            <?php echo e(__('Use Jitsi as a free in-app meeting alternative without Zoom credentials.')); ?>
+
                         </div>
                         <div class="form-check form-switch mb-0">
-                            <input type="checkbox" class="form-check-input" id="create_jitsi_meeting" name="create_jitsi_meeting" value="1" {{ old('create_jitsi_meeting') ? 'checked' : '' }}>
-                            <label for="create_jitsi_meeting" class="form-check-label">{{ __('Auto-create Jitsi room') }}</label>
+                            <input type="checkbox" class="form-check-input" id="create_jitsi_meeting" name="create_jitsi_meeting" value="1" <?php echo e(old('create_jitsi_meeting') ? 'checked' : ''); ?>>
+                            <label for="create_jitsi_meeting" class="form-check-label"><?php echo e(__('Auto-create Jitsi room')); ?></label>
                         </div>
                     </div>
 
-                    {{-- Attendance Methods --}}
+                    
                     <div class="mb-4">
                         <label class="form-label fw-semibold">
-                            <i class="ti ti-checks text-info"></i> {{ __('Enabled Attendance Methods') }}
+                            <i class="ti ti-checks text-info"></i> <?php echo e(__('Enabled Attendance Methods')); ?>
+
                         </label>
                        
                         <div class="row g-3">
-                            @php
+                            <?php
                                 $methods = [
                                     ['manual', 'Manual Check-in', 'ti-user-check'],
                                     ['qr', 'QR Code Scanning', 'ti-qrcode'],
@@ -379,98 +386,102 @@
                                     ['jitsi', 'Jitsi Meeting Room', 'ti-brand-tabler'],
                                     ['youtube', 'YouTube Live Tracking', 'ti-brand-youtube']
                                 ];
-                            @endphp
+                            ?>
 
-                            @foreach($methods as [$value, $label, $icon])
+                            <?php $__currentLoopData = $methods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$value, $label, $icon]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="col-md-6">
                                     <div class="form-check">
-                                        <input type="checkbox" name="enabled_methods[]" value="{{ $value }}" id="method-{{ $value }}" class="form-check-input" {{ in_array($value, old('enabled_methods', [])) ? 'checked' : '' }}>
-                                        <label for="method-{{ $value }}" class="form-check-label d-flex align-items-center">
-                                            <i class="ti {{ $icon }} text-primary me-2"></i> {{ __($label) }}
+                                        <input type="checkbox" name="enabled_methods[]" value="<?php echo e($value); ?>" id="method-<?php echo e($value); ?>" class="form-check-input" <?php echo e(in_array($value, old('enabled_methods', [])) ? 'checked' : ''); ?>>
+                                        <label for="method-<?php echo e($value); ?>" class="form-check-label d-flex align-items-center">
+                                            <i class="ti <?php echo e($icon); ?> text-primary me-2"></i> <?php echo e(__($label)); ?>
+
                                         </label>
                                     </div>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
                         <small class="text-muted d-block mt-2">
-                            {{ __('Multiple methods can be enabled simultaneously for flexibility.') }}
+                            <?php echo e(__('Multiple methods can be enabled simultaneously for flexibility.')); ?>
+
                         </small>
                     </div>
 
-                    {{-- Online Config --}}
+                    
                     <div id="online-config" class="mb-4" style="display:none;">
                         <label class="form-label fw-semibold">
-                            <i class="ti ti-video text-danger"></i> {{ __('Online Meeting Details') }}
+                            <i class="ti ti-video text-danger"></i> <?php echo e(__('Online Meeting Details')); ?>
+
                         </label>
 
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <select name="online_platform" id="online_platform" class="form-select">
-                                    <option value="">{{ __('Select Online Platform') }}</option>
-                                    <option value="zoom" {{ old('online_platform', $zoomSetting->preferred_platform) === 'zoom' ? 'selected' : '' }}>{{ __('Zoom') }}</option>
-                                    <option value="jitsi" {{ old('online_platform', $zoomSetting->preferred_platform ?: 'jitsi') === 'jitsi' ? 'selected' : '' }}>{{ __('Jitsi Meet') }}</option>
-                                    <option value="youtube" {{ old('online_platform') === 'youtube' ? 'selected' : '' }}>{{ __('YouTube') }}</option>
-                                    <option value="custom" {{ old('online_platform') === 'custom' ? 'selected' : '' }}>{{ __('Custom Link') }}</option>
+                                    <option value=""><?php echo e(__('Select Online Platform')); ?></option>
+                                    <option value="zoom" <?php echo e(old('online_platform', $zoomSetting->preferred_platform) === 'zoom' ? 'selected' : ''); ?>><?php echo e(__('Zoom')); ?></option>
+                                    <option value="jitsi" <?php echo e(old('online_platform', $zoomSetting->preferred_platform ?: 'jitsi') === 'jitsi' ? 'selected' : ''); ?>><?php echo e(__('Jitsi Meet')); ?></option>
+                                    <option value="youtube" <?php echo e(old('online_platform') === 'youtube' ? 'selected' : ''); ?>><?php echo e(__('YouTube')); ?></option>
+                                    <option value="custom" <?php echo e(old('online_platform') === 'custom' ? 'selected' : ''); ?>><?php echo e(__('Custom Link')); ?></option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_link" value="{{ old('meeting_link') }}" placeholder="{{ __('Meeting/Stream Link') }}" class="form-control">
+                                <input type="text" name="meeting_link" value="<?php echo e(old('meeting_link')); ?>" placeholder="<?php echo e(__('Meeting/Stream Link')); ?>" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_id" value="{{ old('meeting_id') }}" placeholder="{{ __('Meeting ID or Jitsi Room Name') }}" class="form-control">
+                                <input type="text" name="meeting_id" value="<?php echo e(old('meeting_id')); ?>" placeholder="<?php echo e(__('Meeting ID or Jitsi Room Name')); ?>" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="meeting_passcode" value="{{ old('meeting_passcode') }}" placeholder="{{ __('Passcode (Zoom only)') }}" class="form-control">
+                                <input type="text" name="meeting_passcode" value="<?php echo e(old('meeting_passcode')); ?>" placeholder="<?php echo e(__('Passcode (Zoom only)')); ?>" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="jitsi_domain" id="jitsi_domain" value="{{ old('jitsi_domain', $zoomSetting->jitsi_server_domain ?: 'meet.jit.si') }}" placeholder="{{ __('Jitsi Domain (optional, defaults to meet.jit.si)') }}" class="form-control">
+                                <input type="text" name="jitsi_domain" id="jitsi_domain" value="<?php echo e(old('jitsi_domain', $zoomSetting->jitsi_server_domain ?: 'meet.jit.si')); ?>" placeholder="<?php echo e(__('Jitsi Domain (optional, defaults to meet.jit.si)')); ?>" class="form-control">
                             </div>
                         </div>
                         <small class="text-muted d-block mt-1">
-                            {{ __('Only required for Online or Hybrid modes. For Jitsi, the room name becomes the meeting ID.') }}
+                            <?php echo e(__('Only required for Online or Hybrid modes. For Jitsi, the room name becomes the meeting ID.')); ?>
+
                         </small>
                     </div>
 
                     <hr>
 
                     <details class="mb-3">
-                        <summary>{{ __('Advanced Options') }}</summary>
+                        <summary><?php echo e(__('Advanced Options')); ?></summary>
                         <div class="row mt-3">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('Latitude') }}</label>
-                                <input type="number" step="0.0001" class="form-control" name="latitude" value="{{ old('latitude') }}" placeholder="6.5244">
+                                <label class="form-label"><?php echo e(__('Latitude')); ?></label>
+                                <input type="number" step="0.0001" class="form-control" name="latitude" value="<?php echo e(old('latitude')); ?>" placeholder="6.5244">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('Longitude') }}</label>
-                                <input type="number" step="0.0001" class="form-control" name="longitude" value="{{ old('longitude') }}" placeholder="3.3792">
+                                <label class="form-label"><?php echo e(__('Longitude')); ?></label>
+                                <input type="number" step="0.0001" class="form-control" name="longitude" value="<?php echo e(old('longitude')); ?>" placeholder="3.3792">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('Radius (meters)') }}</label>
-                                <input type="number" min="1" class="form-control" name="radius_meters" value="{{ old('radius_meters', 100) }}">
+                                <label class="form-label"><?php echo e(__('Radius (meters)')); ?></label>
+                                <input type="number" min="1" class="form-control" name="radius_meters" value="<?php echo e(old('radius_meters', 100)); ?>">
                             </div>
                             <div class="col-12">
-                                <label class="form-label">{{ __('Upload Files (Optional)') }}</label>
+                                <label class="form-label"><?php echo e(__('Upload Files (Optional)')); ?></label>
                                 <input type="file" class="form-control" name="files[]" multiple>
                             </div>
                         </div>
                     </details>
 
                     <div class="text-end">
-                        <button type="submit" class="btn btn-primary"><i class="ti ti-send"></i> {{ __('Submit Event for Review') }}</button>
-                        <button type="reset" class="btn btn-light">{{ __('Clear') }}</button>
+                        <button type="submit" class="btn btn-primary"><i class="ti ti-send"></i> <?php echo e(__('Submit Event for Review')); ?></button>
+                        <button type="reset" class="btn btn-light"><?php echo e(__('Clear')); ?></button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    {{-- Right Sidebar: Tips and Notifications --}}
+    
     <div class="col-lg-3 mt-4 mt-lg-0">
-        {{-- Ã°Å¸Â§Â­ Instruction & Tips --}}
+        
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header  text-primary py-3">
-                <h5 class="mb-1"><i class="ti ti-bulb me-1"></i> {{ __('Quick Guide') }}</h5>
-                <p class="section-copy mb-0">{{ __('Use the shortest path possible for normal events.') }}</p>
+                <h5 class="mb-1"><i class="ti ti-bulb me-1"></i> <?php echo e(__('Quick Guide')); ?></h5>
+                <p class="section-copy mb-0"><?php echo e(__('Use the shortest path possible for normal events.')); ?></p>
             </div>
             <div class="card-body small text-muted">
                 <ul class="ps-3 mb-0">
@@ -491,35 +502,35 @@
         </div>
 
 
-       {{-- Notifications --}}
+       
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
-                    <h6 class="mb-0">{{ __('Current Defaults') }}</h6>
+                    <h6 class="mb-0"><?php echo e(__('Current Defaults')); ?></h6>
                 </div>
 
                 <div class="card-body small">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">{{ __('Workflow') }}</span>
-                        <strong>{{ __('Draft -> Review') }}</strong>
+                        <span class="text-muted"><?php echo e(__('Workflow')); ?></span>
+                        <strong><?php echo e(__('Draft -> Review')); ?></strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">{{ __('Default Method') }}</span>
-                        <strong>{{ __('Manual') }}</strong>
+                        <span class="text-muted"><?php echo e(__('Default Method')); ?></span>
+                        <strong><?php echo e(__('Manual')); ?></strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">{{ __('Zoom') }}</span>
-                        <strong>{{ !empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret) ? __('Ready') : __('Needs setup') }}</strong>
+                        <span class="text-muted"><?php echo e(__('Zoom')); ?></span>
+                        <strong><?php echo e(!empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret) ? __('Ready') : __('Needs setup')); ?></strong>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span class="text-muted">{{ __('Jitsi') }}</span>
-                        <strong>{{ __('Ready') }}</strong>
+                        <span class="text-muted"><?php echo e(__('Jitsi')); ?></span>
+                        <strong><?php echo e(__('Ready')); ?></strong>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">{{ __('Readiness') }}</span>
+                        <span class="text-muted"><?php echo e(__('Readiness')); ?></span>
                         <strong id="smartReadinessValue">0%</strong>
                     </div>
-                    <div class="text-muted" id="smartReadinessHint">{{ __('Start filling fields to build a ready event draft.') }}</div>
+                    <div class="text-muted" id="smartReadinessHint"><?php echo e(__('Start filling fields to build a ready event draft.')); ?></div>
                 </div>
             </div>
 
@@ -1005,5 +1016,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSmartAssistant();
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layouts.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\ChurchMeet\src\Providers/../Resources/views/attendance/events/create.blade.php ENDPATH**/ ?>

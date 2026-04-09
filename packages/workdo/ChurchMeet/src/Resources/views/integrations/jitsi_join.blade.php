@@ -396,7 +396,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const roomName = @json($jitsiRoomName);
     const displayName = @json(Auth::user()->name ?? 'Guest');
     const email = @json(Auth::user()->email ?? '');
-    let presenceMarked = false;
+    let joinPresenceSent = false;
+    let leavePresenceSent = false;
 
     function setStatus(type, title, copy, icon) {
         statusPanel.classList.remove('is-ready', 'is-warning', 'is-danger');
@@ -406,22 +407,33 @@ document.addEventListener('DOMContentLoaded', function () {
         statusIcon.className = icon;
     }
 
-    function markPresence() {
-        if (presenceMarked) {
+    function sendPresence(action = 'join', keepalive = false) {
+        if (action === 'join' && joinPresenceSent) {
             return;
         }
 
-        presenceMarked = true;
+        if (action === 'leave' && leavePresenceSent) {
+            return;
+        }
 
         fetch(meetingPresenceUrl, {
             method: 'POST',
             credentials: 'same-origin',
+            keepalive: keepalive,
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({ _token: csrfToken })
+            body: JSON.stringify({ _token: csrfToken, action: action })
+        }).then(function () {
+            if (action === 'join') {
+                joinPresenceSent = true;
+            }
+
+            if (action === 'leave') {
+                leavePresenceSent = true;
+            }
         }).catch(function () {
             setStatus(
                 'is-warning',
@@ -470,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 @json(__('Your in-app session is active and attendance has been marked for this event.')),
                 'ti ti-check'
             );
-            markPresence();
+            sendPresence('join');
         });
 
         api.addListener('participantJoined', function () {
@@ -489,6 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 @json(__('You can rejoin from this page or continue in a new browser tab.')),
                 'ti ti-door-exit'
             );
+            sendPresence('leave', true);
         });
 
         api.addListener('errorOccurred', function (error) {
@@ -511,6 +524,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'ti ti-alert-circle'
         );
     }
+
+    window.addEventListener('beforeunload', function () {
+        sendPresence('leave', true);
+    });
 });
 </script>
 @endpush

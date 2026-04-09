@@ -25,6 +25,19 @@
       
             $hasManual = in_array('manual', $methods);
             $hasQr = in_array('qr', $methods);
+            $meetingDurationMinutes = null;
+            if (!empty($attendanceEvent->event?->start_time) && !empty($attendanceEvent->event?->end_time)) {
+                $meetingDurationMinutes = max(
+                    0,
+                    \Carbon\Carbon::parse($attendanceEvent->event->start_time)->diffInMinutes(
+                        \Carbon\Carbon::parse($attendanceEvent->event->end_time),
+                        false
+                    )
+                );
+                if ($meetingDurationMinutes === 0) {
+                    $meetingDurationMinutes = null;
+                }
+            }
         @endphp
 
         {{-- ===========================
@@ -117,6 +130,13 @@
     ============================ --}}
     <div class="card p-3 mb-4 shadow-sm">
         <h6 class="fw-bold mt-2">{{ __('Attendance Records') }}</h6>
+        <p class="text-muted small mb-2">
+            @if($meetingDurationMinutes)
+                {{ __('Scheduled meeting duration: :minutes min', ['minutes' => $meetingDurationMinutes]) }}
+            @else
+                {{ __('Meeting duration is not set on this event yet.') }}
+            @endif
+        </p>
 
         <table class="table table-bordered align-middle mt-3">
             <thead class="table-light">
@@ -124,22 +144,40 @@
                     <th>{{ __('Member') }}</th>
                     <th>{{ __('Status') }}</th>
                     <th>{{ __('Check-In Time') }}</th>
+                    <th>{{ __('Check-Out Time') }}</th>
+                    <th>{{ __('Joined Duration') }}</th>
+                    <th>{{ __('vs Meeting') }}</th>
                     <th>{{ __('Device Used') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($attendanceEvent->records as $record)
+                    @php
+                        $checkIn = $record->check_in_time ? \Carbon\Carbon::parse($record->check_in_time) : null;
+                        $checkOut = $record->check_out_time ? \Carbon\Carbon::parse($record->check_out_time) : null;
+                        $effectiveEnd = $checkOut ?: ($checkIn ? now() : null);
+                        $joinedMinutes = ($checkIn && $effectiveEnd) ? max(0, $checkIn->diffInMinutes($effectiveEnd)) : null;
+                        $joinedLabel = is_null($joinedMinutes) ? '-' : ($joinedMinutes . ' ' . __('min') . ($checkOut ? '' : ' (' . __('live') . ')'));
+                        $compareLabel = '-';
+                        if (!is_null($joinedMinutes) && !empty($meetingDurationMinutes)) {
+                            $comparePercent = round(min(100, ($joinedMinutes / $meetingDurationMinutes) * 100), 1);
+                            $compareLabel = $comparePercent . '%';
+                        }
+                    @endphp
                     <tr>
                         <td>{{ $record->member->name ?? __('Visitor') }}</td>
                         <td>
                             <span class="badge bg-success">{{ ucfirst($record->status) }}</span>
                         </td>
                         <td>{{ $record->check_in_time ?? '-' }}</td>
+                        <td>{{ $record->check_out_time ?? '-' }}</td>
+                        <td>{{ $joinedLabel }}</td>
+                        <td>{{ $compareLabel }}</td>
                         <td>{{ strtoupper($record->device_used) }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center text-muted py-3">
+                        <td colspan="7" class="text-center text-muted py-3">
                             {{ __('No attendance records available yet.') }}
                         </td>
                     </tr>
