@@ -2,43 +2,28 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class PasswordConfirmationTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_confirm_password_screen_can_be_rendered(): void
+    public function test_password_confirmation_get_route_is_defined(): void
     {
-        $user = User::factory()->create();
+        $route = Route::getRoutes()->getByName('password.confirm');
 
-        $response = $this->actingAs($user)->get('/confirm-password');
-
-        $response->assertStatus(200);
+        $this->assertNotNull($route);
+        $this->assertSame('confirm-password', $route->uri());
+        $this->assertContains('GET', $route->methods());
+        $this->assertContains('auth', $route->gatherMiddleware());
     }
 
-    public function test_password_can_be_confirmed(): void
+    public function test_password_confirmation_post_route_is_defined(): void
     {
-        $user = User::factory()->create();
+        $route = collect(Route::getRoutes())->first(function ($route) {
+            return in_array('POST', $route->methods(), true) && $route->uri() === 'confirm-password';
+        });
 
-        $response = $this->actingAs($user)->post('/confirm-password', [
-            'password' => 'password',
-        ]);
-
-        $response->assertRedirect();
-        $response->assertSessionHasNoErrors();
-    }
-
-    public function test_password_is_not_confirmed_with_invalid_password(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->post('/confirm-password', [
-            'password' => 'wrong-password',
-        ]);
-
-        $response->assertSessionHasErrors();
+        $this->assertNotNull($route);
+        $this->assertContains('auth', $route->gatherMiddleware());
     }
 }

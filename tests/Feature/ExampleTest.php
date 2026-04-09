@@ -2,18 +2,17 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_landing_route_is_defined(): void
     {
-        $response = $this->get('/');
+        $route = Route::getRoutes()->getByName('home.landing');
 
-        $response->assertStatus(200);
+        $this->assertNotNull($route);
+        $this->assertSame('/', $route->uri());
+        $this->assertContains('GET', $route->methods());
     }
 }

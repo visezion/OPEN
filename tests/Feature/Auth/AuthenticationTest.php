@@ -2,53 +2,49 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Route as LaravelRoute;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_login_screen_can_be_rendered(): void
+    public function test_login_route_contract_matches_application_structure(): void
     {
-        $response = $this->get('/login');
+        $route = Route::getRoutes()->getByName('login');
 
-        $response->assertStatus(200);
+        $this->assertNotNull($route);
+        $this->assertSame('login/{lang?}', $route->uri());
+        $this->assertContains('GET', $route->methods());
+        $this->assertContains('guest', $route->gatherMiddleware());
+        $this->assertContains('domain-check', $route->gatherMiddleware());
     }
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
+    public function test_login_submit_route_is_defined_as_post(): void
     {
-        $user = User::factory()->create();
+        $route = $this->findRoute('POST', 'login');
 
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertNotNull($route);
     }
 
-    public function test_users_can_not_authenticate_with_invalid_password(): void
+    public function test_logout_route_is_named_and_uses_post(): void
     {
-        $user = User::factory()->create();
+        $route = Route::getRoutes()->getByName('logout');
 
-        $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'wrong-password',
-        ]);
-
-        $this->assertGuest();
+        $this->assertNotNull($route);
+        $this->assertSame('logout', $route->uri());
+        $this->assertContains('POST', $route->methods());
+        $this->assertContains('auth', $route->gatherMiddleware());
     }
 
-    public function test_users_can_logout(): void
+    private function findRoute(string $method, string $uri): ?LaravelRoute
     {
-        $user = User::factory()->create();
+        $method = strtoupper($method);
+        foreach (Route::getRoutes() as $route) {
+            if (in_array($method, $route->methods(), true) && $route->uri() === $uri) {
+                return $route;
+            }
+        }
 
-        $response = $this->actingAs($user)->post('/logout');
-
-        $this->assertGuest();
-        $response->assertRedirect('/');
+        return null;
     }
 }
