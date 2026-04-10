@@ -322,6 +322,9 @@ $.fn.ajaxSubmit = function(options) {
         s.context = s.context || s;
         id = 'jqFormIO' + (new Date().getTime());
         if (s.iframeTarget) {
+            if (typeof s.iframeTarget === 'string' && /<|>/.test(s.iframeTarget)) {
+                throw new Error('invalid iframeTarget selector');
+            }
             $io = $(s.iframeTarget);
             n = $io.attr2('name');
             if (!n)
@@ -330,7 +333,7 @@ $.fn.ajaxSubmit = function(options) {
                 id = n;
         }
         else {
-            $io = $('<iframe name="' + id + '" src="'+ s.iframeSrc +'" />');
+            $io = $('<iframe/>', { name: id, src: s.iframeSrc });
             $io.css({ position: 'absolute', top: '-1000px', left: '-1000px' });
         }
         io = $io[0];
@@ -501,11 +504,11 @@ $.fn.ajaxSubmit = function(options) {
                            // if using the $.param format that allows for multiple values with the same name
                            if($.isPlainObject(s.extraData[n]) && s.extraData[n].hasOwnProperty('name') && s.extraData[n].hasOwnProperty('value')) {
                                extraInputs.push(
-                               $('<input type="hidden" name="'+s.extraData[n].name+'">').val(s.extraData[n].value)
+                               $('<input/>', { type: 'hidden' }).attr('name', s.extraData[n].name).val(s.extraData[n].value)
                                    .appendTo(form)[0]);
                            } else {
                                extraInputs.push(
-                               $('<input type="hidden" name="'+n+'">').val(s.extraData[n])
+                               $('<input/>', { type: 'hidden' }).attr('name', n).val(s.extraData[n])
                                    .appendTo(form)[0]);
                            }
                         }

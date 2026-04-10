@@ -500,7 +500,12 @@
                                         F.setAttribute(B, w[B] || w.getAttribute(B))
                                     }
                                 })(p, h);
-                                n ? p.src = n : n = h.src;
+                                n = n || h.src;
+                                if (/^\s*javascript:/i.test(n || "")) {
+                                    n = !1;
+                                } else if (n) {
+                                    p.src = n;
+                                }
                                 n && (c ? p.readyState ? p.onreadystatechange = function () {
                                     if ("loaded" === p.readyState || "complete" === p.readyState) p.onreadystatechange = null, f(l, ++q)
                                 } : p.onload = function () {

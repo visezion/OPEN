@@ -94,7 +94,7 @@ $(document).ready(function () {
     $(document).on('change', 'input[type=file]', function () {
         var fileclass = $(this).attr('data-filename');
         var finalname = $(this).val().split('\\').pop();
-        $('.' + fileclass).html(finalname);
+        $('.' + fileclass).text(finalname);
     });
 });
 
@@ -127,7 +127,7 @@ function toastrs(text, message, type) {
     } else {
         $('#liveToast').addClass('bg-danger');
     }
-    $('#liveToast .toast-body').html(message);
+    $('#liveToast .toast-body').text(message);
 }
 
 // sidebar search
@@ -180,7 +180,7 @@ $(document).on('click', 'a[data-ajax-popup="true"], button[data-ajax-popup="true
     var title = $(this).data('title');
     var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
     var url = $(this).data('url');
-    $("#commonModal .modal-title").html(title);
+    $("#commonModal .modal-title").text(title);
     $("#commonModal .modal-dialog").addClass('modal-' + size);
     $.ajax({
         url: url,
@@ -215,7 +215,7 @@ $(document).on('click', 'a[data-ajax-popup-over="true"], button[data-ajax-popup-
     var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
     var url = $(this).data('url');
 
-    $("#commonModalOver .modal-title").html(title);
+    $("#commonModalOver .modal-title").text(title);
     $("#commonModalOver .modal-dialog").addClass('modal-' + size);
 
     $.ajax({
@@ -262,7 +262,9 @@ $(document).on("submit", "#commonModalOver form", function (e) {
         type: 'POST',
         success: function (data) {
             toastrs('Success', data.success, 'success');
-            $(data.target).append('<option value="' + data.record.id + '">' + data.record.name + '</option>');
+            $(data.target).append($('<option>', {
+                value: data.record.id
+            }).text(data.record.name));
             $(data.target).val(data.record.id);
             $(data.target).trigger('change');
             $("#commonModalOver").modal('hide');
@@ -1116,5 +1118,4 @@ function formatCurrency(price, settingsEntity) {
         (symbolPosition === 'post' ? symbol : '')
     );
 }
-
 

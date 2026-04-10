@@ -351,10 +351,10 @@ function sendMessage() {
  temporaryMsgId += 1;
  let tempID = 'temp_' + temporaryMsgId
  let hasFile = $('.upload-attachment').val() ? true : false;
- function sanitizeHTML(value) {
-     // Replace <, >, ", ', and & characters with their HTML entity equivalents
-     return value.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
-   }
+  function sanitizeHTML(value) {
+      // Replace <, >, ", ', and & characters with their HTML entity equivalents
+      return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
    var msg = messageInput.val();
    var msg = sanitizeHTML(msg);
    // Use sanitizedInput in your code instead of userInput

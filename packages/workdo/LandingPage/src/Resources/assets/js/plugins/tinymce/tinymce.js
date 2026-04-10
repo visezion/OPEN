@@ -4289,7 +4289,7 @@
             str = str || str2;
             if (str) {
               str = decode(str);
-              return '\'' + str.replace(/\'/g, '\\\'') + '\'';
+              return '\'' + str.replace(/\\/g, '\\\\').replace(/\'/g, '\\\'') + '\'';
             }
             url = decode(url || url2 || url3);
             if (!settings.allow_script_urls) {
@@ -4304,7 +4304,7 @@
             if (urlConverter) {
               url = urlConverter.call(urlConverterScope, url, 'style');
             }
-            return 'url(\'' + url.replace(/\'/g, '\\\'') + '\')';
+            return 'url(\'' + url.replace(/\\/g, '\\\\').replace(/\'/g, '\\\'') + '\')';
           };
           if (css) {
             css = css.replace(/[\u0000-\u001F]/g, '');
@@ -8151,7 +8151,7 @@
     var generate = function (prefix) {
       var date = new Date();
       var time = date.getTime();
-      var random = Math.floor(Math.random() * 1000000000);
+      var random = window.crypto && window.crypto.getRandomValues ? window.crypto.getRandomValues(new Uint32Array(1))[0] % 1000000000 : (time + unique) % 1000000000;
       unique++;
       return prefix + '_' + random + unique + String(time);
     };
@@ -19466,7 +19466,9 @@
       });
       htmlParser.addNodeFilter('script,style', function (nodes, name) {
         var trim = function (value) {
-          return value.replace(/(<!--\[CDATA\[|\]\]-->)/g, '\n').replace(/^[\r\n]*|[\r\n]*$/g, '').replace(/^\s*((<!--)?(\s*\/\/)?\s*<!\[CDATA\[|(<!--\s*)?\/\*\s*<!\[CDATA\[\s*\*\/|(\/\/)?\s*<!--|\/\*\s*<!--\s*\*\/)\s*[\r\n]*/gi, '').replace(/\s*(\/\*\s*\]\]>\s*\*\/(-->)?|\s*\/\/\s*\]\]>(-->)?|\/\/\s*(-->)?|\]\]>|\/\*\s*-->\s*\*\/|\s*-->\s*)\s*$/g, '');
+          var startWrap = /^\s*(?:<!--(?:\s*\/\/)?\s*<!\[CDATA\[|\/\*\s*<!\[CDATA\[\s*\*\/|(?:\/\/)?\s*<!--)\s*/i;
+          var endWrap = /\s*(?:\/\*\s*\]\]>\s*\*\/(?:-->)?|\/\/\s*\]\]>(?:-->)?|\]\]>|\/\*\s*-->\s*\*\/|-->)\s*$/i;
+          return value.replace(/<!--\[CDATA\[|\]\]-->/g, '\n').replace(/^[\r\n]*|[\r\n]*$/g, '').replace(startWrap, '').replace(endWrap, '');
         };
         var i = nodes.length;
         while (i--) {
@@ -20426,7 +20428,10 @@
     var count = 0;
     var seed = function () {
       var rnd = function () {
-        return Math.round(Math.random() * 4294967295).toString(36);
+        if (window.crypto && window.crypto.getRandomValues) {
+          return window.crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
+        }
+        return (count + new Date().getTime()).toString(36);
       };
       var now = new Date().getTime();
       return 's' + now.toString(36) + rnd() + rnd() + rnd();

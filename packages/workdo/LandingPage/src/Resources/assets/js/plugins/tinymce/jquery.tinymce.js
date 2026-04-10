@@ -81,7 +81,7 @@ var u=function(e){var t=null;return e&&e.id&&d.tinymce?f().get(e.id):t},s={};
 // now be able to set/get the contents of editor instances for
 // example $('#editorid').html('Content'); will update the TinyMCE iframe instance
 m.each(["text","html","val"],function(e,t){var a=s[t]=m.fn[t],c="text"===t;m.fn[t]=function(e){var t=this;if(!l(t))return a.apply(t,arguments);if(e!==p)return o.call(t.filter(":tinymce"),e),a.apply(t.not(":tinymce"),arguments),t;// return original set for chaining
-var i="",r=arguments;return(c?t:t.eq(0)).each(function(e,t){var n=u(t);i+=n?c?n.getContent().replace(/<(?:"[^"]*"|'[^']*'|[^'">])*>/g,""):n.getContent({save:!0}):a.apply(m(t),r)}),i}}),
+var i="",r=arguments;return(c?t:t.eq(0)).each(function(e,t){var n=u(t);i+=n?c?m("<div>").html(n.getContent()).text():n.getContent({save:!0}):a.apply(m(t),r)}),i}}),
 // Makes it possible to use $('#id').append("content"); to append contents to the TinyMCE editor iframe
 m.each(["append","prepend"],function(e,t){var n=s[t]=m.fn[t],r="prepend"===t;m.fn[t]=function(i){var e=this;return l(e)?i!==p?("string"==typeof i&&e.filter(":tinymce").each(function(e,t){var n=u(t);n&&n.setContent(r?i+n.getContent():n.getContent()+i)}),n.apply(e.not(":tinymce"),arguments),e):void 0:n.apply(e,arguments)}}),
 // Makes sure that the editor instance gets properly destroyed when the parent element is removed

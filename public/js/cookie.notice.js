@@ -133,7 +133,7 @@
         var notice = document.createElement('div'),
             noticeStyle = notice.style;
 
-        notice.innerHTML = message + '&nbsp;';
+        notice.textContent = (message || '') + ' ';
         notice.setAttribute('id', 'cookieNotice');
 
         noticeStyle.position = 'fixed';
@@ -172,7 +172,7 @@
 
         // Dismiss button
         dismissButton.href = '#';
-        dismissButton.innerHTML = message;
+        dismissButton.textContent = message;
 
         dismissButton.className = 'confirm';
 

@@ -6589,7 +6589,7 @@ var Codeview_CodeView = /*#__PURE__*/function () {
 
         if (this.options.codeviewIframeFilter) {
           var whitelist = this.options.codeviewIframeWhitelistSrc.concat(this.options.codeviewIframeWhitelistSrcBase);
-          value = value.replace(/(<iframe.*?>.*?(?:<\/iframe>)?)/gi, function (tag) {
+          value = value.replace(/(<iframe\b[^>]*>(?:[\s\S]*?<\/iframe>)?)/gi, function (tag) {
             // remove if src attribute is duplicated
             if (/<.+src(?==?('|"|\s)?)[\s\S]+src(?=('|"|\s)?)[^>]*?>/i.test(tag)) {
               return '';

@@ -2933,7 +2933,7 @@
     var generate$6 = function (prefix) {
       var date = new Date();
       var time = date.getTime();
-      var random = Math.floor(Math.random() * 1000000000);
+      var random = window.crypto && window.crypto.getRandomValues ? window.crypto.getRandomValues(new Uint32Array(1))[0] % 1000000000 : (time + unique) % 1000000000;
       unique++;
       return prefix + '_' + random + unique + String(time);
     };

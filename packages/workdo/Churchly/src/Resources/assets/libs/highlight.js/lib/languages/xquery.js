@@ -121,7 +121,7 @@ module.exports = function(hljs) {
 
   // mocha: direct_method
     var DIRECT = {
-      begin: /<([\w\._:\-]+)((\s*.*)=('|").*('|"))?>/,
+      begin: /<([\w._:\-]+)(?:\s+[^<>]*?)?>/,
       end: /(\/[\w\._:\-]+>)/,
       subLanguage: 'xml',
       contains: [{

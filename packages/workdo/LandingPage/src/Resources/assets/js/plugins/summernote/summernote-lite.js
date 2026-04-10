@@ -5086,11 +5086,6 @@ var Dropzone = /** @class */ (function () {
                     if (type.toLowerCase().indexOf('text') > -1) {
                         _this.context.invoke('editor.pasteHTML', content);
                     }
-                    else {
-                        $$1(content).each(function (idx, item) {
-                            _this.context.invoke('editor.insertNode', item);
-                        });
-                    }
                 });
             }
         }).on('dragover', false); // prevent default dragover event
