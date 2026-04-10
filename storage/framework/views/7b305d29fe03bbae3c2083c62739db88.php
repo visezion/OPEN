@@ -10,12 +10,12 @@
             </span>
         </a>
         <div class="dropdown-menu dash-h-dropdown dropdown-menu-end">
-            <?php $__currentLoopData = languages(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $language): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = languages(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $language): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <a href="<?php echo e(route('login', $key)); ?>"
                     class="dropdown-item <?php if($lang == $key): ?> text-primary <?php endif; ?>">
                     <span><?php echo e(Str::ucfirst($language)); ?></span>
                 </a>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </li>
 <?php $__env->stopSection(); ?>
@@ -85,9 +85,9 @@
                     <div class="dms-card-icon" aria-hidden="true">&#10013;</div>
                 </div>
 
-                <?php if($errors->any()): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
                     <div class="dms-error"><?php echo e($errors->first()); ?></div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <form method="POST" action="<?php echo e(route('login')); ?>" class="needs-validation dms-login-form" novalidate=""
                     id="form_data" autocomplete="off">
@@ -113,7 +113,7 @@ unset($__errorArgs, $__bag); ?>" name="email"
                                 value="<?php echo e(old('email')); ?>" placeholder="<?php echo e(__('Enter your email')); ?>" required autofocus
                                 autocapitalize="off" spellcheck="false">
                         </div>
-                        <?php $__errorArgs = ['email'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -124,7 +124,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="dms-form-group">
@@ -154,7 +154,7 @@ unset($__errorArgs, $__bag); ?>" name="password"
                                 </svg>
                             </button>
                         </div>
-                        <?php $__errorArgs = ['password'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -165,7 +165,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="dms-form-group dms-captcha-group">
@@ -198,7 +198,7 @@ unset($__errorArgs, $__bag); ?>"
                                 placeholder="<?php echo e(__('Enter captcha text')); ?>" required autocomplete="off"
                                 autocapitalize="characters" spellcheck="false">
                         </div>
-                        <?php $__errorArgs = ['captcha_answer'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['captcha_answer'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -209,7 +209,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="dms-login-actions">
@@ -218,10 +218,10 @@ unset($__errorArgs, $__bag); ?>
                                 <?php echo e(old('remember', true) ? 'checked' : ''); ?>>
                             <span class="form-check-label"><?php echo e(__('Remember me')); ?></span>
                         </label>
-                        <?php if(Route::has('password.request')): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Route::has('password.request')): ?>
                             <a href="<?php echo e(route('password.request', $lang)); ?>"
                                 class="dms-forgot"><?php echo e(__('Forgot your password?')); ?></a>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <?php echo $__env->yieldPushContent('recaptcha_field'); ?>
@@ -233,12 +233,12 @@ unset($__errorArgs, $__bag); ?>
                         <?php echo $__env->yieldPushContent('SigninButton'); ?>
                     </div>
 
-                    <?php if(empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on'): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on'): ?>
                         <p class="dms-register"><?php echo e(__("Don't have an account?")); ?>
 
                             <a href="<?php echo e(route('register', $lang)); ?>"><?php echo e(__('Create one now')); ?></a>
                         </p>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <p class="dms-note"><?php echo e(__('Authorized ministry users only. Activity is monitored for accountability in Christ.')); ?></p>
                 </form>
             </div>
@@ -306,4 +306,4 @@ unset($__errorArgs, $__bag); ?>
     </script>
 <?php $__env->stopPush(); ?>
 
-<?php echo $__env->make('layouts.auth', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\resources\views/auth/login.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.auth', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\resources\views/auth/login.blade.php ENDPATH**/ ?>

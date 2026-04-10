@@ -139,21 +139,21 @@
 
     <link rel="stylesheet" href="<?php echo e(asset('css/custom-color.css')); ?>">
 
-    <?php if( $rtl == 'on'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if( $rtl == 'on'): ?>
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/style-rtl.css')); ?>">
         <link rel="stylesheet" href="<?php echo e(asset('css/custom-auth-rtl.css')); ?>" id="main-style-link">
     <?php else: ?>
         <link rel="stylesheet" href="<?php echo e(asset('css/custom-auth.css')); ?>" id="main-style-link">
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if((isset($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] : 'off') == 'on'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if((isset($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] : 'off') == 'on'): ?>
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/style-dark.css')); ?>" id="main-style-link">
         <link rel="stylesheet" href="<?php echo e(asset('css/custom-auth-dark.css')); ?>" id="main-style-link">
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if( $rtl != 'on' && (isset($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] : 'off') != 'on'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if( $rtl != 'on' && (isset($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] : 'off') != 'on'): ?>
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/style.css')); ?>" id="main-style-link">
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <link rel="stylesheet" href="<?php echo e(asset('css/ui-clean.css')); ?>">
 
     <style>
@@ -207,7 +207,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <span>
-                                    <?php if(!empty($admin_settings['footer_text'])): ?> <?php echo e($admin_settings['footer_text']); ?> <?php else: ?><?php echo e(__('Copyright')); ?> &copy; <?php echo e(config('app.name', 'WorkDo')); ?><?php endif; ?><?php echo e(date('Y')); ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($admin_settings['footer_text'])): ?> <?php echo e($admin_settings['footer_text']); ?> <?php else: ?><?php echo e(__('Copyright')); ?> &copy; <?php echo e(config('app.name', 'WorkDo')); ?><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?><?php echo e(date('Y')); ?>
 
                                 </span>
                             </div>
@@ -217,22 +217,22 @@
             </footer>
         </div>
     </div>
-    <?php if((isset($admin_settings['enable_cookie']) ? $admin_settings['enable_cookie'] : 'off') == 'on'): ?>
-        <?php echo $__env->make('layouts.cookie_consent', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-    <?php endif; ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if((isset($admin_settings['enable_cookie']) ? $admin_settings['enable_cookie'] : 'off') == 'on'): ?>
+        <?php echo $__env->make('layouts.cookie_consent', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php echo $__env->yieldPushContent('custom-scripts'); ?>
 <script src="<?php echo e(asset('js/jquery.min.js')); ?>"></script>
 <script src="<?php echo e(asset('js/custom.js')); ?>"></script>
 <script src="<?php echo e(asset('assets/js/plugins/bootstrap.min.js')); ?>"></script>
 <?php echo $__env->yieldPushContent('script'); ?>
-<?php if((isset($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] : 'off') == 'on'): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if((isset($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] : 'off') == 'on'): ?>
 <script>
        document.addEventListener('DOMContentLoaded', (event) => {
        const recaptcha = document.querySelector('.g-recaptcha');
        recaptcha.setAttribute("data-theme", "dark");
        });
 </script>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </body>
 </html>
 <?php /**PATH C:\xampp\htdocs\OPEN\resources\views/layouts/auth.blade.php ENDPATH**/ ?>
