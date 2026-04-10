@@ -55,7 +55,22 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --include=optional
+
+      - name: Workaround Rolldown optional binding on Linux CI
+        run: |
+          if [ -d node_modules/rolldown ]; then
+            if ! node --input-type=module -e "import('rolldown')"; then
+              echo "Rolldown native binding is missing/broken; attempting repair..."
+              BINDING_VERSION=$(node -p "require('./node_modules/rolldown/package.json').optionalDependencies['@rolldown/binding-linux-x64-gnu'] || ''")
+              if [ -z "$BINDING_VERSION" ]; then
+                echo "Unable to determine @rolldown/binding-linux-x64-gnu version from rolldown package metadata."
+                exit 1
+              fi
+              npm install --no-save --force "@rolldown/binding-linux-x64-gnu@${BINDING_VERSION}"
+              node --input-type=module -e "import('rolldown')"
+            fi
+          fi
 
       - name: Prepare Laravel CI environment
         run: |
