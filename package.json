@@ -3,6 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "prebuild": "node scripts/ensure-native-bindings.cjs",
         "build": "vite build",
         "postbuild": "node sync-build.js"
     },
