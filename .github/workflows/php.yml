@@ -114,13 +114,32 @@ jobs:
           extensions: mbstring, bcmath, intl, pdo_mysql, openssl, xml, ctype, json, tokenizer, fileinfo, sodium
           coverage: none
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
       - name: Install production Composer dependencies
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-progress --no-interaction
+
+      - name: Install Node dependencies
+        run: npm ci --include=optional
+
+      - name: Ensure native optional bindings on Linux CI
+        run: node scripts/ensure-native-bindings.cjs
+
+      - name: Build frontend assets
+        run: npm run build
 
       - name: Create deploy artifact
         run: |
           rm -rf deploy-stage deploy.tar.gz
           mkdir -p deploy-stage
+          if [ ! -f "public/build/manifest.json" ]; then
+            echo "ERROR: Missing public/build/manifest.json. Frontend build did not complete."
+            exit 1
+          fi
           rsync -a \
             --exclude '.git/' \
             --exclude '.github/' \
