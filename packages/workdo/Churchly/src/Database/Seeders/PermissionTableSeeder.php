@@ -189,17 +189,34 @@ class PermissionTableSeeder extends Seeder
         // Get company role
         $company_role = Role::where('name', 'company')->first();
 
+        $permissions = array_values(array_unique(array_map('trim', $permissions)));
+
         foreach ($permissions as $value) {
-            $permission = Permission::firstOrCreate(
-                [
-                    'name'   => $value,
-                    'module' => $module,
-                ],
-                [
+            // "permissions.name" is globally unique, so resolve by name first.
+            $permission = Permission::where('name', $value)->first();
+
+            if (!$permission) {
+                $permission = Permission::create([
+                    'name'       => $value,
+                    'module'     => $module,
                     'guard_name' => 'web',
                     'created_by' => 0,
-                ]
-            );
+                ]);
+            } else {
+                $updates = [];
+                if (empty($permission->module)) {
+                    $updates['module'] = $module;
+                }
+                if (empty($permission->guard_name)) {
+                    $updates['guard_name'] = 'web';
+                }
+                if (is_null($permission->created_by)) {
+                    $updates['created_by'] = 0;
+                }
+                if (!empty($updates)) {
+                    $permission->update($updates);
+                }
+            }
 
             if ($company_role) {
                 // Attach permission to role safely
