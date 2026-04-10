@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execFileSync, execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -28,49 +28,59 @@ function getPackageJson(packageName) {
   return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 }
 
-function installPackage(packageName, version) {
-  if (!version) {
-    throw new Error(`Missing version for ${packageName}`);
+function installPackages(packageSpecs) {
+  if (!packageSpecs.length) {
+    return;
   }
-  log(`Installing ${packageName}@${version}...`);
-  execSync(`npm install --no-save --force "${packageName}@${version}"`, {
+
+  const npmBin = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  log(`Installing missing native packages: ${packageSpecs.join(', ')}`);
+  execFileSync(npmBin, ['install', '--no-save', '--force', ...packageSpecs], {
     stdio: 'inherit',
     cwd: process.cwd(),
   });
 }
 
-function ensureRolldownLinuxBinding() {
+function getLinuxBindingSpecs() {
+  const specs = [];
   const rolldown = getPackageJson('rolldown');
-  if (!rolldown) {
-    return;
+  if (rolldown && rolldown.optionalDependencies && rolldown.optionalDependencies['@rolldown/binding-linux-x64-gnu']) {
+    specs.push(`@rolldown/binding-linux-x64-gnu@${rolldown.optionalDependencies['@rolldown/binding-linux-x64-gnu']}`);
   }
-
-  try {
-    tryImportRolldown();
-    log('Rolldown binding OK');
-  } catch (error) {
-    const version = rolldown.optionalDependencies && rolldown.optionalDependencies['@rolldown/binding-linux-x64-gnu'];
-    installPackage('@rolldown/binding-linux-x64-gnu', version);
-    tryImportRolldown();
-    log('Rolldown binding repaired');
+  const lightningcss = getPackageJson('lightningcss');
+  if (lightningcss && lightningcss.optionalDependencies && lightningcss.optionalDependencies['lightningcss-linux-x64-gnu']) {
+    specs.push(`lightningcss-linux-x64-gnu@${lightningcss.optionalDependencies['lightningcss-linux-x64-gnu']}`);
   }
+  return specs;
 }
 
-function ensureLightningCssLinuxBinding() {
-  const lightningcss = getPackageJson('lightningcss');
-  if (!lightningcss) {
-    return;
+function verifyBindings() {
+  const statuses = {
+    rolldownOk: true,
+    lightningCssOk: true,
+  };
+
+  if (getPackageJson('rolldown')) {
+    try {
+      tryImportRolldown();
+      log('Rolldown binding OK');
+    } catch (error) {
+      statuses.rolldownOk = false;
+      log('Rolldown binding check failed');
+    }
   }
 
-  try {
-    tryRequireLightningCss();
-    log('Lightning CSS binding OK');
-  } catch (error) {
-    const version = lightningcss.optionalDependencies && lightningcss.optionalDependencies['lightningcss-linux-x64-gnu'];
-    installPackage('lightningcss-linux-x64-gnu', version);
-    tryRequireLightningCss();
-    log('Lightning CSS binding repaired');
+  if (getPackageJson('lightningcss')) {
+    try {
+      tryRequireLightningCss();
+      log('Lightning CSS binding OK');
+    } catch (error) {
+      statuses.lightningCssOk = false;
+      log('Lightning CSS binding check failed');
+    }
   }
+
+  return statuses;
 }
 
 function main() {
@@ -79,8 +89,22 @@ function main() {
     return;
   }
 
-  ensureRolldownLinuxBinding();
-  ensureLightningCssLinuxBinding();
+  const firstPass = verifyBindings();
+  if (firstPass.rolldownOk && firstPass.lightningCssOk) {
+    return;
+  }
+
+  // Install all relevant Linux bindings in one transaction to avoid npm pruning
+  // one repaired binding while installing another.
+  const bindingSpecs = getLinuxBindingSpecs();
+  installPackages(bindingSpecs);
+
+  const secondPass = verifyBindings();
+  if (!secondPass.rolldownOk || !secondPass.lightningCssOk) {
+    throw new Error('Native binding verification failed after repair');
+  }
+
+  log('Native bindings repaired and verified');
 }
 
 main();

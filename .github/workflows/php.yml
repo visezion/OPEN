@@ -57,32 +57,8 @@ jobs:
       - name: Install Node dependencies
         run: npm ci --include=optional
 
-      - name: Workaround native optional bindings on Linux CI
-        run: |
-          if [ -d node_modules/rolldown ]; then
-            if ! node --input-type=module -e "import('rolldown')"; then
-              echo "Rolldown native binding is missing/broken; attempting repair..."
-              BINDING_VERSION=$(node -p "require('./node_modules/rolldown/package.json').optionalDependencies['@rolldown/binding-linux-x64-gnu'] || ''")
-              if [ -z "$BINDING_VERSION" ]; then
-                echo "Unable to determine @rolldown/binding-linux-x64-gnu version from rolldown package metadata."
-                exit 1
-              fi
-              npm install --no-save --force "@rolldown/binding-linux-x64-gnu@${BINDING_VERSION}"
-              node --input-type=module -e "import('rolldown')"
-            fi
-          fi
-          if [ -d node_modules/lightningcss ]; then
-            if ! node -e "require('lightningcss')"; then
-              echo "Lightning CSS native binding is missing/broken; attempting repair..."
-              LC_VERSION=$(node -p "require('./node_modules/lightningcss/package.json').optionalDependencies['lightningcss-linux-x64-gnu'] || ''")
-              if [ -z "$LC_VERSION" ]; then
-                echo "Unable to determine lightningcss-linux-x64-gnu version from lightningcss package metadata."
-                exit 1
-              fi
-              npm install --no-save --force "lightningcss-linux-x64-gnu@${LC_VERSION}"
-              node -e "require('lightningcss')"
-            fi
-          fi
+      - name: Ensure native optional bindings on Linux CI
+        run: node scripts/ensure-native-bindings.cjs
 
       - name: Prepare Laravel CI environment
         run: |
