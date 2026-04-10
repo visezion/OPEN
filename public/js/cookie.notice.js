@@ -246,9 +246,21 @@
      */
     function extendDefaults(source, properties) {
         var property;
+        var blockedKeys = {
+            '__proto__': true,
+            'prototype': true,
+            'constructor': true
+        };
         for (property in properties) {
-            if (properties.hasOwnProperty(property)) {
-                if (typeof source[property] === 'object') {
+            if (Object.prototype.hasOwnProperty.call(properties, property) && !blockedKeys[property]) {
+                if (
+                    source[property] &&
+                    properties[property] &&
+                    typeof source[property] === 'object' &&
+                    typeof properties[property] === 'object' &&
+                    !Array.isArray(source[property]) &&
+                    !Array.isArray(properties[property])
+                ) {
                     source[property] = extendDefaults(source[property], properties[property]);
                 } else {
                     source[property] = properties[property];

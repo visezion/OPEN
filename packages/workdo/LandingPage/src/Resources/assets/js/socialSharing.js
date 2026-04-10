@@ -83,7 +83,9 @@ $.fn.socialSharingPlugin = function(options){
             document.body.removeChild(sampleTextarea);
         },
         copyTrigger = function(text){
-            let tooltip = $('<div class="socialJS-custom-tooltip ' + settings.copyTooltipPosition + '"><i class="fas fa-share text-warning"></i> ' + settings.copyMessage + '</div>');
+            let tooltip = $('<div class="socialJS-custom-tooltip">').addClass(settings.copyTooltipPosition);
+            tooltip.append($('<i class="fas fa-share text-warning">'));
+            tooltip.append(document.createTextNode(' ' + settings.copyMessage));
             $.each($(document).find('.socialJS-custom-tooltip'), function () {
                 $(this).remove();
             });

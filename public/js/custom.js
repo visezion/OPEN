@@ -514,37 +514,56 @@ function taskCheckbox() {
                 }
             }
             // Modal base template
-            var modal_template = '   <div class="modal' + (options.animation == true ? ' fade' : '') + '" tabindex="-1" role="dialog" id="' + id + '">  ' +
-                '     <div class="modal-dialog ' + options.size + (options.center ? ' modal-dialog-centered' : '') + '" role="document">  ' +
-                '       <div class="modal-content">  ' +
-                ((options.header == true) ?
-                    '         <div class="modal-header">  ' +
-                    '           <h5 class="modal-title mx-auto">' + options.title + '</h5>  ' +
-                    ((options.closeButton == true) ?
-                        '           <button type="button" class="close" data-dismiss="modal" aria-label="Close">  ' +
-                        '             <span aria-hidden="true">&times;</span>  ' +
-                        '           </button>  '
-                        : '') +
-                    '         </div>  '
-                    : '') +
-                '         <div class="modal-body text-center text-dark">  ' +
-                '         </div>  ' +
-                (options.buttons.length > 0 ?
-                    '         <div class="modal-footer mx-auto">  ' +
-                    '         </div>  '
-                    : '') +
-                '       </div>  ' +
-                '     </div>  ' +
-                '  </div>  ';
-            // Convert modal to object
-            var modal_template = $(modal_template);
+            var modal_template = $('<div>', {
+                'class': 'modal' + (options.animation == true ? ' fade' : ''),
+                'tabindex': -1,
+                'role': 'dialog',
+                'id': id
+            });
+            var modal_dialog = $('<div>', {
+                'class': 'modal-dialog',
+                'role': 'document'
+            });
+            if (options.size) {
+                modal_dialog.addClass(options.size);
+            }
+            if (options.center) {
+                modal_dialog.addClass('modal-dialog-centered');
+            }
+            var modal_content = $('<div>', { 'class': 'modal-content' });
+            if (options.header == true) {
+                var modal_header = $('<div>', { 'class': 'modal-header' });
+                $('<h5>', { 'class': 'modal-title mx-auto' }).text(options.title).appendTo(modal_header);
+                if (options.closeButton == true) {
+                    var close_button = $('<button>', {
+                        'type': 'button',
+                        'class': 'close',
+                        'data-dismiss': 'modal',
+                        'aria-label': 'Close'
+                    });
+                    $('<span>', { 'aria-hidden': 'true' }).text('×').appendTo(close_button);
+                    modal_header.append(close_button);
+                }
+                modal_content.append(modal_header);
+            }
+            modal_content.append($('<div>', { 'class': 'modal-body text-center text-dark' }));
+            if (options.buttons.length > 0) {
+                modal_content.append($('<div>', { 'class': 'modal-footer mx-auto' }));
+            }
+            modal_dialog.append(modal_content);
+            modal_template.append(modal_dialog);
             // Start creating buttons from 'buttons' option
             var this_button;
             options.buttons.forEach(function (item) {
                 // get option 'id'
-                let id = "id" in item ? item.id : '';
+                let button_id = "id" in item ? item.id : '';
                 // Button template
-                this_button = '<button type="' + ("submit" in item && item.submit == true ? 'submit' : 'button') + '" class="' + item.class + '" id="' + id + '">' + item.text + '</button>';
+                this_button = $('<button>', {
+                    type: ("submit" in item && item.submit == true ? 'submit' : 'button'),
+                    id: button_id
+                })
+                    .addClass(item.class || '')
+                    .text(item.text || '');
                 // add click event to the button
                 this_button = $(this_button).off('click').on("click", function () {
                     // execute function from 'handler' option
@@ -1097,6 +1116,5 @@ function formatCurrency(price, settingsEntity) {
         (symbolPosition === 'post' ? symbol : '')
     );
 }
-
 
 

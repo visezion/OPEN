@@ -24,7 +24,7 @@ module.exports = function(hljs) {
       VAR,
       {
         className: 'variable',
-        begin: /\$[A-z]/, end: /[^A-z]/
+        begin: /\$[A-Za-z]/, end: /[^A-Za-z]/
       }
     ]
   };
@@ -60,7 +60,7 @@ module.exports = function(hljs) {
 
   return {
     aliases: ['ps'],
-    lexemes: /-?[A-z\.\-]+/,
+    lexemes: /-?[A-Za-z.-]+/,
     case_insensitive: true,
     keywords: {
       keyword: 'if else foreach return function do while until elseif begin for trap data dynamicparam end break throw param continue finally in switch exit filter try process catch',

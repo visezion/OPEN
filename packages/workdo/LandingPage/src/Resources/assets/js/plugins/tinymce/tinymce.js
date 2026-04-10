@@ -29765,11 +29765,11 @@
             r = parseInt(matches[1], 10);
             g = parseInt(matches[2], 10);
             b = parseInt(matches[3], 10);
-          } else if (matches = /#([0-F]{2})([0-F]{2})([0-F]{2})/gi.exec(value)) {
+          } else if (matches = /#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/gi.exec(value)) {
             r = parseInt(matches[1], 16);
             g = parseInt(matches[2], 16);
             b = parseInt(matches[3], 16);
-          } else if (matches = /#([0-F])([0-F])([0-F])/gi.exec(value)) {
+          } else if (matches = /#([0-9A-F])([0-9A-F])([0-9A-F])/gi.exec(value)) {
             r = parseInt(matches[1] + matches[1], 16);
             g = parseInt(matches[2] + matches[2], 16);
             b = parseInt(matches[3] + matches[3], 16);

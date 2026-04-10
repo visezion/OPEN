@@ -959,7 +959,7 @@
           var nonTypeKeywords = keywordsToPattern(keywordKinds.typeDeclaration + ' ' + keywordKinds.contextual + ' ' + keywordKinds.other);
           var nonContextualKeywords = keywordsToPattern(keywordKinds.type + ' ' + keywordKinds.typeDeclaration + ' ' + keywordKinds.other);
           var generic = nested(/<(?:[^<>;=+\-*/%&|^]|<<self>>)*>/.source, 2);
-          var nestedRound = nested(/\((?:[^()]|<<self>>)*\)/.source, 2);
+          var nestedRound = /\((?:[^()]|\([^()]*\))*\)/.source;
           var name = /@?\b[A-Za-z_]\w*\b/.source;
           var genericName = replace(/<<0>>(?:\s*<<1>>)?/.source, [
             name,
@@ -1079,7 +1079,7 @@
               inside: { 'punctuation': /\./ }
             },
             'type-expression': {
-              pattern: re(/(\b(?:default|sizeof|typeof)\s*\(\s*(?!\s))(?:[^()\s]|\s(?!\s)|<<0>>)*(?=\s*\))/.source, [nestedRound]),
+              pattern: re(/(\b(?:default|sizeof|typeof)\s*\(\s*(?!\s))(?:[^()<>\s]|\s(?!\s)|<(?!<0>>)|>|<<0>>)*(?=\s*\))/.source, [nestedRound]),
               lookbehind: true,
               alias: 'class-name',
               inside: typeInside
@@ -1227,13 +1227,13 @@
           Prism.languages.insertBefore('csharp', 'string', {
             'interpolation-string': [
               {
-                pattern: re(/(^|[^\\])(?:\$@|@\$)"(?:""|\\[\s\S]|\{\{|<<0>>|[^\\{"])*"/.source, [mInterpolation]),
+                pattern: /(^|[^\\])(?:\$@|@\$)"(?:""|\\[\s\S]|\{\{|\{(?!\{)[^{}]*\}|[^\\{"])*"/,
                 lookbehind: true,
                 greedy: true,
                 inside: createInterpolationInside(mInterpolation, mInterpolationRound)
               },
               {
-                pattern: re(/(^|[^@\\])\$"(?:\\.|\{\{|<<0>>|[^\\"{])*"/.source, [sInterpolation]),
+                pattern: /(^|[^@\\])\$"(?:\\.|\{\{|\{(?!\{)[^{}]*\}|[^\\"{])*"/,
                 lookbehind: true,
                 greedy: true,
                 inside: createInterpolationInside(sInterpolation, sInterpolationRound)
