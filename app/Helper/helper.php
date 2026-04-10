@@ -1291,6 +1291,8 @@ if (!function_exists('DirectAssignPlan')) {
     {
         $orderID = strtoupper(str_replace('.', '', uniqid('', true)));
         $plan = Plan::find($plan_id);
+        $admin_settings = getAdminAllSetting();
+        $admin_currency = !empty($admin_settings['defult_currancy']) ? $admin_settings['defult_currancy'] : 'USD';
         if (empty($user_id)) {
             $user_id = \Auth::user()->id;
         }
@@ -1308,7 +1310,7 @@ if (!function_exists('DirectAssignPlan')) {
                     'plan_name' => !empty($plan->name) ? $plan->name : 'Basic Package',
                     'plan_id' => $plan->id,
                     'price' => 0,
-                    'price_currency' => admin_setting('defult_currancy'),
+                    'price_currency' => $admin_currency,
                     'txn_id' => '',
                     'payment_type' => !empty($type) ? $type : "STRIPE",
                     'payment_status' => 'succeeded',
