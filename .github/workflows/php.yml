@@ -215,7 +215,14 @@ jobs:
             --exclude 'bootstrap/cache/' \
             deploy-package/ "$DEPLOY_PATH"/
           cd "$DEPLOY_PATH"
+          # Compatibility shim: some stale classmaps may still reference doctrine/inflector/lib/*
+          # while newer doctrine/inflector ships classes under src/*.
+          if [ -d "vendor/doctrine/inflector/src" ] && [ ! -f "vendor/doctrine/inflector/lib/Doctrine/Inflector/InflectorFactory.php" ]; then
+            mkdir -p "vendor/doctrine/inflector/lib/Doctrine/Inflector"
+            rsync -a "vendor/doctrine/inflector/src/" "vendor/doctrine/inflector/lib/Doctrine/Inflector/"
+          fi
           rm -f bootstrap/cache/*.php || true
+          php artisan optimize:clear || true
           php artisan package:discover --ansi
           php artisan migrate --force --graceful
           php artisan config:cache
