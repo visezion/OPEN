@@ -1,4 +1,4 @@
-﻿@extends('layouts.empty')
+@extends('layouts.empty')
 @section('content')
 @php $palette = [ 'primary' => $theme->primary_color ?? '#4A6CF7', 'secondary' => $theme->secondary_color ?? '#F9B200' ]; @endphp
 <style>

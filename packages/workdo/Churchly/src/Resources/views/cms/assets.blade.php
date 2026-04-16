@@ -1,4 +1,4 @@
-﻿@extends('layouts.main')
+@extends('layouts.main')
 @section('page-title', __('Website Assets'))
 @section('page-breadcrumb')
 <li class="breadcrumb-item"><a href="{{ route('cms.pages') }}">{{ __('Website CMS') }}</a></li>

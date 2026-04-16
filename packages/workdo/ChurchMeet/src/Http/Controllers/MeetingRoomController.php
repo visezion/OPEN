@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Workdo\ChurchMeet\Entities\AttendanceEvent;
 use Workdo\ChurchMeet\Entities\AttendanceRecord;
 use Workdo\ChurchMeet\Entities\ChurchMember;
@@ -15,6 +16,7 @@ use Workdo\ChurchMeet\Entities\ChurchDesignation;
 use Workdo\ChurchMeet\Entities\Event;
 use Workdo\ChurchMeet\Entities\ZoomSyncSetting;
 use Workdo\ChurchMeet\Services\JitsiMeetingService;
+use Workdo\ChurchMeet\Services\LivekitMeetingService;
 use Workdo\ChurchMeet\Services\ZoomMeetingService;
 
 class MeetingRoomController extends Controller
@@ -31,7 +33,30 @@ class MeetingRoomController extends Controller
         return back()->with('success', __('Jitsi meeting room created successfully.'));
     }
 
-    public function join(int $attendanceEventId, ZoomMeetingService $zoomMeetingService, JitsiMeetingService $jitsiMeetingService)
+    public function createLiveKitForEvent(int $eventId, LivekitMeetingService $livekitMeetingService)
+    {
+        $event = Event::with('attendanceEvents.event')->inWorkspace()->findOrFail($eventId);
+        $attendanceEvent = $this->resolveAttendanceEvent($event);
+
+        abort_unless($this->userCanManageOnlineMeeting($attendanceEvent), 403, __('You are not allowed to create online meetings for this event.'));
+
+        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+
+        try {
+            $livekitMeetingService->createRoomForAttendanceEvent($setting, $attendanceEvent);
+        } catch (\Throwable $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', __('LiveKit room created successfully.'));
+    }
+
+    public function join(
+        int $attendanceEventId,
+        ZoomMeetingService $zoomMeetingService,
+        JitsiMeetingService $jitsiMeetingService,
+        LivekitMeetingService $livekitMeetingService
+    )
     {
         $attendanceEvent = AttendanceEvent::with('event')
             ->where('workspace_id', getActiveWorkSpace())
@@ -69,6 +94,31 @@ class MeetingRoomController extends Controller
                 'jitsiRoomName' => $meeting['room_name'],
                 'jitsiMeetingLink' => $meeting['meeting_link'],
                 'canStartMeeting' => $this->userCanManageOnlineMeeting($attendanceEvent),
+            ]);
+        }
+
+        if ($platform === 'livekit') {
+            abort_if(!$attendanceEvent->meeting_id, 404, __('LiveKit room not found for this event.'));
+
+            $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+            abort_unless($livekitMeetingService->canUseLiveKit($setting), 422, __('Configure LiveKit integration settings before joining this room.'));
+
+            $displayName = $livekitMeetingService->makeDisplayNameForUser(Auth::user());
+            $identity = $livekitMeetingService->makeIdentityForUser(Auth::user()) . '-' . $attendanceEvent->id . '-' . Str::lower(Str::random(6));
+
+            return view('churchmeet::integrations.livekit_join', [
+                'attendanceEvent' => $attendanceEvent,
+                'livekitRoomName' => $attendanceEvent->meeting_id,
+                'livekitServerUrl' => $livekitMeetingService->websocketUrl($setting->livekit_server_url),
+                'livekitToken' => $livekitMeetingService->makeParticipantToken(
+                    $setting,
+                    $attendanceEvent->meeting_id,
+                    $identity,
+                    $displayName,
+                    $this->userCanManageOnlineMeeting($attendanceEvent)
+                ),
+                'participantName' => $displayName,
+                'canManageMeeting' => $this->userCanManageOnlineMeeting($attendanceEvent),
             ]);
         }
 

@@ -1,4 +1,4 @@
-﻿@extends('layouts.main')
+@extends('layouts.main')
 @section('page-title', $page->id ? __('Edit Page') : __('Create Page'))
 @section('page-breadcrumb')
 <li class="breadcrumb-item"><a href="{{ route('cms.pages') }}">{{ __('Website Pages') }}</a></li>

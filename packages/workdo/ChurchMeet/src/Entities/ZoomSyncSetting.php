@@ -14,6 +14,12 @@ class ZoomSyncSetting extends Model
         'jitsi_enabled',
         'jitsi_server_domain',
         'jitsi_room_prefix',
+        'livekit_enabled',
+        'livekit_server_url',
+        'livekit_api_key',
+        'livekit_api_secret',
+        'livekit_room_prefix',
+        'livekit_token_ttl_minutes',
         'account_id',
         'client_id',
         'client_secret',
@@ -32,6 +38,8 @@ class ZoomSyncSetting extends Model
     protected $casts = [
         'active' => 'boolean',
         'jitsi_enabled' => 'boolean',
+        'livekit_enabled' => 'boolean',
+        'livekit_token_ttl_minutes' => 'integer',
         'token_expires_at' => 'datetime',
         'last_synced_at' => 'datetime',
     ];

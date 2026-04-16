@@ -1,4 +1,4 @@
-﻿@extends('churchly::site.layout')
+@extends('churchly::site.layout')
 @section('site')
   @foreach(($page->sections ?? []) as $s)
     <div class="section">

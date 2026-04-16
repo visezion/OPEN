@@ -1,4 +1,4 @@
-﻿<form method="POST" action="{{ route('app-builder.saveLayout') }}">
+<form method="POST" action="{{ route('app-builder.saveLayout') }}">
     @csrf
     <input type="hidden" name="screen_key" value="home">
     <div class="row">

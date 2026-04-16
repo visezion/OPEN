@@ -1,4 +1,4 @@
-﻿@extends('churchly::site.layout')
+@extends('churchly::site.layout')
 @section('site')
   @if($page)
     @foreach(($page->sections ?? []) as $s)

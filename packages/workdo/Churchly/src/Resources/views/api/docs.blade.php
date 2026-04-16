@@ -1,4 +1,4 @@
-﻿@extends('layouts.main')
+@extends('layouts.main')
 
 @section('page-title')
     {{ __('Churchly API Docs') }}

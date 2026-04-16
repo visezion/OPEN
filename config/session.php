@@ -143,7 +143,14 @@ return [
     |
     */
 
-    'path' => env('SESSION_PATH', '/'),
+    'path' => tap((string) env('SESSION_PATH', '/'), function (&$path) {
+        $path = trim($path);
+        $path = $path === '' ? '/' : $path;
+
+        if (! str_starts_with($path, '/')) {
+            $path = '/' . $path;
+        }
+    }),
 
     /*
     |--------------------------------------------------------------------------

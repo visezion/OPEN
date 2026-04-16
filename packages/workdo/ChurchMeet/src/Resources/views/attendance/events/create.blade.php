@@ -93,6 +93,12 @@
 @endsection
 
 @section('content')
+@php
+    $zoomReady = !empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret);
+    $livekitReady = !empty($zoomSetting->livekit_enabled) && !empty($zoomSetting->livekit_server_url) && !empty($zoomSetting->livekit_api_key) && !empty($zoomSetting->livekit_api_secret);
+    $defaultPlatform = $zoomSetting->preferred_platform ?: ($livekitReady ? 'livekit' : ($zoomReady ? 'zoom' : 'jitsi'));
+    $advancedToolsOpen = old('online_platform') || old('meeting_link') || old('meeting_id') || old('meeting_passcode') || old('enabled_methods') || old('create_zoom_meeting') || old('create_jitsi_meeting') || old('create_livekit_meeting');
+@endphp
 <div class="row church-events-create">
     <div class="col-md-12 mb-4">
         <div class="card create-hero">
@@ -322,22 +328,56 @@
 
                     <hr>
 
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div>
-                            <h6 class="mb-1">{{ __('Attendance & Meeting Tools') }}</h6>
-                            <small class="text-muted">{{ __('Use these only if the event needs attendance automation or an online room.') }}</small>
+                    <div class="smart-panel mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h6 class="mb-1">{{ __('Automatic Attendance & Meeting Setup') }}</h6>
+                                <small class="text-muted">{{ __('For normal events, ChurchMeet can choose the online platform and attendance defaults automatically.') }}</small>
+                            </div>
+                            <span class="badge bg-light text-primary border">{{ __('Automatic') }}</span>
                         </div>
-                        <div class="form-check form-switch mb-0">
-                            <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance" value="1" {{ old('auto_log_attendance') ? 'checked' : '' }}>
-                            <label for="auto_log_attendance" class="form-check-label">{{ __('Auto Log') }}</label>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="smart-kpi">
+                                    <span class="smart-kpi-label">{{ __('Platform') }}</span>
+                                    <span class="smart-kpi-value" id="automationPlatform">{{ strtoupper($defaultPlatform) }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="smart-kpi">
+                                    <span class="smart-kpi-label">{{ __('Attendance') }}</span>
+                                    <span class="smart-kpi-value" id="automationMethods">{{ __('Manual + QR') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="smart-kpi">
+                                    <span class="smart-kpi-label">{{ __('Room Action') }}</span>
+                                    <span class="smart-kpi-value" id="automationRoom">{{ __('Only when needed') }}</span>
+                                </div>
+                            </div>
                         </div>
+                        <small class="text-muted d-block mt-2" id="automationHelp">{{ __('If you do not open the customize panel below, ChurchMeet will use the workspace defaults for the selected event mode.') }}</small>
                     </div>
+
+                    <details class="mb-4" id="customize-tools" {{ $advancedToolsOpen ? 'open' : '' }}>
+                        <summary class="fw-semibold">{{ __('Customize attendance and meeting settings') }}</summary>
+                        <div class="mt-3">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <h6 class="mb-1">{{ __('Attendance & Meeting Tools') }}</h6>
+                                    <small class="text-muted">{{ __('Open this only when you need to override the automatic defaults.') }}</small>
+                                </div>
+                                <div class="form-check form-switch mb-0">
+                                    <input type="checkbox" class="form-check-input" id="auto_log_attendance" name="auto_log_attendance" value="1" {{ old('auto_log_attendance') ? 'checked' : '' }}>
+                                    <label for="auto_log_attendance" class="form-check-label">{{ __('Auto Log') }}</label>
+                                </div>
+                            </div>
 
                     @if(!empty($zoomSetting->account_id) && !empty($zoomSetting->client_id) && !empty($zoomSetting->client_secret))
                         <div class="alert alert-info d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>{{ __('Zoom is connected.') }}</strong>
-                                {{ __('You can create the Zoom meeting automatically when this event is saved.') }}
+                                {{ __('Leave this off if you want ChurchMeet to decide automatically.') }}
                             </div>
                             <div class="form-check form-switch mb-0">
                                 <input type="checkbox" class="form-check-input" id="create_zoom_meeting" name="create_zoom_meeting" value="1" {{ old('create_zoom_meeting') ? 'checked' : '' }}>
@@ -346,21 +386,39 @@
                         </div>
                     @else
                         <div class="alert alert-warning">
-                            {{ __('Zoom meeting creation is unavailable until ChurchMeet integration settings are configured.') }}
+                            {{ __('Zoom auto-creation is unavailable until ChurchMeet integration settings are configured.') }}
                             <a href="{{ route('churchmeet.integrations.index') }}" class="alert-link">{{ __('Open Integration settings') }}</a>
                         </div>
                     @endif
 
-                    <div class="alert alert-light border d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ __('Jitsi is available.') }}</strong>
-                            {{ __('Use Jitsi as a free in-app meeting alternative without Zoom credentials.') }}
-                        </div>
-                        <div class="form-check form-switch mb-0">
-                            <input type="checkbox" class="form-check-input" id="create_jitsi_meeting" name="create_jitsi_meeting" value="1" {{ old('create_jitsi_meeting') ? 'checked' : '' }}>
+                        <div class="alert alert-light border d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ __('Jitsi is available.') }}</strong>
+                            {{ __('Leave this off if you want ChurchMeet to use the preferred platform automatically.') }}
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input type="checkbox" class="form-check-input" id="create_jitsi_meeting" name="create_jitsi_meeting" value="1" {{ old('create_jitsi_meeting') ? 'checked' : '' }}>
                             <label for="create_jitsi_meeting" class="form-check-label">{{ __('Auto-create Jitsi room') }}</label>
                         </div>
                     </div>
+
+                    @if(!empty($zoomSetting->livekit_enabled) && !empty($zoomSetting->livekit_server_url) && !empty($zoomSetting->livekit_api_key) && !empty($zoomSetting->livekit_api_secret))
+                        <div class="alert alert-success d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ __('LiveKit is connected.') }}</strong>
+                                {{ __('Leave this off if you want ChurchMeet to choose automatically.') }}
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input type="checkbox" class="form-check-input" id="create_livekit_meeting" name="create_livekit_meeting" value="1" {{ old('create_livekit_meeting') ? 'checked' : '' }}>
+                                <label for="create_livekit_meeting" class="form-check-label">{{ __('Auto-create LiveKit room') }}</label>
+                            </div>
+                        </div>
+                    @else
+                        <div class="alert alert-secondary">
+                            {{ __('LiveKit room creation is unavailable until ChurchMeet integration settings are configured.') }}
+                            <a href="{{ route('churchmeet.integrations.index') }}" class="alert-link">{{ __('Open Integration settings') }}</a>
+                        </div>
+                    @endif
 
                     {{-- Attendance Methods --}}
                     <div class="mb-4">
@@ -377,6 +435,7 @@
                                     ['face_ai', 'Face AI Detection', 'ti-camera'],
                                     ['zoom', 'Zoom Attendance Sync', 'ti-video'],
                                     ['jitsi', 'Jitsi Meeting Room', 'ti-brand-tabler'],
+                                    ['livekit', 'LiveKit Room', 'ti-brand-webrtc'],
                                     ['youtube', 'YouTube Live Tracking', 'ti-brand-youtube']
                                 ];
                             @endphp
@@ -407,8 +466,9 @@
                             <div class="col-md-6">
                                 <select name="online_platform" id="online_platform" class="form-select">
                                     <option value="">{{ __('Select Online Platform') }}</option>
-                                    <option value="zoom" {{ old('online_platform', $zoomSetting->preferred_platform) === 'zoom' ? 'selected' : '' }}>{{ __('Zoom') }}</option>
-                                    <option value="jitsi" {{ old('online_platform', $zoomSetting->preferred_platform ?: 'jitsi') === 'jitsi' ? 'selected' : '' }}>{{ __('Jitsi Meet') }}</option>
+                                    <option value="zoom" {{ old('online_platform', $defaultPlatform) === 'zoom' ? 'selected' : '' }}>{{ __('Zoom') }}</option>
+                                    <option value="jitsi" {{ old('online_platform', $defaultPlatform) === 'jitsi' ? 'selected' : '' }}>{{ __('Jitsi Meet') }}</option>
+                                    <option value="livekit" {{ old('online_platform', $defaultPlatform) === 'livekit' ? 'selected' : '' }}>{{ __('LiveKit') }}</option>
                                     <option value="youtube" {{ old('online_platform') === 'youtube' ? 'selected' : '' }}>{{ __('YouTube') }}</option>
                                     <option value="custom" {{ old('online_platform') === 'custom' ? 'selected' : '' }}>{{ __('Custom Link') }}</option>
                                 </select>
@@ -430,6 +490,8 @@
                             {{ __('Only required for Online or Hybrid modes. For Jitsi, the room name becomes the meeting ID.') }}
                         </small>
                     </div>
+                        </div>
+                    </details>
 
                     <hr>
 
@@ -474,11 +536,11 @@
             </div>
             <div class="card-body small text-muted">
                 <ul class="ps-3 mb-0">
-                    <li><strong>Fill in all required fields</strong> such as title, date, and lead before submitting.</li>
+                    <li><strong>For most events, only fill title, date, lead, and mode.</strong> ChurchMeet will handle the rest automatically.</li>
                     <li>Use <strong>"Add Item"</strong> in the Program Schedule to define each part of the service (e.g., Worship, Sermon).</li>
                     <li>Assign the right <strong>Leader / Person-in-Charge</strong> for each program segment.</li>
                     <li>You can upload <strong>service notes, slides, or images</strong> in the upload section below.</li>
-                    <li>Choose appropriate <strong>attendance methods</strong> (QR, Kiosk, App, Face AI) based on the setup.</li>
+                    <li>Open <strong>Customize attendance and meeting settings</strong> only when you need special overrides.</li>
                     <li>After reviewing all details, click <strong>"Submit Event for Review"</strong> to move it to the next stage.</li>
                     <li>Saved events stay in <strong>Draft</strong> until approved or published by authorized personnel.</li>
                 </ul>
@@ -504,7 +566,11 @@
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">{{ __('Default Method') }}</span>
-                        <strong>{{ __('Manual') }}</strong>
+                        <strong>{{ __('Automatic') }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">{{ __('Meeting Setup') }}</span>
+                        <strong>{{ __('Automatic') }}</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">{{ __('Zoom') }}</span>
@@ -513,6 +579,10 @@
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">{{ __('Jitsi') }}</span>
                         <strong>{{ __('Ready') }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">{{ __('LiveKit') }}</span>
+                        <strong>{{ !empty($zoomSetting->livekit_enabled) && !empty($zoomSetting->livekit_server_url) && !empty($zoomSetting->livekit_api_key) && !empty($zoomSetting->livekit_api_secret) ? __('Ready') : __('Needs setup') }}</strong>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between mb-1">
@@ -536,6 +606,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const onlineConfig = document.getElementById('online-config');
     const createZoomMeeting = document.getElementById('create_zoom_meeting');
     const createJitsiMeeting = document.getElementById('create_jitsi_meeting');
+    const createLivekitMeeting = document.getElementById('create_livekit_meeting');
     const onlinePlatform = document.getElementById('online_platform');
     const jitsiDomain = document.getElementById('jitsi_domain');
     const branchSelect = document.getElementById('branch_id');
@@ -558,6 +629,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const meetingLinkInput = document.querySelector('input[name="meeting_link"]');
     const meetingIdInput = document.querySelector('input[name="meeting_id"]');
     const attendanceMethodInputs = Array.from(document.querySelectorAll('input[name="enabled_methods[]"]'));
+    const automationPlatform = document.getElementById('automationPlatform');
+    const automationMethods = document.getElementById('automationMethods');
+    const automationRoom = document.getElementById('automationRoom');
+    const automationHelp = document.getElementById('automationHelp');
+    const preferredPlatformDefault = @json($defaultPlatform);
+    const providerReady = {
+        zoom: @json($zoomReady),
+        jitsi: true,
+        livekit: @json($livekitReady),
+    };
 
     if (!form || !programTableBody) {
         return;
@@ -565,6 +646,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let userCustomizedMethods = attendanceMethodInputs.some((input) => input.checked);
     let currentSuggestedEnd = null;
+    let userChangedAutoLog = {{ old('auto_log_attendance') !== null ? 'true' : 'false' }};
 
     if (window.$ && $.fn && $.fn.select2) {
         $('.member-select').select2({
@@ -796,6 +878,62 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function resolvePlatformChoice() {
+        const selected = (onlinePlatform?.value || '').trim().toLowerCase();
+
+        if (selected) {
+            return selected;
+        }
+
+        let fallback = (preferredPlatformDefault || 'jitsi').toLowerCase();
+
+        if (fallback === 'zoom' && !providerReady.zoom) {
+            fallback = providerReady.livekit ? 'livekit' : 'jitsi';
+        }
+
+        if (fallback === 'livekit' && !providerReady.livekit) {
+            fallback = 'jitsi';
+        }
+
+        return fallback || 'jitsi';
+    }
+
+    function syncAutomaticDefaults() {
+        const mode = modeSelector ? modeSelector.value : 'onsite';
+        const platform = resolvePlatformChoice();
+
+        if (!userChangedAutoLog && document.getElementById('auto_log_attendance')) {
+            document.getElementById('auto_log_attendance').checked = mode !== 'onsite';
+        }
+
+        if (!automationPlatform || !automationMethods || !automationRoom || !automationHelp) {
+            return;
+        }
+
+        if (mode === 'onsite') {
+            automationPlatform.textContent = 'N/A';
+            automationMethods.textContent = 'Manual + QR + Kiosk';
+            automationRoom.textContent = 'No room';
+            automationHelp.textContent = 'Onsite events use in-person attendance defaults automatically. Open customize only if you need special attendance tools.';
+            return;
+        }
+
+        automationPlatform.textContent = platform.toUpperCase();
+        automationMethods.textContent = mode === 'hybrid' ? `Manual + QR + ${platform.toUpperCase()}` : `Manual + ${platform.toUpperCase()}`;
+
+        if (platform === 'zoom') {
+            automationRoom.textContent = providerReady.zoom ? 'Create Zoom room' : 'Needs Zoom setup';
+        } else if (platform === 'livekit') {
+            automationRoom.textContent = providerReady.livekit ? 'Create LiveKit room' : 'Needs LiveKit setup';
+        } else if (platform === 'jitsi') {
+            automationRoom.textContent = 'Create Jitsi room';
+        } else {
+            automationRoom.textContent = 'No auto room';
+        }
+
+        automationHelp.textContent = `ChurchMeet will use ${platform.toUpperCase()} automatically for ${mode} events unless you override it below.`;
+    }
+
     function filterDepartments() {
         if (!branchSelect || !departmentSelect) {
             return;
@@ -834,7 +972,9 @@ document.addEventListener('DOMContentLoaded', function () {
         setAttendanceMethod('face_ai', false);
         setAttendanceMethod('zoom', platform === 'zoom');
         setAttendanceMethod('jitsi', platform === 'jitsi');
+        setAttendanceMethod('livekit', platform === 'livekit');
         setAttendanceMethod('youtube', platform === 'youtube');
+        syncAutomaticDefaults();
     }
 
     function syncZoomPlatform() {
@@ -844,6 +984,9 @@ document.addEventListener('DOMContentLoaded', function () {
         onlinePlatform.value = 'zoom';
         if (createJitsiMeeting) {
             createJitsiMeeting.checked = false;
+        }
+        if (createLivekitMeeting) {
+            createLivekitMeeting.checked = false;
         }
         if (modeSelector && modeSelector.value === 'onsite') {
             modeSelector.value = 'online';
@@ -861,6 +1004,29 @@ document.addEventListener('DOMContentLoaded', function () {
         onlinePlatform.value = 'jitsi';
         if (createZoomMeeting) {
             createZoomMeeting.checked = false;
+        }
+        if (createLivekitMeeting) {
+            createLivekitMeeting.checked = false;
+        }
+        if (modeSelector && modeSelector.value === 'onsite') {
+            modeSelector.value = 'online';
+        }
+        toggleOnlineSection();
+        toggleJitsiDomain();
+        applyAttendanceMethodDefaults();
+        updateSmartAssistant();
+    }
+
+    function syncLivekitPlatform() {
+        if (!createLivekitMeeting || !createLivekitMeeting.checked || !onlinePlatform) {
+            return;
+        }
+        onlinePlatform.value = 'livekit';
+        if (createZoomMeeting) {
+            createZoomMeeting.checked = false;
+        }
+        if (createJitsiMeeting) {
+            createJitsiMeeting.checked = false;
         }
         if (modeSelector && modeSelector.value === 'onsite') {
             modeSelector.value = 'online';
@@ -950,6 +1116,9 @@ document.addEventListener('DOMContentLoaded', function () {
             userCustomizedMethods = true;
             updateSmartAssistant();
         }
+        if (event.target.matches('#auto_log_attendance')) {
+            userChangedAutoLog = true;
+        }
     });
 
     if (applySuggestedEndButton) {
@@ -978,6 +1147,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (createJitsiMeeting) {
         createJitsiMeeting.addEventListener('change', syncJitsiPlatform);
     }
+    if (createLivekitMeeting) {
+        createLivekitMeeting.addEventListener('change', syncLivekitPlatform);
+    }
     if (onlinePlatform) {
         onlinePlatform.addEventListener('change', function () {
             if (createZoomMeeting) {
@@ -985,6 +1157,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (createJitsiMeeting) {
                 createJitsiMeeting.checked = onlinePlatform.value === 'jitsi';
+            }
+            if (createLivekitMeeting) {
+                createLivekitMeeting.checked = onlinePlatform.value === 'livekit';
             }
             toggleJitsiDomain();
             applyAttendanceMethodDefaults();
@@ -1001,7 +1176,10 @@ document.addEventListener('DOMContentLoaded', function () {
         syncZoomPlatform();
     } else if (createJitsiMeeting && createJitsiMeeting.checked) {
         syncJitsiPlatform();
+    } else if (createLivekitMeeting && createLivekitMeeting.checked) {
+        syncLivekitPlatform();
     }
+    syncAutomaticDefaults();
     updateSmartAssistant();
 });
 </script>

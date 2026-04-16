@@ -171,9 +171,9 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h6 class="mb-1">{{ __('Online Meeting') }}</h6>
-                                    <small class="text-muted">{{ __('Create or update Zoom or Jitsi meeting details members will join from OPEN.') }}</small>
+                                    <small class="text-muted">{{ __('Create or update Zoom, Jitsi, or LiveKit meeting details members will join from OPEN.') }}</small>
                                 </div>
-                                @if(optional($attendanceEvent)->meeting_id || (optional($attendanceEvent)->online_platform === 'jitsi' && optional($attendanceEvent)->meeting_link))
+                                @if($currentPlatform === 'livekit' ? !empty(optional($attendanceEvent)->meeting_id) : (optional($attendanceEvent)->meeting_id || optional($attendanceEvent)->meeting_link))
                                     <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->id) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="ti ti-video"></i> {{ __('Open Join Room') }}
                                     </a>
@@ -187,6 +187,7 @@
                                         <option value="">{{ __('Select Online Platform') }}</option>
                                         <option value="zoom" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'zoom' ? 'selected' : '' }}>{{ __('Zoom') }}</option>
                                         <option value="jitsi" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'jitsi' ? 'selected' : '' }}>{{ __('Jitsi Meet') }}</option>
+                                        <option value="livekit" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'livekit' ? 'selected' : '' }}>{{ __('LiveKit') }}</option>
                                         <option value="youtube" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'youtube' ? 'selected' : '' }}>{{ __('YouTube') }}</option>
                                         <option value="custom" {{ old('online_platform', optional($attendanceEvent)->online_platform) === 'custom' ? 'selected' : '' }}>{{ __('Custom Link') }}</option>
                                     </select>
@@ -218,6 +219,12 @@
                                     <div class="form-check form-switch">
                                         <input type="checkbox" class="form-check-input" id="create_zoom_meeting" name="create_zoom_meeting" value="1">
                                         <label class="form-check-label" for="create_zoom_meeting">{{ __('Create Zoom meeting now') }}</label>
+                                    </div>
+                                @endif
+                                @if(!empty($zoomSetting->livekit_enabled) && !empty($zoomSetting->livekit_server_url) && !empty($zoomSetting->livekit_api_key) && !empty($zoomSetting->livekit_api_secret) && empty(optional($attendanceEvent)->meeting_id))
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input" id="create_livekit_meeting" name="create_livekit_meeting" value="1">
+                                        <label class="form-check-label" for="create_livekit_meeting">{{ __('Create LiveKit room now') }}</label>
                                     </div>
                                 @endif
                                 <div class="form-check form-switch">
@@ -350,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const departmentSelect = document.getElementById('department_id');
     const createZoomMeeting = document.getElementById('create_zoom_meeting');
     const createJitsiMeeting = document.getElementById('create_jitsi_meeting');
+    const createLivekitMeeting = document.getElementById('create_livekit_meeting');
     const onlinePlatform = document.getElementById('online_platform');
     const modeSelect = document.querySelector('select[name="mode"]');
     const jitsiDomainWrap = document.getElementById('jitsi-domain-wrap');
@@ -421,6 +429,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (createJitsiMeeting) {
                 createJitsiMeeting.checked = false;
             }
+            if (createLivekitMeeting) {
+                createLivekitMeeting.checked = false;
+            }
             if (modeSelect.value === 'onsite') {
                 modeSelect.value = 'online';
             }
@@ -432,6 +443,24 @@ document.addEventListener('DOMContentLoaded', function () {
             onlinePlatform.value = 'jitsi';
             if (createZoomMeeting) {
                 createZoomMeeting.checked = false;
+            }
+            if (createLivekitMeeting) {
+                createLivekitMeeting.checked = false;
+            }
+            if (modeSelect.value === 'onsite') {
+                modeSelect.value = 'online';
+            }
+        }
+    }
+
+    function syncLivekitDefaults() {
+        if (createLivekitMeeting?.checked) {
+            onlinePlatform.value = 'livekit';
+            if (createZoomMeeting) {
+                createZoomMeeting.checked = false;
+            }
+            if (createJitsiMeeting) {
+                createJitsiMeeting.checked = false;
             }
             if (modeSelect.value === 'onsite') {
                 modeSelect.value = 'online';
@@ -453,11 +482,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (onlinePlatform.value === 'zoom') {
             createZoomMeeting && (createZoomMeeting.checked = createZoomMeeting.checked || false);
             createJitsiMeeting && (createJitsiMeeting.checked = false);
+            createLivekitMeeting && (createLivekitMeeting.checked = false);
         }
 
         if (onlinePlatform.value === 'jitsi') {
             createJitsiMeeting && (createJitsiMeeting.checked = true);
             createZoomMeeting && (createZoomMeeting.checked = false);
+            createLivekitMeeting && (createLivekitMeeting.checked = false);
             if (modeSelect.value === 'onsite') {
                 modeSelect.value = 'online';
             }
@@ -465,11 +496,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 jitsiDomainInput.value = 'meet.jit.si';
             }
         }
+
+        if (onlinePlatform.value === 'livekit') {
+            createLivekitMeeting && (createLivekitMeeting.checked = true);
+            createZoomMeeting && (createZoomMeeting.checked = false);
+            createJitsiMeeting && (createJitsiMeeting.checked = false);
+            if (modeSelect.value === 'onsite') {
+                modeSelect.value = 'online';
+            }
+        }
     }
 
     branchSelect?.addEventListener('change', filterDepartments);
     createZoomMeeting?.addEventListener('change', syncZoomDefaults);
     createJitsiMeeting?.addEventListener('change', syncJitsiDefaults);
+    createLivekitMeeting?.addEventListener('change', syncLivekitDefaults);
     onlinePlatform?.addEventListener('change', function () {
         syncPlatformToggles();
         toggleJitsiDomain();
@@ -477,6 +518,7 @@ document.addEventListener('DOMContentLoaded', function () {
     filterDepartments();
     syncZoomDefaults();
     syncJitsiDefaults();
+    syncLivekitDefaults();
     syncPlatformToggles();
     toggleJitsiDomain();
     initializeMemberSelect();

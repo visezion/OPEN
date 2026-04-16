@@ -19,6 +19,7 @@ use Workdo\ChurchMeet\Entities\ZoomSyncSetting;
 use Workdo\ChurchMeet\Entities\ZenderWaGroup;
 use Workdo\ChurchMeet\Http\Controllers\AttendanceRecordController;
 use Workdo\ChurchMeet\Services\JitsiMeetingService;
+use Workdo\ChurchMeet\Services\LivekitMeetingService;
 use Workdo\ChurchMeet\Services\ZoomMeetingService;
 
 class EventController extends Controller
@@ -46,7 +47,12 @@ class EventController extends Controller
         // Ã¢Å“â€¦ Pass members to your Blade view
         return view('churchmeet::attendance.events.create', compact('members', 'branches', 'departments', 'zoomSetting'));
     }
-    public function store(Request $request, ZoomMeetingService $zoomMeetingService, JitsiMeetingService $jitsiMeetingService)
+    public function store(
+        Request $request,
+        ZoomMeetingService $zoomMeetingService,
+        JitsiMeetingService $jitsiMeetingService,
+        LivekitMeetingService $livekitMeetingService
+    )
     {
         $request->validate([
             'title'       => 'required|string|max:191',
@@ -65,6 +71,21 @@ class EventController extends Controller
         
 
         // Ã¢Å“â€¦ Save event
+        $zoomSetting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+        $resolvedOnlinePlatform = $this->resolveOnlinePlatform(
+            (string) $request->mode,
+            $request->input('online_platform'),
+            $zoomSetting
+        );
+        $resolvedEnabledMethods = $this->resolveEnabledMethods(
+            (string) $request->mode,
+            $resolvedOnlinePlatform,
+            $request->input('enabled_methods', [])
+        );
+        $autoLogAttendance = $request->has('auto_log_attendance')
+            ? (bool) $request->boolean('auto_log_attendance')
+            : in_array($request->mode, ['online', 'hybrid'], true);
+
         $event = Event::create([
             'workspace_id' => getActiveWorkSpace(),
             'created_by'   => Auth::id(),
@@ -108,16 +129,22 @@ class EventController extends Controller
             'department_id' => $request->department_id,
             'event_id'     => $event->id,
             'mode' => $request->mode,
-            'enabled_methods' => $request->enabled_methods ?? [],
-            'online_platform' => $request->online_platform,
+            'enabled_methods' => $resolvedEnabledMethods,
+            'online_platform' => $resolvedOnlinePlatform,
             'meeting_link' => $request->meeting_link,
             'meeting_id' => $request->meeting_id,
             'meeting_passcode' => $request->meeting_passcode,
-            'auto_log_attendance' => $request->auto_log_attendance ?? false,
+            'auto_log_attendance' => $autoLogAttendance,
             'created_by' => Auth::id(),
         ]);
 
-        $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService, $jitsiMeetingService);
+        $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest(
+            $request,
+            $attendanceEvent,
+            $zoomMeetingService,
+            $jitsiMeetingService,
+            $livekitMeetingService
+        );
 
 
         // Ã¢Å“â€¦ Save uploaded files (if any)
@@ -583,8 +610,9 @@ public function publishAction(Request $request, $id)
             ->get();
         $meetingPlatform = strtolower((string) ($attendanceEvent?->online_platform ?? ''));
         $canCreateOnlineMeeting = $this->userCanCreateOnlineMeeting($attendanceEvent);
-        $canCreateZoomMeeting = $canCreateOnlineMeeting && $meetingPlatform !== 'jitsi';
+        $canCreateZoomMeeting = $canCreateOnlineMeeting && $meetingPlatform === 'zoom';
         $canCreateJitsiMeeting = $canCreateOnlineMeeting && $meetingPlatform === 'jitsi';
+        $canCreateLivekitMeeting = $canCreateOnlineMeeting && $meetingPlatform === 'livekit';
         $canJoinOnlineMeeting = $this->canJoinOnlineMeeting($attendanceEvent);
 
         // Ã¢Å“â€¦ Send all context to the view
@@ -595,6 +623,7 @@ public function publishAction(Request $request, $id)
             'reviewComments',
             'canCreateZoomMeeting',
             'canCreateJitsiMeeting',
+            'canCreateLivekitMeeting',
             'canJoinOnlineMeeting',
             'meetingPlatform'
         ));
@@ -633,7 +662,13 @@ public function publishAction(Request $request, $id)
     }
 
 
-    public function update(Request $request, $id, ZoomMeetingService $zoomMeetingService, JitsiMeetingService $jitsiMeetingService)
+    public function update(
+        Request $request,
+        $id,
+        ZoomMeetingService $zoomMeetingService,
+        JitsiMeetingService $jitsiMeetingService,
+        LivekitMeetingService $livekitMeetingService
+    )
     {
     $event = Event::findOrFail($id);
     if ($event->status === 'revision_required')
@@ -683,17 +718,30 @@ public function publishAction(Request $request, $id)
         'event_id' => $event->id,
     ]);
 
+    $zoomSetting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+    $resolvedOnlinePlatform = $this->resolveOnlinePlatform(
+        (string) $request->mode,
+        $request->input('online_platform'),
+        $zoomSetting
+    );
+    $resolvedEnabledMethods = $this->resolveEnabledMethods(
+        (string) $request->mode,
+        $resolvedOnlinePlatform,
+        $request->input('enabled_methods', $attendanceEvent->enabled_methods ?? [])
+    );
+    $autoLogAttendance = $request->has('auto_log_attendance')
+        ? (bool) $request->boolean('auto_log_attendance')
+        : in_array($request->mode, ['online', 'hybrid'], true);
+
     $attendanceEvent->branch_id = $request->branch_id;
     $attendanceEvent->department_id = $request->department_id;
     $attendanceEvent->mode = $request->mode;
-    $attendanceEvent->enabled_methods = $request->has('enabled_methods')
-        ? ($request->enabled_methods ?? [])
-        : ($attendanceEvent->enabled_methods ?? []);
-    $attendanceEvent->online_platform = $request->online_platform;
+    $attendanceEvent->enabled_methods = $resolvedEnabledMethods;
+    $attendanceEvent->online_platform = $resolvedOnlinePlatform;
     $attendanceEvent->meeting_link = $request->meeting_link;
     $attendanceEvent->meeting_id = $request->meeting_id;
     $attendanceEvent->meeting_passcode = $request->meeting_passcode;
-    $attendanceEvent->auto_log_attendance = (bool) ($request->auto_log_attendance ?? false);
+    $attendanceEvent->auto_log_attendance = $autoLogAttendance;
     $attendanceEvent->created_by = $attendanceEvent->created_by ?: Auth::id();
     $attendanceEvent->save();
 
@@ -751,7 +799,13 @@ public function publishAction(Request $request, $id)
             }
 
     }
-    $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest($request, $attendanceEvent, $zoomMeetingService, $jitsiMeetingService);
+    $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest(
+        $request,
+        $attendanceEvent,
+        $zoomMeetingService,
+        $jitsiMeetingService,
+        $livekitMeetingService
+    );
 
     $redirect = redirect()
         ->route('churchmeet.events.index')
@@ -937,12 +991,19 @@ public function analytics()
         Request $request,
         AttendanceEvent $attendanceEvent,
         ZoomMeetingService $zoomMeetingService,
-        JitsiMeetingService $jitsiMeetingService
+        JitsiMeetingService $jitsiMeetingService,
+        LivekitMeetingService $livekitMeetingService
     ): ?string
     {
-        $platform = strtolower((string) $request->input('online_platform'));
+        $platform = strtolower((string) ($attendanceEvent->online_platform ?: $request->input('online_platform')));
+        $shouldAutoCreateZoomMeeting = $request->boolean('create_zoom_meeting')
+            || (
+                $platform === 'zoom'
+                && empty($attendanceEvent->meeting_id)
+                && empty($attendanceEvent->meeting_link)
+            );
 
-        if ($request->boolean('create_zoom_meeting')) {
+        if ($shouldAutoCreateZoomMeeting) {
             if ($attendanceEvent->meeting_id) {
                 return null;
             }
@@ -966,7 +1027,14 @@ public function analytics()
             return null;
         }
 
-        if ($request->boolean('create_jitsi_meeting') || $platform === 'jitsi') {
+        $shouldAutoCreateJitsiMeeting = $request->boolean('create_jitsi_meeting')
+            || (
+                $platform === 'jitsi'
+                && empty($attendanceEvent->meeting_id)
+                && empty($attendanceEvent->meeting_link)
+            );
+
+        if ($shouldAutoCreateJitsiMeeting) {
             try {
                 $jitsiMeetingService->createRoomForAttendanceEvent(
                     $attendanceEvent,
@@ -978,7 +1046,91 @@ public function analytics()
             }
         }
 
+        $shouldAutoCreateLivekitMeeting = $request->boolean('create_livekit_meeting')
+            || (
+                $platform === 'livekit'
+                && empty($attendanceEvent->meeting_id)
+                && empty($attendanceEvent->meeting_link)
+            );
+
+        if ($shouldAutoCreateLivekitMeeting) {
+            $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+
+            if (!$livekitMeetingService->canUseLiveKit($setting)) {
+                return __('Event saved, but LiveKit room creation was skipped because LiveKit is not fully configured.');
+            }
+
+            try {
+                $livekitMeetingService->createRoomForAttendanceEvent(
+                    $setting,
+                    $attendanceEvent,
+                    $request->input('meeting_id')
+                );
+            } catch (\Throwable $exception) {
+                return __('Event saved, but LiveKit room creation failed: :message', ['message' => $exception->getMessage()]);
+            }
+        }
+
         return null;
+    }
+
+    protected function resolveOnlinePlatform(string $mode, $requestedPlatform, ZoomSyncSetting $setting): ?string
+    {
+        if (!in_array($mode, ['online', 'hybrid'], true)) {
+            return null;
+        }
+
+        $requested = strtolower(trim((string) $requestedPlatform));
+        $allowed = ['zoom', 'jitsi', 'livekit', 'youtube', 'custom'];
+
+        if (in_array($requested, $allowed, true)) {
+            return $requested;
+        }
+
+        $preferred = strtolower(trim((string) ($setting->preferred_platform ?: 'jitsi')));
+
+        if ($preferred === 'zoom' && (!$setting->account_id || !$setting->client_id || !$setting->client_secret)) {
+            $preferred = !empty($setting->livekit_enabled) && !empty($setting->livekit_server_url) && !empty($setting->livekit_api_key) && !empty($setting->livekit_api_secret)
+                ? 'livekit'
+                : 'jitsi';
+        }
+
+        if ($preferred === 'livekit' && (
+            empty($setting->livekit_enabled)
+            || empty($setting->livekit_server_url)
+            || empty($setting->livekit_api_key)
+            || empty($setting->livekit_api_secret)
+        )) {
+            $preferred = 'jitsi';
+        }
+
+        return in_array($preferred, $allowed, true) ? $preferred : 'jitsi';
+    }
+
+    protected function resolveEnabledMethods(string $mode, ?string $platform, $requestedMethods): array
+    {
+        $methods = is_array($requestedMethods) ? $requestedMethods : [];
+        $methods = array_values(array_unique(array_filter(array_map('strval', $methods))));
+
+        if (!empty($methods)) {
+            return $methods;
+        }
+
+        $defaults = ['manual'];
+
+        if ($mode !== 'online') {
+            $defaults[] = 'qr';
+        }
+
+        if ($mode === 'onsite') {
+            $defaults[] = 'kiosk';
+        }
+
+        if ($platform && in_array($platform, ['zoom', 'jitsi', 'livekit', 'youtube'], true)) {
+            $defaults[] = $platform;
+        }
+
+        return array_values(array_unique($defaults));
     }
 
     protected function userCanCreateOnlineMeeting(?AttendanceEvent $attendanceEvent): bool
@@ -1042,6 +1194,10 @@ public function analytics()
 
         if ($platform === 'jitsi') {
             return !empty($attendanceEvent->meeting_id) || !empty($attendanceEvent->meeting_link);
+        }
+
+        if ($platform === 'livekit') {
+            return !empty($attendanceEvent->meeting_id);
         }
 
         return false;

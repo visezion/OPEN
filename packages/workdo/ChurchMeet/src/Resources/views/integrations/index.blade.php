@@ -10,13 +10,21 @@
 <style>
     .churchmeet-integrations .card { border: 1px solid #d8e2ef !important; box-shadow: none !important; }
     .churchmeet-integrations .hero-card { border-top: 3px solid #245f86 !important; background: linear-gradient(180deg, rgba(36,95,134,.06), rgba(36,95,134,0)), #fff; }
-    .churchmeet-integrations .platform-card { border: 1px solid #d8e2ef; border-radius: 12px; padding: 1rem; background: #f7fafc; }
+    .churchmeet-integrations .platform-card { border: 1px solid #d8e2ef; border-radius: 12px; padding: 1rem; background: #f7fafc; height: 100%; }
     .churchmeet-integrations .platform-card.is-active { border-color: #245f86; background: #eef4fa; }
     .churchmeet-integrations .section-copy { color: #6b7d90; }
 </style>
 @endpush
 
 @section('content')
+@php
+    $preferredPlatform = old('preferred_platform', $setting->preferred_platform ?: 'jitsi');
+    $livekitReady = ($setting->livekit_enabled ?? false)
+        && !empty($setting->livekit_server_url)
+        && !empty($setting->livekit_api_key)
+        && !empty($setting->livekit_api_secret);
+    $zoomReady = !empty($setting->account_id) && !empty($setting->client_id) && !empty($setting->client_secret);
+@endphp
 <div class="row churchmeet-integrations">
     <div class="col-12 mb-4">
         <div class="card hero-card">
@@ -24,7 +32,7 @@
                 <div class="d-flex flex-wrap justify-content-between gap-3 align-items-start">
                     <div>
                         <h4 class="mb-2">{{ __('ChurchMeet Integrations') }}</h4>
-                        <p class="section-copy mb-0">{{ __('Configure Zoom and Jitsi from one place, then choose which platform ChurchMeet should prefer when admins create online events.') }}</p>
+                        <p class="section-copy mb-0">{{ __('Configure Zoom, Jitsi, and LiveKit from one place, then choose which platform ChurchMeet should prefer when admins create online events.') }}</p>
                     </div>
                     <span class="badge bg-light text-primary border">{{ __('Workspace Settings') }}</span>
                 </div>
@@ -36,7 +44,7 @@
         <div class="card">
             <div class="card-header bg-white p-4">
                 <h5 class="mb-1">{{ __('Meeting Platform Settings') }}</h5>
-                <p class="section-copy mb-0">{{ __('Jitsi can work immediately with a public or self-hosted server. Zoom requires API credentials for meeting creation and in-app join.') }}</p>
+                <p class="section-copy mb-0">{{ __('Jitsi works quickly with a public or self-hosted server. LiveKit adds a richer in-app room experience. Zoom remains available for scheduling and participant sync.') }}</p>
             </div>
             <div class="card-body p-4">
                 <form method="POST" action="{{ route('churchmeet.integrations.save') }}">
@@ -45,19 +53,28 @@
                     <div class="mb-4">
                         <label class="form-label fw-semibold d-block">{{ __('Preferred Platform') }}</label>
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="platform-card d-block {{ old('preferred_platform', $setting->preferred_platform ?: 'jitsi') === 'jitsi' ? 'is-active' : '' }}">
+                            <div class="col-md-4">
+                                <label class="platform-card d-block {{ $preferredPlatform === 'jitsi' ? 'is-active' : '' }}">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="preferred_platform" value="jitsi" {{ old('preferred_platform', $setting->preferred_platform ?: 'jitsi') === 'jitsi' ? 'checked' : '' }}>
+                                        <input class="form-check-input" type="radio" name="preferred_platform" value="jitsi" {{ $preferredPlatform === 'jitsi' ? 'checked' : '' }}>
                                         <span class="fw-semibold ms-1">{{ __('Jitsi Meet') }}</span>
                                     </div>
-                                    <div class="text-muted mt-2">{{ __('Best when you want a simple built-in meeting option without Zoom credentials.') }}</div>
+                                    <div class="text-muted mt-2">{{ __('Simple zero-cost browser meeting rooms with optional self-hosting.') }}</div>
                                 </label>
                             </div>
-                            <div class="col-md-6">
-                                <label class="platform-card d-block {{ old('preferred_platform', $setting->preferred_platform ?: 'jitsi') === 'zoom' ? 'is-active' : '' }}">
+                            <div class="col-md-4">
+                                <label class="platform-card d-block {{ $preferredPlatform === 'livekit' ? 'is-active' : '' }}">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="preferred_platform" value="zoom" {{ old('preferred_platform', $setting->preferred_platform ?: 'jitsi') === 'zoom' ? 'checked' : '' }}>
+                                        <input class="form-check-input" type="radio" name="preferred_platform" value="livekit" {{ $preferredPlatform === 'livekit' ? 'checked' : '' }}>
+                                        <span class="fw-semibold ms-1">{{ __('LiveKit') }}</span>
+                                    </div>
+                                    <div class="text-muted mt-2">{{ __('Best when you want OPEN-hosted video rooms with camera, mic, and participant presence inside ChurchMeet.') }}</div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="platform-card d-block {{ $preferredPlatform === 'zoom' ? 'is-active' : '' }}">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="preferred_platform" value="zoom" {{ $preferredPlatform === 'zoom' ? 'checked' : '' }}>
                                         <span class="fw-semibold ms-1">{{ __('Zoom') }}</span>
                                     </div>
                                     <div class="text-muted mt-2">{{ __('Best when you need Zoom scheduling, participant sync, and Meeting SDK support.') }}</div>
@@ -84,6 +101,49 @@
                                 <label class="form-label">{{ __('Room Prefix') }}</label>
                                 <input type="text" name="jitsi_room_prefix" value="{{ old('jitsi_room_prefix', $setting->jitsi_room_prefix) }}" class="form-control" placeholder="churchmeet">
                                 <small class="text-muted d-block mt-1">{{ __('Optional prefix added to generated Jitsi room names.') }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">{{ __('LiveKit Configuration') }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="livekit_enabled" value="1" {{ old('livekit_enabled', $setting->livekit_enabled) ? 'checked' : '' }}>
+                                <label class="form-check-label">{{ __('Enable LiveKit in ChurchMeet') }}</label>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('Server URL') }}</label>
+                                    <input type="text" name="livekit_server_url" value="{{ old('livekit_server_url', $setting->livekit_server_url) }}" class="form-control" placeholder="https://your-project.livekit.cloud">
+                                    <small class="text-muted d-block mt-1">{{ __('Use your LiveKit project URL or self-hosted server URL. ChurchMeet converts it to the proper WebSocket endpoint automatically.') }}</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('Room Prefix') }}</label>
+                                    <input type="text" name="livekit_room_prefix" value="{{ old('livekit_room_prefix', $setting->livekit_room_prefix) }}" class="form-control" placeholder="churchmeet">
+                                    <small class="text-muted d-block mt-1">{{ __('Optional prefix added to generated LiveKit room names.') }}</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('API Key') }}</label>
+                                    <input type="text" name="livekit_api_key" value="{{ old('livekit_api_key', $setting->livekit_api_key) }}" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('API Secret') }}</label>
+                                    <input type="text" name="livekit_api_secret" value="{{ old('livekit_api_secret', $setting->livekit_api_secret) }}" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ __('Participant Token TTL') }}</label>
+                                    <select name="livekit_token_ttl_minutes" class="form-select">
+                                        @foreach([15,30,60,120,240,480,720,1440] as $minutes)
+                                            <option value="{{ $minutes }}" {{ (int) old('livekit_token_ttl_minutes', $setting->livekit_token_ttl_minutes ?? 120) === $minutes ? 'selected' : '' }}>
+                                                {{ $minutes < 60 ? $minutes.' min' : ($minutes % 1440 === 0 ? 'Daily' : ($minutes / 60).' hr') }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted d-block mt-1">{{ __('How long each browser join token should remain valid.') }}</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -157,7 +217,9 @@
                 <div class="d-flex justify-content-between mb-2"><span class="text-muted">{{ __('Preferred Platform') }}</span><strong>{{ strtoupper($setting->preferred_platform ?: 'JITSI') }}</strong></div>
                 <div class="d-flex justify-content-between mb-2"><span class="text-muted">{{ __('Jitsi Domain') }}</span><strong>{{ $setting->jitsi_server_domain ?: 'meet.jit.si' }}</strong></div>
                 <div class="d-flex justify-content-between mb-2"><span class="text-muted">{{ __('Jitsi Enabled') }}</span><strong>{{ ($setting->jitsi_enabled ?? true) ? __('Yes') : __('No') }}</strong></div>
-                <div class="d-flex justify-content-between"><span class="text-muted">{{ __('Zoom Credentials') }}</span><strong>{{ $setting->account_id && $setting->client_id && $setting->client_secret ? __('Configured') : __('Incomplete') }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span class="text-muted">{{ __('LiveKit') }}</span><strong>{{ $livekitReady ? __('Configured') : __('Incomplete') }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span class="text-muted">{{ __('LiveKit Server') }}</span><strong>{{ $setting->livekit_server_url ?: __('Not set') }}</strong></div>
+                <div class="d-flex justify-content-between"><span class="text-muted">{{ __('Zoom Credentials') }}</span><strong>{{ $zoomReady ? __('Configured') : __('Incomplete') }}</strong></div>
             </div>
         </div>
 

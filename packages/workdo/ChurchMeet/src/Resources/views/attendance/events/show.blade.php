@@ -127,6 +127,14 @@
             </button>
         </form>
     @endif
+    @if($canCreateLivekitMeeting && !$canJoinOnlineMeeting)
+        <form method="POST" action="{{ route('churchmeet.livekit.meetings.create', $event->id) }}" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="ti ti-brand-webrtc"></i> {{ __('Create LiveKit Room') }}
+            </button>
+        </form>
+    @endif
     <a href="{{ route('churchmeet.events.export.pdf', $event->id) }}" class="btn btn-danger btn-sm">
         <i class="ti ti-file-type-pdf"></i> {{ __('Export PDF') }}
     </a>
@@ -306,6 +314,11 @@
                                             <form method="POST" action="{{ route('churchmeet.jitsi.meetings.create', $event->id) }}">
                                                 @csrf
                                                 <button type="submit" class="btn btn-outline-primary btn-sm w-100">{{ __('Create Jitsi Room') }}</button>
+                                            </form>
+                                        @elseif($canCreateLivekitMeeting)
+                                            <form method="POST" action="{{ route('churchmeet.livekit.meetings.create', $event->id) }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-primary btn-sm w-100">{{ __('Create LiveKit Room') }}</button>
                                             </form>
                                         @else
                                             <span class="text-muted small">{{ __('No online meeting action available for this event.') }}</span>

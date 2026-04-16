@@ -40,6 +40,7 @@ Route::prefix('churchmeet')->name('churchmeet.')->group(function () {
     Route::get('meetings/{attendanceEvent}/join', [MeetingRoomController::class, 'join'])->name('meetings.join');
     Route::post('meetings/{attendanceEvent}/presence', [MeetingRoomController::class, 'markPresence'])->name('meetings.presence');
     Route::post('events/{event}/jitsi/create', [MeetingRoomController::class, 'createJitsiForEvent'])->name('jitsi.meetings.create');
+    Route::post('events/{event}/livekit/create', [MeetingRoomController::class, 'createLiveKitForEvent'])->name('livekit.meetings.create');
 
     Route::get('integrations', [ZoomIntegrationController::class, 'index'])->name('integrations.index');
     Route::post('integrations', [ZoomIntegrationController::class, 'save'])->name('integrations.save');
