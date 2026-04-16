@@ -906,7 +906,7 @@ body.faith-login-page .faith-symbol.sym-c {
 body.dms-faith-login {
     --dms-bg: #ffffff;
     --dms-panel: #ffffff;
-    --dms-panel-soft: #f7f9fc;
+    --dms-panel-soft: #ffffff;
     --dms-panel-white: #ffffff;
     --dms-line: #d8e0eb;
     --dms-line-strong: var(--superadmin-primary, var(--bs-primary, #0d6efd));

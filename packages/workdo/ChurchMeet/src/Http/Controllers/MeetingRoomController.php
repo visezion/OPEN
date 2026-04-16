@@ -103,8 +103,10 @@ class MeetingRoomController extends Controller
             $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
             abort_unless($livekitMeetingService->canUseLiveKit($setting), 422, __('Configure LiveKit integration settings before joining this room.'));
 
-            $displayName = $livekitMeetingService->makeDisplayNameForUser(Auth::user());
-            $identity = $livekitMeetingService->makeIdentityForUser(Auth::user()) . '-' . $attendanceEvent->id . '-' . Str::lower(Str::random(6));
+            $user = Auth::user();
+            $displayName = $livekitMeetingService->makeDisplayNameForUser($user);
+            $identity = $livekitMeetingService->makeIdentityForUser($user) . '-' . $attendanceEvent->id . '-' . Str::lower(Str::random(6));
+            $participantAvatarUrl = $this->resolveUserAvatarUrl($user);
 
             return view('churchmeet::integrations.livekit_join', [
                 'attendanceEvent' => $attendanceEvent,
@@ -115,9 +117,13 @@ class MeetingRoomController extends Controller
                     $attendanceEvent->meeting_id,
                     $identity,
                     $displayName,
-                    $this->userCanManageOnlineMeeting($attendanceEvent)
+                    $this->userCanManageOnlineMeeting($attendanceEvent),
+                    [
+                        'avatarUrl' => $participantAvatarUrl,
+                    ]
                 ),
                 'participantName' => $displayName,
+                'participantAvatarUrl' => $participantAvatarUrl,
                 'canManageMeeting' => $this->userCanManageOnlineMeeting($attendanceEvent),
             ]);
         }
@@ -277,5 +283,16 @@ class MeetingRoomController extends Controller
                 }
             })
             ->exists();
+    }
+
+    protected function resolveUserAvatarUrl($user): ?string
+    {
+        $avatar = trim((string) ($user?->avatar ?? ''));
+
+        if ($avatar === '' || !function_exists('check_file') || !function_exists('get_file')) {
+            return null;
+        }
+
+        return check_file($avatar) ? get_file($avatar) : null;
     }
 }

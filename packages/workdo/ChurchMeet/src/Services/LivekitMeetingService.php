@@ -60,7 +60,8 @@ class LivekitMeetingService
         string $roomName,
         string $identity,
         ?string $displayName = null,
-        bool $roomAdmin = false
+        bool $roomAdmin = false,
+        ?array $participantMetadata = null
     ): string {
         $this->assertConfigured($setting);
 
@@ -84,6 +85,10 @@ class LivekitMeetingService
 
         if ($displayName) {
             $payload['name'] = $displayName;
+        }
+
+        if (!empty($participantMetadata)) {
+            $payload['metadata'] = json_encode($participantMetadata, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
 
         return JWT::encode($payload, $setting->livekit_api_secret, 'HS256');
