@@ -119,14 +119,14 @@
             <div class="col-xl-7">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5 class="mb-1">{{ __('Event Performance Summary') }}</h5>
+                        <h5 class="mb-1">{{ __('Events Performance Summary') }}</h5>
                         <p class="text-muted mb-0">{{ __('Attendance outcomes for each attendance-enabled event.') }}</p>
                     </div>
                     <div class="table-responsive">
                         <table class="table analytics-table align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>{{ __('Event') }}</th>
+                                    <th>{{ __('Events') }}</th>
                                     <th>{{ __('Date') }}</th>
                                     <th>{{ __('Mode') }}</th>
                                     <th class="text-center">{{ __('Present') }}</th>

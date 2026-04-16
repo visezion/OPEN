@@ -35,7 +35,7 @@
                     <span class="churchmeet-stat-note">{{ __('Use the join link below if a room is available.') }}</span>
                 </div>
                 <div class="churchmeet-stat-card">
-                    <span class="churchmeet-stat-label">{{ __('Event') }}</span>
+                    <span class="churchmeet-stat-label">{{ __('Events') }}</span>
                     <strong class="churchmeet-stat-value">{{ \Illuminate\Support\Str::limit($event->title, 16) }}</strong>
                     <span class="churchmeet-stat-note">{{ __('ChurchMeet keeps your attendance and room access in sync.') }}</span>
                 </div>

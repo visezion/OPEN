@@ -89,7 +89,7 @@
                     <table class="table churchmeet-table align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>{{ __('Event') }}</th>
+                                <th>{{ __('Events') }}</th>
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Status') }}</th>
                                 <th>{{ __('Device') }}</th>

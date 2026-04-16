@@ -21,7 +21,7 @@
         </a>
     @endif
     <a href="{{ route('churchmeet.events.show', $attendanceEvent->event_id) }}" class="btn btn-light btn-sm">
-        <i class="ti ti-arrow-left"></i> {{ __('Back to Event') }}
+        <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
     </a>
 @endsection
 

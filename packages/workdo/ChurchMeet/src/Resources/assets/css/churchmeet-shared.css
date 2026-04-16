@@ -3,27 +3,30 @@
     --churchmeet-ink: #13253b;
     --churchmeet-deep: #0f2d4e;
     --churchmeet-muted: #68788f;
-    --churchmeet-line: #d8e1ec;
+    --churchmeet-line: var(--app-card-border-color, #d8e1ec);
     --churchmeet-soft: #f5f7fa;
     --churchmeet-panel: #ffffff;
     --churchmeet-primary: #145388;
     --churchmeet-primary-soft: rgba(20, 83, 136, 0.08);
     --churchmeet-primary-strong: rgba(20, 83, 136, 0.14);
+    --churchmeet-card-width: var(--app-card-border-width, 1px);
+    --churchmeet-card-radius: var(--app-card-radius, 14px);
+    --churchmeet-card-shadow: var(--app-card-shadow, none);
     color: var(--churchmeet-ink);
     padding-bottom: 2rem;
 }
 
 .churchmeet-shell .card,
 .churchmeet-card {
-    border: 1px solid var(--churchmeet-line) !important;
-    border-radius: 14px;
+    border: var(--churchmeet-card-width) solid var(--churchmeet-line) !important;
+    border-radius: var(--churchmeet-card-radius);
     background: var(--churchmeet-panel);
-    box-shadow: none !important;
+    box-shadow: var(--churchmeet-card-shadow) !important;
 }
 
 .churchmeet-shell .card-header,
 .churchmeet-section-head {
-    border-bottom: 1px solid rgba(216, 225, 236, 0.9) !important;
+    border-bottom: var(--churchmeet-card-width) solid var(--churchmeet-line) !important;
     background: var(--churchmeet-panel);
 }
 
@@ -78,9 +81,10 @@
 .churchmeet-mini-card {
     height: 100%;
     padding: 1rem;
-    border: 1px solid rgba(216, 225, 236, 0.9);
-    border-radius: 12px;
+    border: var(--churchmeet-card-width) solid var(--churchmeet-line);
+    border-radius: var(--churchmeet-card-radius);
     background: var(--churchmeet-soft);
+    box-shadow: var(--churchmeet-card-shadow);
 }
 
 .churchmeet-stat-label {
@@ -110,10 +114,11 @@
 }
 
 .churchmeet-section {
-    border: 1px solid var(--churchmeet-line);
-    border-radius: 14px;
+    border: var(--churchmeet-card-width) solid var(--churchmeet-line);
+    border-radius: var(--churchmeet-card-radius);
     background: var(--churchmeet-panel);
     overflow: hidden;
+    box-shadow: var(--churchmeet-card-shadow);
 }
 
 .churchmeet-section-head {
@@ -144,10 +149,11 @@
 }
 
 .churchmeet-detail-item {
-    border: 1px solid rgba(216, 225, 236, 0.9);
-    border-radius: 12px;
+    border: var(--churchmeet-card-width) solid var(--churchmeet-line);
+    border-radius: var(--churchmeet-card-radius);
     background: var(--churchmeet-soft);
     padding: 0.95rem 1rem;
+    box-shadow: var(--churchmeet-card-shadow);
 }
 
 .churchmeet-detail-item strong,
@@ -233,10 +239,11 @@
     min-height: 220px;
     text-align: center;
     color: var(--churchmeet-muted);
-    border: 1px dashed rgba(216, 225, 236, 0.95);
-    border-radius: 12px;
+    border: var(--churchmeet-card-width) dashed var(--churchmeet-line);
+    border-radius: var(--churchmeet-card-radius);
     background: var(--churchmeet-soft);
     padding: 1rem;
+    box-shadow: var(--churchmeet-card-shadow);
 }
 
 .churchmeet-action-link {
@@ -252,9 +259,10 @@
 .churchmeet-embed {
     width: 100%;
     min-height: 320px;
-    border: 1px solid var(--churchmeet-line);
-    border-radius: 14px;
+    border: var(--churchmeet-card-width) solid var(--churchmeet-line);
+    border-radius: var(--churchmeet-card-radius);
     background: #000;
+    box-shadow: var(--churchmeet-card-shadow);
 }
 
 .churchmeet-hidden {

@@ -225,7 +225,7 @@
                     @forelse($recentEvents as $event)
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="fw-semibold">{{ $event->event->title ?? __('Event') }}</div>
+                                <div class="fw-semibold">{{ $event->event->title ?? __('Events') }}</div>
                                 <small class="text-muted">{{ strtoupper($event->online_platform ?: 'N/A') }} • {{ $event->meeting_id ?: __('No room yet') }}</small>
                             </div>
                             <a href="{{ route('churchmeet.attendance_events.edit', $event->id) }}" class="btn btn-sm btn-outline-secondary">{{ __('Open') }}</a>

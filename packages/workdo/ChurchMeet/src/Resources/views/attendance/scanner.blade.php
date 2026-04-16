@@ -237,7 +237,10 @@ cameraSelect.addEventListener('change', e => {
 // Ã¢Å“Â¨ Helpers
 function animateBorder(color) {
     readerEl.style.borderColor = color;
-    setTimeout(() => readerEl.style.borderColor = '#ccc', 700);
+    const defaultBorderColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--app-card-border-color')
+        .trim() || '#ccc';
+    setTimeout(() => readerEl.style.borderColor = defaultBorderColor, 700);
 }
 
 // Ã¢Å“â€¦ Store and show recent scans

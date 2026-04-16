@@ -9,7 +9,7 @@
 @section('page-action')
     <div class="d-flex gap-2">
         <a href="{{ route('churchmeet.events.show', $attendanceEvent->event_id) }}" class="btn btn-sm btn-outline-secondary">
-            <i class="ti ti-arrow-left"></i> {{ __('Back to Event') }}
+            <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
         </a>
         <a href="{{ $jitsiMeetingLink }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
             <i class="ti ti-external-link"></i> {{ $canStartMeeting ? __('Open in New Tab') : __('Fallback Join Link') }}

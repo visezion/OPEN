@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
-@section('page-title', __('Overall Event Analytics'))
-@section('page-breadcrumb', __('ChurchMeet,Event Analytics'))
+@section('page-title', __('Overall Events Analytics'))
+@section('page-breadcrumb', __('ChurchMeet,Events Analytics'))
 
 @section('page-action')
     <div class="d-flex flex-wrap gap-2">
@@ -44,19 +44,19 @@
         <div class="card hero mb-4">
             <div class="card-body">
                 <span class="eyebrow"><i class="ti ti-sparkles"></i>{{ __('ChurchMeet Intelligence') }}</span>
-                <h2>{{ __('Overall Event Analytics and Ministry Insight') }}</h2>
+                <h2>{{ __('Overall Events Analytics and Ministry Insight') }}</h2>
                 <p>{{ __('Measure turnout, compare departments, and understand where leadership attention should move next from one stronger ChurchMeet analytics screen.') }}</p>
                 <div class="hero-grid">
                     <div class="hero-stat"><small>{{ __('Published Events') }}</small><strong>{{ $analyticsSummary['total_events'] ?? 0 }}</strong><span>{{ __('Events included in this snapshot.') }}</span></div>
                     <div class="hero-stat"><small>{{ __('Attendance Records') }}</small><strong>{{ $analyticsSummary['total_attendance_records'] ?? 0 }}</strong><span>{{ __('Captured records across all tracked events.') }}</span></div>
                     <div class="hero-stat"><small>{{ __('Average Attendance') }}</small><strong>{{ number_format($avgRate, 1) }}%</strong><span>{{ $avgRate >= 80 ? __('Strong congregational consistency') : ($avgRate >= 60 ? __('Healthy but improvable engagement') : __('Renewal and follow-up needed')) }}</span></div>
-                    <div class="hero-stat"><small>{{ __('Next Event Forecast') }}</small><strong>{{ number_format($predictedRate, 1) }}%</strong><span>{{ $predictedLift >= 0 ? __('Projected lift of :value points.', ['value' => abs($predictedLift)]) : __('Trend suggests stable turnout if follow-up continues.') }}</span></div>
+                    <div class="hero-stat"><small>{{ __('Next Events Forecast') }}</small><strong>{{ number_format($predictedRate, 1) }}%</strong><span>{{ $predictedLift >= 0 ? __('Projected lift of :value points.', ['value' => abs($predictedLift)]) : __('Trend suggests stable turnout if follow-up continues.') }}</span></div>
                 </div>
             </div>
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-up-right-circle"></i></div><span class="label">{{ __('Best Performing Event') }}</span><strong>{{ number_format(optional($eventLeaderboard->first())->rate ?? 0, 1) }}%</strong><span class="note">{{ $analyticsSummary['highest_attendance_event'] ?? __('No event data yet') }}</span><span class="chip ok">{{ __('Top turnout') }}</span></div></div></div>
+            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-up-right-circle"></i></div><span class="label">{{ __('Best Performing Events') }}</span><strong>{{ number_format(optional($eventLeaderboard->first())->rate ?? 0, 1) }}%</strong><span class="note">{{ $analyticsSummary['highest_attendance_event'] ?? __('No event data yet') }}</span><span class="chip ok">{{ __('Top turnout') }}</span></div></div></div>
             <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-down-right-circle"></i></div><span class="label">{{ __('Needs Attention') }}</span><strong>{{ number_format(optional($eventLeaderboard->last())->rate ?? 0, 1) }}%</strong><span class="note">{{ $analyticsSummary['lowest_attendance_event'] ?? __('No event data yet') }}</span><span class="chip warn">{{ __('Review scheduling') }}</span></div></div></div>
             <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-building-community"></i></div><span class="label">{{ __('Most Active Department') }}</span><strong>{{ $analyticsSummary['most_active_dept'] ?? __('N/A') }}</strong><span class="note">{{ __('Highest participation count across event records.') }}</span><span class="chip neutral">{{ __('Leadership signal') }}</span></div></div></div>
             <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-target-arrow"></i></div><span class="label">{{ __('Unreached Capacity') }}</span><strong>{{ number_format($gapRate, 1) }}%</strong><span class="note">{{ __('Gap between current turnout and full church attendance.') }}</span><span class="chip neutral">{{ __('Planning window') }}</span></div></div></div>
@@ -65,7 +65,7 @@
         <div class="row g-3 mb-4">
             <div class="col-xl-8">
                 <div class="card h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Attendance Rate by Event') }}</h5><p class="text-muted mb-0">{{ __('A rate-based view of how each published event performed against your current member base.') }}</p></div>
+                    <div class="card-header"><h5 class="mb-1">{{ __('Attendance Rate Across Events') }}</h5><p class="text-muted mb-0">{{ __('A rate-based view of how each published event performed against your current member base.') }}</p></div>
                     <div class="chart-body">
                         @if ($eventLeaderboard->isEmpty())
                             <div class="empty"><div><div class="fw-semibold mb-2">{{ __('No event analytics yet') }}</div><div>{{ __('Publish events and capture attendance to populate this chart.') }}</div></div></div>
@@ -83,8 +83,8 @@
                         <div class="mini-grid">
                             <div class="mini"><small>{{ __('Forecast') }}</small><strong>{{ number_format($predictedRate, 1) }}%</strong></div>
                             <div class="mini"><small>{{ __('Momentum') }}</small><strong>{{ $predictedLift >= 0 ? '+' : '' }}{{ number_format($predictedLift, 1) }}</strong></div>
-                            <div class="mini"><small>{{ __('Best Event') }}</small><strong>{{ \Illuminate\Support\Str::limit($analyticsSummary['highest_attendance_event'] ?? __('N/A'), 20) }}</strong></div>
-                            <div class="mini"><small>{{ __('Lowest Event') }}</small><strong>{{ \Illuminate\Support\Str::limit($analyticsSummary['lowest_attendance_event'] ?? __('N/A'), 20) }}</strong></div>
+                            <div class="mini"><small>{{ __('Best Events') }}</small><strong>{{ \Illuminate\Support\Str::limit($analyticsSummary['highest_attendance_event'] ?? __('N/A'), 20) }}</strong></div>
+                            <div class="mini"><small>{{ __('Lowest Events') }}</small><strong>{{ \Illuminate\Support\Str::limit($analyticsSummary['lowest_attendance_event'] ?? __('N/A'), 20) }}</strong></div>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
             </div>
             <div class="col-xl-7">
                 <div class="card ranking h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Event Leaderboard') }}</h5><p class="text-muted mb-0">{{ __('Quick ranking of your strongest and weakest events by attendance rate.') }}</p></div>
+                    <div class="card-header"><h5 class="mb-1">{{ __('Events Leaderboard') }}</h5><p class="text-muted mb-0">{{ __('Quick ranking of your strongest and weakest events by attendance rate.') }}</p></div>
                     <div class="card-body">
                         @if ($eventLeaderboard->isEmpty())
                             <div class="empty"><div><div class="fw-semibold mb-2">{{ __('No leaderboard available') }}</div><div>{{ __('This section fills automatically once attendance is tracked.') }}</div></div></div>

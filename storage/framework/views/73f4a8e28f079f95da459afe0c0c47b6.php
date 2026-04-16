@@ -1,5 +1,5 @@
-<?php $__env->startSection('page-title', __('Overall Event Analytics')); ?>
-<?php $__env->startSection('page-breadcrumb', __('ChurchMeet,Event Analytics')); ?>
+<?php $__env->startSection('page-title', __('Overall Events Analytics')); ?>
+<?php $__env->startSection('page-breadcrumb', __('ChurchMeet,Events Analytics')); ?>
 
 <?php $__env->startSection('page-action'); ?>
     <div class="d-flex flex-wrap gap-2">
@@ -44,19 +44,19 @@
         <div class="card hero mb-4">
             <div class="card-body">
                 <span class="eyebrow"><i class="ti ti-sparkles"></i><?php echo e(__('ChurchMeet Intelligence')); ?></span>
-                <h2><?php echo e(__('Overall Event Analytics and Ministry Insight')); ?></h2>
+                <h2><?php echo e(__('Overall Events Analytics and Ministry Insight')); ?></h2>
                 <p><?php echo e(__('Measure turnout, compare departments, and understand where leadership attention should move next from one stronger ChurchMeet analytics screen.')); ?></p>
                 <div class="hero-grid">
                     <div class="hero-stat"><small><?php echo e(__('Published Events')); ?></small><strong><?php echo e($analyticsSummary['total_events'] ?? 0); ?></strong><span><?php echo e(__('Events included in this snapshot.')); ?></span></div>
                     <div class="hero-stat"><small><?php echo e(__('Attendance Records')); ?></small><strong><?php echo e($analyticsSummary['total_attendance_records'] ?? 0); ?></strong><span><?php echo e(__('Captured records across all tracked events.')); ?></span></div>
                     <div class="hero-stat"><small><?php echo e(__('Average Attendance')); ?></small><strong><?php echo e(number_format($avgRate, 1)); ?>%</strong><span><?php echo e($avgRate >= 80 ? __('Strong congregational consistency') : ($avgRate >= 60 ? __('Healthy but improvable engagement') : __('Renewal and follow-up needed'))); ?></span></div>
-                    <div class="hero-stat"><small><?php echo e(__('Next Event Forecast')); ?></small><strong><?php echo e(number_format($predictedRate, 1)); ?>%</strong><span><?php echo e($predictedLift >= 0 ? __('Projected lift of :value points.', ['value' => abs($predictedLift)]) : __('Trend suggests stable turnout if follow-up continues.')); ?></span></div>
+                    <div class="hero-stat"><small><?php echo e(__('Next Events Forecast')); ?></small><strong><?php echo e(number_format($predictedRate, 1)); ?>%</strong><span><?php echo e($predictedLift >= 0 ? __('Projected lift of :value points.', ['value' => abs($predictedLift)]) : __('Trend suggests stable turnout if follow-up continues.')); ?></span></div>
                 </div>
             </div>
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-up-right-circle"></i></div><span class="label"><?php echo e(__('Best Performing Event')); ?></span><strong><?php echo e(number_format(optional($eventLeaderboard->first())->rate ?? 0, 1)); ?>%</strong><span class="note"><?php echo e($analyticsSummary['highest_attendance_event'] ?? __('No event data yet')); ?></span><span class="chip ok"><?php echo e(__('Top turnout')); ?></span></div></div></div>
+            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-up-right-circle"></i></div><span class="label"><?php echo e(__('Best Performing Events')); ?></span><strong><?php echo e(number_format(optional($eventLeaderboard->first())->rate ?? 0, 1)); ?>%</strong><span class="note"><?php echo e($analyticsSummary['highest_attendance_event'] ?? __('No event data yet')); ?></span><span class="chip ok"><?php echo e(__('Top turnout')); ?></span></div></div></div>
             <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-down-right-circle"></i></div><span class="label"><?php echo e(__('Needs Attention')); ?></span><strong><?php echo e(number_format(optional($eventLeaderboard->last())->rate ?? 0, 1)); ?>%</strong><span class="note"><?php echo e($analyticsSummary['lowest_attendance_event'] ?? __('No event data yet')); ?></span><span class="chip warn"><?php echo e(__('Review scheduling')); ?></span></div></div></div>
             <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-building-community"></i></div><span class="label"><?php echo e(__('Most Active Department')); ?></span><strong><?php echo e($analyticsSummary['most_active_dept'] ?? __('N/A')); ?></strong><span class="note"><?php echo e(__('Highest participation count across event records.')); ?></span><span class="chip neutral"><?php echo e(__('Leadership signal')); ?></span></div></div></div>
             <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-target-arrow"></i></div><span class="label"><?php echo e(__('Unreached Capacity')); ?></span><strong><?php echo e(number_format($gapRate, 1)); ?>%</strong><span class="note"><?php echo e(__('Gap between current turnout and full church attendance.')); ?></span><span class="chip neutral"><?php echo e(__('Planning window')); ?></span></div></div></div>
@@ -65,7 +65,7 @@
         <div class="row g-3 mb-4">
             <div class="col-xl-8">
                 <div class="card h-100">
-                    <div class="card-header"><h5 class="mb-1"><?php echo e(__('Attendance Rate by Event')); ?></h5><p class="text-muted mb-0"><?php echo e(__('A rate-based view of how each published event performed against your current member base.')); ?></p></div>
+                    <div class="card-header"><h5 class="mb-1"><?php echo e(__('Attendance Rate Across Events')); ?></h5><p class="text-muted mb-0"><?php echo e(__('A rate-based view of how each published event performed against your current member base.')); ?></p></div>
                     <div class="chart-body">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($eventLeaderboard->isEmpty()): ?>
                             <div class="empty"><div><div class="fw-semibold mb-2"><?php echo e(__('No event analytics yet')); ?></div><div><?php echo e(__('Publish events and capture attendance to populate this chart.')); ?></div></div></div>
@@ -83,8 +83,8 @@
                         <div class="mini-grid">
                             <div class="mini"><small><?php echo e(__('Forecast')); ?></small><strong><?php echo e(number_format($predictedRate, 1)); ?>%</strong></div>
                             <div class="mini"><small><?php echo e(__('Momentum')); ?></small><strong><?php echo e($predictedLift >= 0 ? '+' : ''); ?><?php echo e(number_format($predictedLift, 1)); ?></strong></div>
-                            <div class="mini"><small><?php echo e(__('Best Event')); ?></small><strong><?php echo e(\Illuminate\Support\Str::limit($analyticsSummary['highest_attendance_event'] ?? __('N/A'), 20)); ?></strong></div>
-                            <div class="mini"><small><?php echo e(__('Lowest Event')); ?></small><strong><?php echo e(\Illuminate\Support\Str::limit($analyticsSummary['lowest_attendance_event'] ?? __('N/A'), 20)); ?></strong></div>
+                            <div class="mini"><small><?php echo e(__('Best Events')); ?></small><strong><?php echo e(\Illuminate\Support\Str::limit($analyticsSummary['highest_attendance_event'] ?? __('N/A'), 20)); ?></strong></div>
+                            <div class="mini"><small><?php echo e(__('Lowest Events')); ?></small><strong><?php echo e(\Illuminate\Support\Str::limit($analyticsSummary['lowest_attendance_event'] ?? __('N/A'), 20)); ?></strong></div>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
             </div>
             <div class="col-xl-7">
                 <div class="card ranking h-100">
-                    <div class="card-header"><h5 class="mb-1"><?php echo e(__('Event Leaderboard')); ?></h5><p class="text-muted mb-0"><?php echo e(__('Quick ranking of your strongest and weakest events by attendance rate.')); ?></p></div>
+                    <div class="card-header"><h5 class="mb-1"><?php echo e(__('Events Leaderboard')); ?></h5><p class="text-muted mb-0"><?php echo e(__('Quick ranking of your strongest and weakest events by attendance rate.')); ?></p></div>
                     <div class="card-body">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($eventLeaderboard->isEmpty()): ?>
                             <div class="empty"><div><div class="fw-semibold mb-2"><?php echo e(__('No leaderboard available')); ?></div><div><?php echo e(__('This section fills automatically once attendance is tracked.')); ?></div></div></div>
@@ -225,4 +225,4 @@
 </script>
 <?php $__env->stopPush(); ?>
 
-<?php echo $__env->make('layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\ChurchMeet\src\Providers/../Resources/views/attendance/events/analytics-overall.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\ChurchMeet\src\Resources\views\attendance\events\analytics-overall.blade.php ENDPATH**/ ?>

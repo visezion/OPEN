@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
-@section('page-title', __('Event Attendance Report'))
-@section('page-breadcrumb', __('ChurchMeet,Attendance Reports,Event Report'))
+@section('page-title', __('Events Attendance Report'))
+@section('page-breadcrumb', __('ChurchMeet,Attendance Reports,Events Report'))
 
 @section('page-action')
     <div class="d-flex gap-2">
@@ -31,7 +31,7 @@
 <div class="churchmeet-shell">
     <div class="card churchmeet-hero mb-4">
         <div class="churchmeet-hero-body">
-            <span class="churchmeet-kicker"><i class="ti ti-report-analytics"></i>{{ __('Event Report') }}</span>
+            <span class="churchmeet-kicker"><i class="ti ti-report-analytics"></i>{{ __('Events Report') }}</span>
             <h2 class="churchmeet-title">{{ $event->title ?? __('Untitled event') }}</h2>
             <p class="churchmeet-copy mb-0">{{ __('A branded ChurchMeet report of event turnout, channel split, and individual attendance records.') }}</p>
 
@@ -64,13 +64,13 @@
         <div class="col-lg-4">
             <div class="churchmeet-section h-100">
                 <div class="churchmeet-section-head">
-                    <h5>{{ __('Event Snapshot') }}</h5>
+                    <h5>{{ __('Events Snapshot') }}</h5>
                     <p>{{ __('The same branded summary structure used across ChurchMeet reporting pages.') }}</p>
                 </div>
                 <div class="churchmeet-section-body">
                     <div class="churchmeet-stack">
                         <div class="churchmeet-detail-item">
-                            <span class="label">{{ __('Event Date') }}</span>
+                            <span class="label">{{ __('Events Date') }}</span>
                             <span class="value">{{ $event->date ?? __('N/A') }}</span>
                         </div>
                         <div class="churchmeet-detail-item">

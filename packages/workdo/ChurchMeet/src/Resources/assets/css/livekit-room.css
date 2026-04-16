@@ -6,7 +6,10 @@
         --panel-bg: #ffffff;
         --panel-soft: rgba(var(--brand-rgb, 20, 83, 136), 0.05);
         --panel-muted: rgba(var(--brand-rgb, 20, 83, 136), 0.08);
-        --panel-border: rgba(var(--brand-rgb, 20, 83, 136), 0.16);
+        --panel-border: var(--app-card-border-color, rgba(var(--brand-rgb, 20, 83, 136), 0.16));
+        --panel-border-width: var(--app-card-border-width, 1px);
+        --panel-radius: var(--app-card-radius, 14px);
+        --panel-shadow: var(--app-card-shadow, 0 20px 50px rgba(var(--brand-rgb, 20, 83, 136), 0.08));
         --text-main: #1f2937;
         --text-soft: #6b7280;
         --accent: var(--brand-primary, #145388);
@@ -21,10 +24,10 @@
     .livekit-room-shell {
         position: relative;
         overflow: hidden;
-        border-radius: 14px;
+        border-radius: var(--panel-radius);
         background: #ffffff;
-        border: 1px solid rgba(var(--brand-rgb, 20, 83, 136), 0.12);
-        box-shadow: 0 20px 50px rgba(var(--brand-rgb, 20, 83, 136), 0.08);
+        border: var(--panel-border-width) solid var(--panel-border);
+        box-shadow: var(--panel-shadow);
         padding: 1.6rem;
     }
 
@@ -67,7 +70,8 @@
         justify-content: center;
         background: rgba(var(--brand-rgb, 20, 83, 136), 0.1);
         color: var(--accent);
-        border: 1px solid rgba(var(--brand-rgb, 20, 83, 136), 0.16);
+        border: var(--panel-border-width) solid var(--panel-border);
+        box-shadow: var(--panel-shadow);
         font-size: 1.15rem;
     }
 
@@ -105,10 +109,10 @@
     .meeting-pill,
     .meeting-avatar {
         background: rgba(255, 255, 255, 0.74);
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         border-radius: 10px;
         min-height: 48px;
-        box-shadow: 0 10px 24px rgba(var(--brand-rgb, 81, 69, 157), 0.06);
+        box-shadow: var(--panel-shadow);
     }
 
     .meeting-pill {
@@ -182,10 +186,10 @@
     .stage-panel,
     .sidebar-card {
         background: rgba(255, 255, 255, 0.72);
-        border: 1px solid var(--panel-border);
-        border-radius: 14px;
+        border: var(--panel-border-width) solid var(--panel-border);
+        border-radius: var(--panel-radius);
         backdrop-filter: blur(18px);
-        box-shadow: 0 14px 34px rgba(var(--brand-rgb, 81, 69, 157), 0.07);
+        box-shadow: var(--panel-shadow);
     }
 
     .stage-panel {
@@ -222,8 +226,9 @@
     .meta-tag,
     .meta-stat {
         border-radius: 8px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: var(--panel-soft);
+        box-shadow: var(--panel-shadow);
     }
 
     .meta-tag {
@@ -257,9 +262,10 @@
 
     .stage-shell {
         background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid rgba(var(--brand-rgb, 81, 69, 157), 0.1);
+        border-radius: var(--panel-radius);
+        border: var(--panel-border-width) solid var(--panel-border);
         padding: 0.9rem;
+        box-shadow: var(--panel-shadow);
     }
 
     .stage-topbar {
@@ -277,10 +283,11 @@
         gap: 0.6rem;
         padding: 0.65rem 0.9rem;
         border-radius: 8px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: rgba(var(--brand-rgb, 81, 69, 157), 0.08);
         color: var(--text-main);
         font-size: 0.9rem;
+        box-shadow: var(--panel-shadow);
     }
 
     .stage-helper {
@@ -323,11 +330,11 @@
         position: relative;
         overflow: hidden;
         border-radius: 10px;
-        border: 1px solid rgba(var(--brand-rgb, 81, 69, 157), 0.1);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: #fffdf9;
         min-height: clamp(180px, 24vh, 320px);
         aspect-ratio: 16 / 9;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 24px rgba(var(--brand-rgb, 81, 69, 157), 0.05);
+        box-shadow: var(--panel-shadow);
     }
 
     .participant-card[data-source="screen"] {
@@ -435,8 +442,9 @@
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.88);
         color: var(--accent);
-        border: 1px solid rgba(var(--brand-rgb, 81, 69, 157), 0.16);
+        border: var(--panel-border-width) solid var(--panel-border);
         font-size: 0.82rem;
+        box-shadow: var(--panel-shadow);
     }
 
     .participant-state-icon.is-off {
@@ -452,12 +460,13 @@
         align-items: center;
         justify-content: center;
         border-radius: 7px;
-        border: 1px solid rgba(var(--brand-rgb, 81, 69, 157), 0.16);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: rgba(255, 255, 255, 0.92);
         color: var(--accent);
         cursor: pointer;
         pointer-events: auto;
         transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        box-shadow: var(--panel-shadow);
     }
 
     .participant-pin-button:hover {
@@ -602,7 +611,7 @@
         min-height: 40px;
         padding: 0.5rem 0.72rem;
         border-radius: 7px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: rgba(255, 255, 255, 0.92);
         color: var(--text-main);
         display: inline-flex;
@@ -612,6 +621,7 @@
         font-weight: 600;
         line-height: 1;
         transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        box-shadow: var(--panel-shadow);
     }
 
     .meeting-control:hover:not(:disabled) {
@@ -700,9 +710,10 @@
         border-radius: 7px;
         background: rgba(var(--brand-rgb, 81, 69, 157), 0.08);
         color: var(--accent);
-        border: 1px solid rgba(var(--brand-rgb, 81, 69, 157), 0.14);
+        border: var(--panel-border-width) solid var(--panel-border);
         font-size: 0.74rem;
         font-weight: 600;
+        box-shadow: var(--panel-shadow);
     }
 
     .sidebar-tabs {
@@ -715,7 +726,7 @@
     .sidebar-tab {
         min-height: 36px;
         border-radius: 7px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: rgba(255, 255, 255, 0.86);
         color: var(--text-main);
         display: inline-flex;
@@ -725,6 +736,7 @@
         font-size: 0.8rem;
         font-weight: 600;
         padding: 0 0.72rem;
+        box-shadow: var(--panel-shadow);
     }
 
     .sidebar-tab-badge {
@@ -825,13 +837,13 @@
 
     .chat-bubble {
         border-radius: 8px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: #fffefb;
         color: var(--text-main);
         padding: 0.85rem 0.95rem;
         font-size: 0.86rem;
         line-height: 1.5;
-        box-shadow: 0 8px 18px rgba(var(--brand-rgb, 81, 69, 157), 0.04);
+        box-shadow: var(--panel-shadow);
     }
 
     .chat-bubble.is-you {
@@ -859,10 +871,11 @@
         text-align: center;
         min-height: 240px;
         color: var(--text-soft);
-        border: 1px dashed rgba(var(--brand-rgb, 81, 69, 157), 0.18);
+        border: var(--panel-border-width) dashed var(--panel-border);
         border-radius: 10px;
         background: rgba(var(--brand-rgb, 81, 69, 157), 0.03);
         padding: 1rem;
+        box-shadow: var(--panel-shadow);
     }
 
     .sidebar-stats {
@@ -874,9 +887,10 @@
 
     .sidebar-stat {
         border-radius: 10px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: rgba(255, 255, 255, 0.84);
         padding: 0.9rem;
+        box-shadow: var(--panel-shadow);
     }
 
     .sidebar-stat span {
@@ -925,7 +939,8 @@
         background: rgba(var(--brand-rgb, 81, 69, 157), 0.12);
         color: var(--accent);
         font-size: 0.72rem;
-        border: 1px solid rgba(var(--brand-rgb, 81, 69, 157), 0.22);
+        border: var(--panel-border-width) solid var(--panel-border);
+        box-shadow: var(--panel-shadow);
     }
 
     .compose-input-wrap {
@@ -938,12 +953,13 @@
         width: 100%;
         min-height: 40px;
         border-radius: 7px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: #fffefb;
         color: var(--text-main);
         padding: 0 0.78rem;
         font-size: 0.84rem;
         outline: none;
+        box-shadow: var(--panel-shadow);
     }
 
     .compose-input-control:focus {
@@ -955,12 +971,13 @@
         width: 100%;
         min-height: 38px;
         border-radius: 7px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: #fffefb;
         color: var(--text-main);
         padding: 0 0.72rem;
         font-size: 0.8rem;
         outline: none;
+        box-shadow: var(--panel-shadow);
     }
 
     .compose-target-select:focus {
@@ -1010,8 +1027,9 @@
         gap: 0.75rem;
         padding: 0.8rem;
         border-radius: 10px;
-        border: 1px solid var(--panel-border);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: rgba(255, 255, 255, 0.86);
+        box-shadow: var(--panel-shadow);
     }
 
     .participant-list-main {
@@ -1067,10 +1085,11 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid rgba(var(--brand-rgb, 81, 69, 157), 0.16);
+        border: var(--panel-border-width) solid var(--panel-border);
         background: rgba(var(--brand-rgb, 81, 69, 157), 0.08);
         color: var(--accent);
         font-size: 0.74rem;
+        box-shadow: var(--panel-shadow);
     }
 
     .status-pill.is-off {

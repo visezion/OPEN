@@ -107,7 +107,7 @@
           @forelse($recentEvents as $ev)
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <div>
-                <div class="fw-semibold">#{{ $ev->id }} Ã¢â‚¬â€ {{ $ev->event->title ?? 'Event' }}</div>
+                <div class="fw-semibold">#{{ $ev->id }} Ã¢â‚¬â€ {{ $ev->event->title ?? 'Events' }}</div>
                 <small class="text-muted">Meeting ID: {{ $ev->meeting_id ?? '-' }}</small>
               </div>
               <a href="{{ route('churchmeet.attendance_events.edit', $ev->id) }}" class="btn btn-sm btn-outline-secondary">{{ __('Open') }}</a>

@@ -1,7 +1,7 @@
 /* packages/workdo/ChurchMeet/src/Resources/views/integrations/index.blade.php */
-.churchmeet-integrations .card { border: 1px solid #d8e2ef !important; box-shadow: none !important; }
+.churchmeet-integrations .card { border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef) !important; border-radius: var(--app-card-radius, 12px) !important; box-shadow: var(--app-card-shadow, none) !important; }
     .churchmeet-integrations .hero-card { border-top: 3px solid #245f86 !important; background: linear-gradient(180deg, rgba(36,95,134,.06), rgba(36,95,134,0)), #fff; }
-    .churchmeet-integrations .platform-card { border: 1px solid #d8e2ef; border-radius: 12px; padding: 1rem; background: #f7fafc; height: 100%; }
+    .churchmeet-integrations .platform-card { border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef); border-radius: var(--app-card-radius, 12px); padding: 1rem; background: #f7fafc; height: 100%; box-shadow: var(--app-card-shadow, none); }
     .churchmeet-integrations .platform-card.is-active { border-color: #245f86; background: #eef4fa; }
     .churchmeet-integrations .section-copy { color: #6b7d90; }
 
@@ -9,19 +9,22 @@
 .jitsi-join-page {
         --jitsi-ink: #19304a;
         --jitsi-muted: #6d7f92;
-        --jitsi-line: #d9e1e8;
+        --jitsi-line: var(--app-card-border-color, #d9e1e8);
         --jitsi-soft: #f6f8fb;
         --jitsi-panel: #eef4fa;
         --jitsi-primary: #245f86;
         --jitsi-success: #2f7b58;
         --jitsi-warning: #95661c;
         --jitsi-danger: #a24343;
+        --jitsi-card-width: var(--app-card-border-width, 1px);
+        --jitsi-card-radius: var(--app-card-radius, 14px);
+        --jitsi-card-shadow: var(--app-card-shadow, none);
     }
 
     .jitsi-join-page .card {
-        border: 1px solid var(--jitsi-line) !important;
-        border-radius: 14px;
-        box-shadow: none !important;
+        border: var(--jitsi-card-width) solid var(--jitsi-line) !important;
+        border-radius: var(--jitsi-card-radius);
+        box-shadow: var(--jitsi-card-shadow) !important;
         background: #fff;
     }
 
@@ -62,7 +65,7 @@
     .jitsi-pill {
         background: var(--jitsi-soft);
         color: var(--jitsi-muted);
-        border: 1px solid var(--jitsi-line);
+        border: var(--jitsi-card-width) solid var(--jitsi-line);
     }
 
     .jitsi-hero h2,
@@ -95,7 +98,7 @@
         grid-template-columns: minmax(0, 105px) 1fr;
         gap: 0.8rem;
         padding-bottom: 0.8rem;
-        border-bottom: 1px solid rgba(217, 225, 232, 0.9);
+        border-bottom: var(--jitsi-card-width) solid var(--jitsi-line);
     }
 
     .jitsi-meta-row:last-child {
@@ -127,9 +130,10 @@
         gap: 0.8rem;
         align-items: flex-start;
         padding: 0.85rem 0.95rem;
-        border: 1px solid var(--jitsi-line);
-        border-radius: 12px;
+        border: var(--jitsi-card-width) solid var(--jitsi-line);
+        border-radius: var(--jitsi-card-radius);
         background: var(--jitsi-soft);
+        box-shadow: var(--jitsi-card-shadow);
     }
 
     .jitsi-check-index {
@@ -140,7 +144,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 10px;
-        border: 1px solid var(--jitsi-line);
+        border: var(--jitsi-card-width) solid var(--jitsi-line);
         background: #fff;
         color: var(--jitsi-primary);
         font-weight: 800;
@@ -152,9 +156,10 @@
         gap: 0.8rem;
         align-items: flex-start;
         padding: 0.95rem 1rem;
-        border-radius: 12px;
-        border: 1px solid var(--jitsi-line);
+        border-radius: var(--jitsi-card-radius);
+        border: var(--jitsi-card-width) solid var(--jitsi-line);
         background: var(--jitsi-soft);
+        box-shadow: var(--jitsi-card-shadow);
     }
 
     .jitsi-status-panel.is-ready {
@@ -202,10 +207,11 @@
 
     .jitsi-room-frame {
         min-height: 68vh;
-        border: 1px solid var(--jitsi-line);
-        border-radius: 14px;
+        border: var(--jitsi-card-width) solid var(--jitsi-line);
+        border-radius: var(--jitsi-card-radius);
         overflow: hidden;
         background: #0f1924;
+        box-shadow: var(--jitsi-card-shadow);
     }
 
     .jitsi-room-frame > iframe {
@@ -248,9 +254,9 @@
 
 /* packages/workdo/ChurchMeet/src/Resources/views/integrations/zoom_join.blade.php */
 .churchmeet-zoom-join .card {
-            border: 1px solid #d8e2ef !important;
-            box-shadow: none !important;
-            border-radius: 10px;
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef) !important;
+            box-shadow: var(--app-card-shadow, none) !important;
+            border-radius: var(--app-card-radius, 10px);
             background: #fff;
         }
 
@@ -272,7 +278,7 @@
             border-radius: 999px;
             background: #eef4fa;
             color: #245f86;
-            border: 1px solid #d8e2ef;
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef);
             font-size: 0.75rem;
             font-weight: 700;
             letter-spacing: 0.06em;
@@ -281,10 +287,11 @@
 
         .churchmeet-zoom-join .kpi-card {
             background: #f7fafc;
-            border: 1px solid #d8e2ef;
-            border-radius: 10px;
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef);
+            border-radius: var(--app-card-radius, 10px);
             padding: 0.8rem 0.9rem;
             height: 100%;
+            box-shadow: var(--app-card-shadow, none);
         }
 
         .churchmeet-zoom-join .kpi-label {
@@ -311,10 +318,11 @@
         }
 
         .churchmeet-zoom-join .meta-item {
-            border: 1px solid #d8e2ef;
-            border-radius: 10px;
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef);
+            border-radius: var(--app-card-radius, 10px);
             padding: 0.75rem 0.85rem;
             background: #fff;
+            box-shadow: var(--app-card-shadow, none);
         }
 
         .churchmeet-zoom-join .meta-item label {
@@ -344,10 +352,11 @@
             display: flex;
             gap: 0.7rem;
             align-items: flex-start;
-            border: 1px solid #d8e2ef;
-            border-radius: 10px;
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef);
+            border-radius: var(--app-card-radius, 10px);
             background: #f7fafc;
             padding: 0.75rem 0.85rem;
+            box-shadow: var(--app-card-shadow, none);
         }
 
         .churchmeet-zoom-join .check-index {
@@ -357,7 +366,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #d8e2ef;
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef);
             border-radius: 8px;
             background: #fff;
             color: #245f86;
@@ -383,11 +392,12 @@
             align-items: center;
             gap: 0.7rem;
             padding: 0.9rem 1rem;
-            border-radius: 10px;
-            border: 1px solid #d8e2ef;
+            border-radius: var(--app-card-radius, 10px);
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef);
             background: #f7fafc;
             color: #19324a;
             margin-bottom: 0.9rem;
+            box-shadow: var(--app-card-shadow, none);
         }
 
         .zoom-status-panel::before {
@@ -436,10 +446,11 @@
 
         #meetingSDKElement {
             min-height: 74vh;
-            border: 1px solid #d8e2ef;
-            border-radius: 10px;
+            border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef);
+            border-radius: var(--app-card-radius, 10px);
             overflow: hidden;
             background: linear-gradient(180deg, rgba(25, 50, 74, 0.06), rgba(25, 50, 74, 0.02)), #f4f7fb;
+            box-shadow: var(--app-card-shadow, none);
         }
 
         @media (max-width: 991.98px) {
