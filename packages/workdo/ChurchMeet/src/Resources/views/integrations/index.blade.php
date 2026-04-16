@@ -7,13 +7,8 @@
 @endsection
 
 @push('css')
-<style>
-    .churchmeet-integrations .card { border: 1px solid #d8e2ef !important; box-shadow: none !important; }
-    .churchmeet-integrations .hero-card { border-top: 3px solid #245f86 !important; background: linear-gradient(180deg, rgba(36,95,134,.06), rgba(36,95,134,0)), #fff; }
-    .churchmeet-integrations .platform-card { border: 1px solid #d8e2ef; border-radius: 12px; padding: 1rem; background: #f7fafc; height: 100%; }
-    .churchmeet-integrations .platform-card.is-active { border-color: #245f86; background: #eef4fa; }
-    .churchmeet-integrations .section-copy { color: #6b7d90; }
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/integrations.css') }}">
 @endpush
 
 @section('content')

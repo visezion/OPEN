@@ -1,0 +1,449 @@
+/* packages/workdo/ChurchMeet/src/Resources/views/integrations/index.blade.php */
+.churchmeet-integrations .card { border: 1px solid #d8e2ef !important; box-shadow: none !important; }
+    .churchmeet-integrations .hero-card { border-top: 3px solid #245f86 !important; background: linear-gradient(180deg, rgba(36,95,134,.06), rgba(36,95,134,0)), #fff; }
+    .churchmeet-integrations .platform-card { border: 1px solid #d8e2ef; border-radius: 12px; padding: 1rem; background: #f7fafc; height: 100%; }
+    .churchmeet-integrations .platform-card.is-active { border-color: #245f86; background: #eef4fa; }
+    .churchmeet-integrations .section-copy { color: #6b7d90; }
+
+/* packages/workdo/ChurchMeet/src/Resources/views/integrations/jitsi_join.blade.php */
+.jitsi-join-page {
+        --jitsi-ink: #19304a;
+        --jitsi-muted: #6d7f92;
+        --jitsi-line: #d9e1e8;
+        --jitsi-soft: #f6f8fb;
+        --jitsi-panel: #eef4fa;
+        --jitsi-primary: #245f86;
+        --jitsi-success: #2f7b58;
+        --jitsi-warning: #95661c;
+        --jitsi-danger: #a24343;
+    }
+
+    .jitsi-join-page .card {
+        border: 1px solid var(--jitsi-line) !important;
+        border-radius: 14px;
+        box-shadow: none !important;
+        background: #fff;
+    }
+
+    .jitsi-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+        gap: 1.25rem;
+    }
+
+    .jitsi-stack {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .jitsi-hero {
+        border-top: 3px solid var(--jitsi-primary);
+        background: linear-gradient(180deg, rgba(36, 95, 134, 0.08), rgba(36, 95, 134, 0)), #fff;
+    }
+
+    .jitsi-eyebrow,
+    .jitsi-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .jitsi-eyebrow {
+        background: var(--jitsi-panel);
+        color: var(--jitsi-primary);
+    }
+
+    .jitsi-pill {
+        background: var(--jitsi-soft);
+        color: var(--jitsi-muted);
+        border: 1px solid var(--jitsi-line);
+    }
+
+    .jitsi-hero h2,
+    .jitsi-section-title {
+        color: #102840;
+        font-weight: 800;
+    }
+
+    .jitsi-hero h2 {
+        margin: 0.85rem 0 0.4rem;
+        font-size: clamp(1.65rem, 2.4vw, 2.15rem);
+        line-height: 1.1;
+    }
+
+    .jitsi-copy,
+    .jitsi-meta-value-sub,
+    .jitsi-check span,
+    .jitsi-status-copy {
+        color: var(--jitsi-muted);
+        line-height: 1.65;
+    }
+
+    .jitsi-meta-grid {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .jitsi-meta-row {
+        display: grid;
+        grid-template-columns: minmax(0, 105px) 1fr;
+        gap: 0.8rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(217, 225, 232, 0.9);
+    }
+
+    .jitsi-meta-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .jitsi-meta-label {
+        color: var(--jitsi-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .jitsi-meta-value {
+        color: #102840;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .jitsi-checklist {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .jitsi-check {
+        display: flex;
+        gap: 0.8rem;
+        align-items: flex-start;
+        padding: 0.85rem 0.95rem;
+        border: 1px solid var(--jitsi-line);
+        border-radius: 12px;
+        background: var(--jitsi-soft);
+    }
+
+    .jitsi-check-index {
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        border: 1px solid var(--jitsi-line);
+        background: #fff;
+        color: var(--jitsi-primary);
+        font-weight: 800;
+        font-size: 0.84rem;
+    }
+
+    .jitsi-status-panel {
+        display: flex;
+        gap: 0.8rem;
+        align-items: flex-start;
+        padding: 0.95rem 1rem;
+        border-radius: 12px;
+        border: 1px solid var(--jitsi-line);
+        background: var(--jitsi-soft);
+    }
+
+    .jitsi-status-panel.is-ready {
+        background: #edf7f1;
+        border-color: rgba(47, 123, 88, 0.2);
+    }
+
+    .jitsi-status-panel.is-warning {
+        background: #fff7ea;
+        border-color: rgba(149, 102, 28, 0.2);
+    }
+
+    .jitsi-status-panel.is-danger {
+        background: #fceeee;
+        border-color: rgba(162, 67, 67, 0.2);
+    }
+
+    .jitsi-status-icon {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #fff;
+        color: var(--jitsi-primary);
+    }
+
+    .jitsi-status-panel.is-ready .jitsi-status-icon {
+        color: var(--jitsi-success);
+    }
+
+    .jitsi-status-panel.is-warning .jitsi-status-icon {
+        color: var(--jitsi-warning);
+    }
+
+    .jitsi-status-panel.is-danger .jitsi-status-icon {
+        color: var(--jitsi-danger);
+    }
+
+    .jitsi-room {
+        min-height: 74vh;
+    }
+
+    .jitsi-room-frame {
+        min-height: 68vh;
+        border: 1px solid var(--jitsi-line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #0f1924;
+    }
+
+    .jitsi-room-frame > iframe {
+        width: 100% !important;
+        min-height: 68vh !important;
+    }
+
+    .jitsi-room-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .jitsi-room-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+    }
+
+    .jitsi-actions-inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 0.85rem;
+    }
+
+    @media (max-width: 991.98px) {
+        .jitsi-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .jitsi-room,
+        .jitsi-room-frame,
+        .jitsi-room-frame > iframe {
+            min-height: 60vh !important;
+        }
+    }
+
+/* packages/workdo/ChurchMeet/src/Resources/views/integrations/zoom_join.blade.php */
+.churchmeet-zoom-join .card {
+            border: 1px solid #d8e2ef !important;
+            box-shadow: none !important;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .churchmeet-zoom-join .join-hero {
+            border-top: 3px solid #245f86 !important;
+            background: linear-gradient(180deg, rgba(36, 95, 134, 0.05), rgba(36, 95, 134, 0)), #fff;
+        }
+
+        .churchmeet-zoom-join .hero-copy,
+        .churchmeet-zoom-join .muted-copy {
+            color: #6b7d90 !important;
+        }
+
+        .churchmeet-zoom-join .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: #eef4fa;
+            color: #245f86;
+            border: 1px solid #d8e2ef;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .churchmeet-zoom-join .kpi-card {
+            background: #f7fafc;
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            padding: 0.8rem 0.9rem;
+            height: 100%;
+        }
+
+        .churchmeet-zoom-join .kpi-label {
+            display: block;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #6b7d90;
+            font-weight: 700;
+        }
+
+        .churchmeet-zoom-join .kpi-value {
+            display: block;
+            margin-top: 0.35rem;
+            color: #19324a;
+            font-size: 1rem;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .churchmeet-zoom-join .meta-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .churchmeet-zoom-join .meta-item {
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            padding: 0.75rem 0.85rem;
+            background: #fff;
+        }
+
+        .churchmeet-zoom-join .meta-item label {
+            display: block;
+            margin: 0;
+            color: #6b7d90;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .churchmeet-zoom-join .meta-item span {
+            display: block;
+            margin-top: 0.28rem;
+            color: #19324a;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .churchmeet-zoom-join .checklist {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .churchmeet-zoom-join .check-item {
+            display: flex;
+            gap: 0.7rem;
+            align-items: flex-start;
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            background: #f7fafc;
+            padding: 0.75rem 0.85rem;
+        }
+
+        .churchmeet-zoom-join .check-index {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d8e2ef;
+            border-radius: 8px;
+            background: #fff;
+            color: #245f86;
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .churchmeet-zoom-join .check-item strong {
+            color: #19324a;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .churchmeet-zoom-join .check-item p {
+            margin: 0.2rem 0 0;
+            color: #6b7d90;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .zoom-status-panel {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.9rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #d8e2ef;
+            background: #f7fafc;
+            color: #19324a;
+            margin-bottom: 0.9rem;
+        }
+
+        .zoom-status-panel::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #245f86;
+            box-shadow: 0 0 0 4px rgba(36, 95, 134, 0.12);
+            flex: 0 0 10px;
+        }
+
+        .zoom-status-panel.is-success {
+            background: #edf7f1;
+            border-color: rgba(46, 125, 90, 0.24);
+        }
+
+        .zoom-status-panel.is-success::before {
+            background: #2f7b58;
+            box-shadow: 0 0 0 4px rgba(47, 123, 88, 0.12);
+        }
+
+        .zoom-status-panel.is-warning {
+            background: #fff7ea;
+            border-color: rgba(149, 102, 28, 0.24);
+        }
+
+        .zoom-status-panel.is-warning::before {
+            background: #95661c;
+            box-shadow: 0 0 0 4px rgba(149, 102, 28, 0.12);
+        }
+
+        .zoom-status-panel.is-danger {
+            background: #fceeee;
+            border-color: rgba(162, 67, 67, 0.24);
+        }
+
+        .zoom-status-panel.is-danger::before {
+            background: #a24343;
+            box-shadow: 0 0 0 4px rgba(162, 67, 67, 0.12);
+        }
+
+        #zmmtg-root {
+            display: none;
+        }
+
+        #meetingSDKElement {
+            min-height: 74vh;
+            border: 1px solid #d8e2ef;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(25, 50, 74, 0.06), rgba(25, 50, 74, 0.02)), #f4f7fb;
+        }
+
+        @media (max-width: 991.98px) {
+            #meetingSDKElement {
+                min-height: 62vh;
+            }
+        }

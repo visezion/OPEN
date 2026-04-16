@@ -1,56 +1,10 @@
 @extends('layouts.main')
 
 @push('css')
-<style>
-    .dash-sidebar {
-        display: none !important;
-    }
-    .dash-container {
-        margin-left: 0 !important;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/scanner.css') }}">
 
-<style>
-#reader {
-    width: 100%;
-    max-width: 480px;
-    margin: 25px auto;
-    border: 2px dashed #ccc;
-    border-radius: 12px;
-    background: #fafafa;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: border-color 0.3s ease;
-}
-.scan-result {
-    text-align: center;
-    font-size: 1.1rem;
-    margin-top: 20px;
-    min-height: 40px;
-}
-.success { color: #16a34a; font-weight: bold; }
-.error { color: #dc2626; font-weight: bold; }
-.offline-banner {
-    background: #facc15;
-    color: #000;
-    padding: 8px;
-    text-align: center;
-    font-weight: 600;
-    display: none;
-}
-.camera-control {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin: 15px 0;
-}
-.camera-control select {
-    width: auto;
-    padding: 6px 12px;
-    border-radius: 8px;
-}
-#startBtn { margin-top: 15px; }
-</style>
 @endpush
 
 @section('content')
@@ -62,14 +16,14 @@
         <i class="ti ti-camera"></i> {{ __('Start Scanner') }}
     </button>
 
-    <div class="camera-control mt-3" style="display:none;" id="camControls">
+    <div class="camera-control mt-3 churchmeet-hidden" id="camControls">
         <select id="cameraSelect" class="form-select d-inline w-auto"></select>
         <button id="switchBtn" class="btn btn-outline-primary btn-sm">
             <i class="ti ti-refresh"></i> {{ __('Switch Camera') }}
         </button>
     </div>
 
-    <div id="reader" style="display:none;"></div>
+    <div id="reader" class="churchmeet-hidden"></div>
     <div class="offline-banner" id="offlineBanner">{{ __('Ã¢Å¡Â Ã¯Â¸Â Offline Mode: Scans will sync later') }}</div>
     <div id="scanResult" class="scan-result"></div>
 </div>

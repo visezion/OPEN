@@ -3,11 +3,8 @@
 @section('page-title', __('Church Events'))
 
 @push('css')
-<style>
-    .church-events-page .card {
-        border: 1px solid var(--bs-border-color, #dee2e6) !important;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 @endpush
 
 @section('page-action')
@@ -127,7 +124,7 @@
                     </div>
                 @else
                     <div class="text-center py-5">
-                        <i class="ti ti-calendar-event text-muted" style="font-size: 48px;"></i>
+                        <i class="ti ti-calendar-event text-muted churchmeet-icon-48"></i>
                         <h6 class="mt-3">{{ __('No events found') }}</h6>
                         <p class="text-muted">{{ __('Start by creating your first event to manage your church activities effectively.') }}</p>
                         <a href="{{ route('churchmeet.events.create') }}" class="btn btn-primary mt-2">
@@ -187,7 +184,7 @@
                         </div>
                     @empty
                         <div class="text-center text-muted py-3">
-                            <i class="ti ti-bell-off" style="font-size: 28px;"></i>
+                            <i class="ti ti-bell-off churchmeet-icon-28"></i>
                             <p class="mt-2 mb-0">{{ __('No recent event notifications yet.') }}</p>
                         </div>
                     @endforelse

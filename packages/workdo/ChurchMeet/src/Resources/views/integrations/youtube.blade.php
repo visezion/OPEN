@@ -4,6 +4,11 @@
 
 @section('page-breadcrumb', __('YouTube Sync'))
 
+@push('css')
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/integrations.css') }}">
+@endpush
+
 @section('content')
 <div class="row">
   <div class="col-lg-6">
@@ -61,7 +66,7 @@
         <div class="list-group">
           @forelse($videos as $v)
             <a href="https://www.youtube.com/watch?v={{ $v->youtube_video_id }}" class="list-group-item list-group-item-action d-flex" target="_blank">
-              <img src="{{ $v->thumbnail_url }}" class="me-2" alt="thumb" style="width:72px;height:40px;object-fit:cover;">
+              <img src="{{ $v->thumbnail_url }}" class="me-2 churchmeet-video-thumb" alt="thumb">
               <div>
                 <div class="fw-semibold">{{ $v->title }}</div>
                 <small class="text-muted">{{ optional($v->published_at)->diffForHumans() }} Ã¢â‚¬Â¢ {{ $v->live_broadcast_content ?: 'video' }}</small>

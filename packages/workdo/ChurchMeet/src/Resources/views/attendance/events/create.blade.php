@@ -9,81 +9,9 @@
 @endsection
 
 @push('css')
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .church-events-create .card {
-        border: 1px solid #d8e2ef !important;
-        box-shadow: none !important;
-    }
-
-    .church-events-create .create-hero {
-        border-top: 3px solid #245f86 !important;
-        background: linear-gradient(180deg, rgba(36, 95, 134, 0.06), rgba(36, 95, 134, 0)), #fff;
-    }
-
-    .church-events-create .section-copy,
-    .church-events-create .text-muted {
-        color: #6b7d90 !important;
-    }
-
-    .church-events-create .quick-card {
-        background: #f7fafc;
-        border-radius: 12px;
-        border: 1px solid #d8e2ef;
-        padding: 1rem;
-    }
-
-    .church-events-create .quick-card strong {
-        color: #19324a;
-    }
-
-    .church-events-create .aside-sticky {
-        position: sticky;
-        top: 92px;
-    }
-
-    .church-events-create .smart-panel {
-        border: 1px solid #d8e2ef;
-        border-radius: 12px;
-        background: #f7fafc;
-        padding: 1rem;
-    }
-
-    .church-events-create .smart-kpi {
-        border: 1px solid #d8e2ef;
-        border-radius: 10px;
-        background: #fff;
-        padding: 0.75rem 0.85rem;
-        height: 100%;
-    }
-
-    .church-events-create .smart-kpi-label {
-        display: block;
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #6b7d90;
-        font-weight: 700;
-    }
-
-    .church-events-create .smart-kpi-value {
-        display: block;
-        margin-top: 0.3rem;
-        color: #19324a;
-        font-weight: 700;
-    }
-
-    .church-events-create .smart-timeline-table td,
-    .church-events-create .smart-timeline-table th {
-        font-size: 0.84rem;
-    }
-
-    @media (max-width: 991.98px) {
-        .church-events-create .aside-sticky {
-            position: static;
-        }
-    }
-</style>
 @endpush
 
 @section('page-action')
@@ -311,10 +239,10 @@
                             <table class="table table-sm table-hover align-middle mb-0 smart-timeline-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50px;">#</th>
+                                        <th class="churchmeet-col-50">#</th>
                                         <th>{{ __('Program') }}</th>
-                                        <th style="width: 140px;">{{ __('Duration') }}</th>
-                                        <th style="width: 240px;">{{ __('Time Slot') }}</th>
+                                        <th class="churchmeet-col-140">{{ __('Duration') }}</th>
+                                        <th class="churchmeet-col-240">{{ __('Time Slot') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="smartTimelineBody">
@@ -457,7 +385,7 @@
                     </div>
 
                     {{-- Online Config --}}
-                    <div id="online-config" class="mb-4" style="display:none;">
+                    <div id="online-config" class="mb-4 churchmeet-hidden">
                         <label class="form-label fw-semibold">
                             <i class="ti ti-video text-danger"></i> {{ __('Online Meeting Details') }}
                         </label>

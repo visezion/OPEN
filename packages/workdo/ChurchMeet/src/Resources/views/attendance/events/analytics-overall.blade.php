@@ -15,49 +15,8 @@
 @endsection
 
 @push('css')
-<style>
-    .churchmeet-analytics{--ink:#13253b;--muted:#68788f;--line:#d8e1ec;--soft:#f5f7fa;--primary:#145388;--deep:#0f2d4e;color:var(--ink);padding-bottom:2rem}
-    .churchmeet-analytics .card{border:1px solid var(--line)!important;border-radius:14px;background:#fff;box-shadow:none!important}
-    .churchmeet-analytics .card-header{background:#fff;border-bottom:1px solid rgba(216,225,236,.9)!important;padding:1rem 1.2rem .9rem}
-    .churchmeet-analytics .hero{overflow:hidden;background:#fff;border-top:3px solid var(--primary)}
-    .churchmeet-analytics .hero .card-body{padding:1.45rem}
-    .churchmeet-analytics .eyebrow{display:inline-flex;align-items:center;gap:.45rem;border-radius:999px;padding:.32rem .75rem;background:#f1f5f9;color:var(--primary);font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-    .churchmeet-analytics .hero h2{font-size:clamp(1.8rem,2.8vw,2.35rem);line-height:1.08;font-weight:800;color:var(--deep);margin:.85rem 0 .65rem}
-    .churchmeet-analytics .hero p{max-width:760px;color:var(--muted);line-height:1.7;margin:0}
-    .churchmeet-analytics .hero-grid,.churchmeet-analytics .dept-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.85rem;margin-top:1.2rem}
-    .churchmeet-analytics .hero-stat,.churchmeet-analytics .dept-box,.churchmeet-analytics .mini{border:1px solid rgba(216,225,236,.9);border-radius:12px;background:var(--soft);padding:1rem}
-    .churchmeet-analytics .hero-stat small,.churchmeet-analytics .mini small,.churchmeet-analytics .label{display:block;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-    .churchmeet-analytics .hero-stat strong,.churchmeet-analytics .metric strong,.churchmeet-analytics .mini strong,.churchmeet-analytics .dept-box strong{display:block;margin-top:.45rem;font-size:1.7rem;line-height:1;color:var(--deep)}
-    .churchmeet-analytics .hero-stat span,.churchmeet-analytics .note{display:block;margin-top:.45rem;color:var(--muted);font-size:.83rem;line-height:1.6}
-    .churchmeet-analytics .metric .card-body,.churchmeet-analytics .insight .card-body,.churchmeet-analytics .ranking .card-body{padding:1.2rem 1.25rem}
-    .churchmeet-analytics .metric-icon{width:42px;height:42px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:#f1f5f9;color:var(--primary);font-size:1.05rem;margin-bottom:.95rem}
-    .churchmeet-analytics .metric strong{font-size:2rem}
-    .churchmeet-analytics .chip{display:inline-flex;margin-top:.85rem;padding:.34rem .6rem;border-radius:999px;font-size:.76rem;font-weight:700;color:var(--primary);background:#eef4fb}
-    .churchmeet-analytics .chip.ok,.churchmeet-analytics .chip.warn,.churchmeet-analytics .chip.neutral{color:var(--primary);background:#eef4fb}
-    .churchmeet-analytics .quote{padding:1rem 1.05rem 1rem 1.15rem;border-radius:12px;background:var(--soft);border:1px solid rgba(216,225,236,.85);color:var(--deep);line-height:1.8;margin-bottom:1rem}
-    .churchmeet-analytics .actions{display:grid;gap:.75rem;margin:0;padding:0;list-style:none}
-    .churchmeet-analytics .actions li{display:flex;gap:.7rem;align-items:flex-start;padding:.8rem .9rem;border-radius:12px;background:#fff;border:1px solid rgba(216,225,236,.85)}
-    .churchmeet-analytics .actions i{color:var(--primary);margin-top:.1rem}
-    .churchmeet-analytics .ring{width:188px;height:188px;border-radius:50%;padding:14px;background:conic-gradient(var(--primary) 0deg,var(--primary) var(--ring),rgba(20,83,136,.1) var(--ring),rgba(20,83,136,.1) 360deg);display:grid;place-items:center;margin:0 auto}
-    .churchmeet-analytics .ring>div{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;text-align:center;background:#fff;padding:1rem}
-    .churchmeet-analytics .ring>div strong{font-size:2.1rem;font-weight:800;color:var(--deep)} .churchmeet-analytics .ring>div span{color:var(--muted);font-size:.84rem}
-    .churchmeet-analytics .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin-top:1rem}
-    .churchmeet-analytics .chart-body{padding:1rem 1.1rem 1.2rem;min-height:320px}
-    .churchmeet-analytics .chart-wrap{height:300px}
-    .churchmeet-analytics .chart-wrap canvas{width:100%!important;height:300px!important}
-    .churchmeet-analytics .empty{display:grid;place-items:center;min-height:280px;text-align:center;color:var(--muted);border:1px dashed rgba(216,225,236,.95);border-radius:12px;background:var(--soft);padding:1rem}
-    .churchmeet-analytics .rank-list{display:grid;gap:.85rem}
-    .churchmeet-analytics .rank{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:center;padding:.95rem 1rem;border-radius:12px;background:#fff;border:1px solid rgba(216,225,236,.85)}
-    .churchmeet-analytics .rank-badge{width:34px;height:34px;border-radius:10px;background:#edf2f7;color:var(--deep);display:inline-flex;align-items:center;justify-content:center;font-size:.88rem;font-weight:700}
-    .churchmeet-analytics .rank-title{font-weight:700;color:var(--deep)} .churchmeet-analytics .rank-sub{margin-top:.2rem;color:var(--muted);font-size:.82rem} .churchmeet-analytics .rank-rate{font-size:1.08rem;font-weight:800;color:var(--primary)}
-    .churchmeet-analytics .analytics-table thead th{border-top:0;border-bottom-color:rgba(216,225,236,.9);background:#f8fafc;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:.72rem;font-weight:800;padding:.95rem 1rem}
-    .churchmeet-analytics .analytics-table tbody td{vertical-align:middle;border-bottom-color:rgba(216,225,236,.85);padding:1rem}
-    .churchmeet-analytics .analytics-table tbody tr:hover{background:rgba(20,83,136,.03)}
-    .churchmeet-analytics .progress-shell{height:10px;border-radius:999px;background:rgba(20,83,136,.08);overflow:hidden}
-    .churchmeet-analytics .progress-fill{height:100%;border-radius:inherit;background:var(--primary)}
-    @media (max-width:1199.98px){.churchmeet-analytics .hero-grid,.churchmeet-analytics .dept-top{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:991.98px){.churchmeet-analytics .hero-grid,.churchmeet-analytics .mini-grid,.churchmeet-analytics .dept-top{grid-template-columns:1fr}.churchmeet-analytics .ring{width:170px;height:170px}}
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 @endpush
 
 @section('content')
@@ -120,7 +79,7 @@
                 <div class="card h-100">
                     <div class="card-header"><h5 class="mb-1">{{ __('Ministry Pulse') }}</h5><p class="text-muted mb-0">{{ __('A compact reading of turnout strength and forecast momentum.') }}</p></div>
                     <div class="card-body">
-                        <div class="ring" style="--ring: {{ $ringAngle }}deg;"><div><strong>{{ number_format($avgRate, 1) }}%</strong><span>{{ __('Average event attendance') }}</span></div></div>
+                        <div class="ring" data-ring-angle="{{ $ringAngle }}"><div><strong>{{ number_format($avgRate, 1) }}%</strong><span>{{ __('Average event attendance') }}</span></div></div>
                         <div class="mini-grid">
                             <div class="mini"><small>{{ __('Forecast') }}</small><strong>{{ number_format($predictedRate, 1) }}%</strong></div>
                             <div class="mini"><small>{{ __('Momentum') }}</small><strong>{{ $predictedLift >= 0 ? '+' : '' }}{{ number_format($predictedLift, 1) }}</strong></div>
@@ -213,7 +172,7 @@
                                 <td><strong class="d-block">{{ $department->name }}</strong><small class="text-muted">{{ $department->rate >= 80 ? __('High consistency') : ($department->rate >= 60 ? __('Stable turnout') : __('Needs encouragement')) }}</small></td>
                                 <td class="text-center fw-semibold">{{ $department->present }}</td>
                                 <td class="text-center text-muted">{{ $department->total }}</td>
-                                <td style="min-width:220px"><div class="progress-shell"><div class="progress-fill" style="width: {{ min(100, $department->rate) }}%;"></div></div></td>
+                                <td class="churchmeet-min-width-220"><div class="progress-shell"><div class="progress-fill" data-progress-width="{{ min(100, $department->rate) }}"></div></div></td>
                                 <td class="text-end fw-bold {{ $department->rate >= 80 ? 'text-success' : ($department->rate >= 60 ? 'text-primary' : 'text-danger') }}">{{ number_format($department->rate, 1) }}%</td>
                             </tr>
                         @empty
@@ -227,6 +186,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/js/churchmeet-view-helpers.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     (function () {

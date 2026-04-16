@@ -3,11 +3,8 @@
 @section('page-title', __('Attendance Events'))
 
 @push('css')
-<style>
-    .attendance-events-page .card {
-        border: 1px solid var(--bs-border-color, #dee2e6) !important;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 @endpush
 
 @section('page-action')
@@ -158,7 +155,7 @@
                     </div>
                 @else
                     <div class="text-center py-5">
-                        <i class="ti ti-user-check text-muted" style="font-size: 48px;"></i>
+                        <i class="ti ti-user-check text-muted churchmeet-icon-48"></i>
                         <h6 class="mt-3 fw-semibold">{{ __('No Attendance Events Found') }}</h6>
                         <p class="text-muted">{{ __('Start by creating a new attendance event to track members effectively.') }}</p>
                         <a href="{{ route('churchmeet.attendance_events.create') }}" class="btn btn-primary mt-2">

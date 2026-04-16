@@ -827,15 +827,32 @@ public function publishAction(Request $request, $id)
  */
 public function analytics()
 {
-    // Ã¢Å“â€¦ Fetch all published events in the active workspace
-    $events = Event::with(['programs', 'attendanceEvents.records.member'])
-    ->inWorkspace()
-    ->where('status', 'published')
-    ->orderBy('start_time', 'desc')
-    ->get();
+    $workspaceId = getActiveWorkSpace();
 
-    // Preload departments as an idÃ¢â€ â€™name map
-    $departments = ChurchDepartment::pluck('name', 'id')->toArray();
+    $events = Event::with(['programs', 'attendanceEvents.records.member'])
+        ->inWorkspace()
+        ->where('status', 'published')
+        ->orderBy('start_time', 'desc')
+        ->get();
+
+    $departments = ChurchDepartment::where('workspace', $workspaceId)
+        ->pluck('name', 'id')
+        ->toArray();
+
+    $memberDepartments = \DB::table('church_member_department')
+        ->where('workspace', $workspaceId)
+        ->select('church_member_id', 'department_id')
+        ->get()
+        ->groupBy('church_member_id')
+        ->map(fn ($rows) => $rows->pluck('department_id')->unique()->values()->all())
+        ->toArray();
+
+    $departmentMembersCount = \DB::table('church_member_department')
+        ->where('workspace', $workspaceId)
+        ->select('department_id', \DB::raw('COUNT(DISTINCT church_member_id) as total_members'))
+        ->groupBy('department_id')
+        ->pluck('total_members', 'department_id')
+        ->toArray();
 
     $totalEvents = $events->count();
     $totalMembers = ChurchMember::forWorkspace()->count();
@@ -848,68 +865,58 @@ public function analytics()
     $departmentParticipation = [];
 
     foreach ($events as $event) {
-        $attendanceEvent = $event->attendanceEvents->first();
-        $attendanceCount = $attendanceEvent?->records->count() ?? 0;
+        $attendanceCount = $event->attendanceEvents->sum(
+            fn ($attendanceEvent) => $attendanceEvent->records->count()
+        );
         $rate = $totalMembers > 0 ? round(($attendanceCount / $totalMembers) * 100, 1) : 0;
         $attendanceRates[$event->title] = $rate;
         $totalAttendanceRecords += $attendanceCount;
-    // Preload departments as an ID Ã¢â€ â€™ name map
-    $departments = \Workdo\ChurchMeet\Entities\ChurchDepartment::pluck('name', 'id')->toArray();
 
-    // Preload member-to-department mapping (from pivot table)
-    $memberDepartments = \DB::table('church_member_department')
-        ->pluck('department_id', 'church_member_id')
-        ->toArray();
+        foreach ($event->attendanceEvents as $attendanceEvent) {
+            foreach ($attendanceEvent->records as $record) {
+                $memberId = $record->member_id ?? null;
+                $departmentIds = $memberId ? ($memberDepartments[$memberId] ?? []) : [];
 
-    // Collect department participation without relationships
-    $departmentParticipation = [];
+                if ($departmentIds === []) {
+                    $departmentParticipation['Unassigned'] = ($departmentParticipation['Unassigned'] ?? 0) + 1;
+                    continue;
+                }
 
-    foreach ($attendanceEvent?->records ?? [] as $record) {
-        $memberId = $record->member_id ?? null;
-        $deptId = $memberDepartments[$memberId] ?? null;
-        $deptName = $departments[$deptId] ?? 'Unassigned';
-
-        $departmentParticipation[$deptName] = ($departmentParticipation[$deptName] ?? 0) + 1;
+                foreach ($departmentIds as $departmentId) {
+                    $departmentName = $departments[$departmentId] ?? 'Unassigned';
+                    $departmentParticipation[$departmentName] = ($departmentParticipation[$departmentName] ?? 0) + 1;
+                }
+            }
+        }
     }
 
-
+    $assignedMemberIds = array_map('intval', array_keys($memberDepartments));
+    $unassignedMembersQuery = ChurchMember::forWorkspace();
+    if ($assignedMemberIds !== []) {
+        $unassignedMembersQuery->whereNotIn('id', $assignedMemberIds);
     }
+    $unassignedMemberCount = $unassignedMembersQuery->count();
 
-
-     //   =========================
-    // Ã°Å¸Â§Â® Department Attendance Percentage Calculation
-    // ===============================
-
-    // Step 1: Get total members per department
-    $departmentMembersCount = \DB::table('church_member_department')
-        ->select('department_id', \DB::raw('COUNT(church_member_id) as total_members'))
-        ->groupBy('department_id')
-        ->pluck('total_members', 'department_id')
-        ->toArray();
-
-    // Step 2: Calculate attendance per department
     $departmentAttendancePercentages = [];
 
     foreach ($departmentParticipation as $deptName => $presentCount) {
-        // Find department_id by name
-        $deptId = array_search($deptName, $departments);
-
-        $totalMembers = $departmentMembersCount[$deptId] ?? 0;
-        $percentage = $totalMembers > 0 ? round(($presentCount / $totalMembers) * 100, 1) : 0;
+        $deptId = array_search($deptName, $departments, true);
+        $departmentTotalMembers = $deptName === 'Unassigned'
+            ? $unassignedMemberCount
+            : ($departmentMembersCount[$deptId] ?? 0);
+        $percentage = $departmentTotalMembers > 0 ? round(($presentCount / $departmentTotalMembers) * 100, 1) : 0;
 
         $departmentAttendancePercentages[$deptName] = [
             'present' => $presentCount,
-            'total'   => $totalMembers,
+            'total'   => $departmentTotalMembers,
             'rate'    => $percentage,
         ];
     }
 
-    // Step 3: Sort by attendance rate (highest first)
-    arsort($departmentAttendancePercentages);
+    uasort($departmentAttendancePercentages, function (array $left, array $right) {
+        return $right['rate'] <=> $left['rate'];
+    });
 
-    // Step 4: Pass to view
-    $chartData['department_labels'] = array_keys($departmentAttendancePercentages);
-    $chartData['department_data'] = array_column($departmentAttendancePercentages, 'rate');
     $departmentComparison = $departmentAttendancePercentages;
 
 
@@ -969,8 +976,8 @@ public function analytics()
     $chartData = [
         'labels' => array_keys($attendanceRates),
         'data' => array_values($attendanceRates),
-        'department_labels' => array_keys($departmentParticipation),
-        'department_data' => array_values($departmentParticipation),
+        'department_labels' => array_keys($departmentAttendancePercentages),
+        'department_data' => array_column($departmentAttendancePercentages, 'rate'),
     ];
 
     // ===============================================

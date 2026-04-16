@@ -8,6 +8,10 @@
    Rview Event
 @endsection
 
+@push('css')
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+@endpush
+
 @section('content')
  
 <div class="row">
@@ -19,26 +23,26 @@
                     <span class="small text-secondary">Status: <strong class="text-primary">Draft</strong></span>
                 </div>
 
-                <div class="progress-container" style="position: relative;">
-                    <div class="progress" style="height: 10px; background: #f1f1f1; border-radius: 10px;">
-                        <div id="progressBar" class="progress-bar bg-primary" style="width: 50%; border-radius: 10px;"></div>
+                <div class="progress-container churchmeet-workflow-progress">
+                    <div class="progress churchmeet-workflow-progress-track">
+                        <div id="progressBar" class="progress-bar bg-primary churchmeet-workflow-progress-fill w-50"></div>
                     </div>
 
-                    <ul class="d-flex justify-content-between list-unstyled position-absolute w-100 top-0" style="margin-top: -10px;">
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-primary text-white border mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">1</div>
+                    <ul class="d-flex justify-content-between list-unstyled position-absolute w-100 top-0 churchmeet-workflow-steps">
+                        <li class="text-center w-25">
+                            <div class="rounded-circle bg-primary text-white border mx-auto mb-1 churchmeet-workflow-node">1</div>
                             <small>Draft</small>
                         </li>
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-primary text-white border mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">2</div>
+                        <li class="text-center w-25">
+                            <div class="rounded-circle bg-primary text-white border mx-auto mb-1 churchmeet-workflow-node">2</div>
                             <small>Review</small>
                         </li>
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-light text-muted border mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">3</div>
+                        <li class="text-center w-25">
+                            <div class="rounded-circle bg-light text-muted border mx-auto mb-1 churchmeet-workflow-node">3</div>
                             <small>Approver</small>
                         </li>
-                        <li class="text-center" style="width:25%;">
-                            <div class="rounded-circle bg-light text-muted border mx-auto mb-1" style="width:25px;height:25px;line-height:25px;">4</div>
+                        <li class="text-center w-25">
+                            <div class="rounded-circle bg-light text-muted border mx-auto mb-1 churchmeet-workflow-node">4</div>
                             <small>Publish</small>
                         </li>
                     </ul><br>
@@ -134,10 +138,10 @@
                 <i class="ti ti-message-dots"></i> Reviewer Comments / Discussion
             </h6>
             @if ($event->reviewerComments->count() > 0)
-            <div class="chat-container bg-light rounded shadow-sm p-3" style="max-height: 350px; overflow-y: auto;">
+            <div class="chat-container bg-light rounded shadow-sm p-3 churchmeet-chat-scroll">
                 @forelse ($event->reviewerComments as $comment)
                     <div class="mb-3 d-flex {{ $comment->user_id === Auth::id() ? 'justify-content-end' : 'justify-content-start' }}">
-                        <div class="p-3 rounded {{ $comment->user_id === Auth::id() ? 'bg-primary text-white' : 'bg-white border' }}" style="max-width: 80%;">
+                        <div class="p-3 rounded churchmeet-chat-bubble {{ $comment->user_id === Auth::id() ? 'bg-primary text-white' : 'bg-white border' }}">
                             <div class="small fw-bold mb-1">
                                 {{ $comment->user?->name ?? 'System' }}
                                 <span class="text-muted small">

@@ -12,6 +12,8 @@
 @endsection
 
 @push('css')
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
@@ -320,10 +322,10 @@
                 <p class="fw-semibold text-dark mb-2">{{ __('Review Comments / Descussions') }}</p><br>
                 <ul class="ps-0 mb-0"> 
                 @if ($event->reviewerComments->count() > 0)
-                <div class="chat-container bg-light rounded shadow-sm p-3" style="max-height: 350px; overflow-y: auto;">
+                <div class="chat-container bg-light rounded shadow-sm p-3 churchmeet-chat-scroll">
                     @forelse ($event->reviewerComments as $comment)
                         <div class="mb-3 d-flex {{ $comment->user_id === Auth::id() ? 'justify-content-end' : 'justify-content-start' }}">
-                            <div class="p-3 rounded {{ $comment->user_id === Auth::id() ? 'bg-primary text-white' : 'bg-white border' }}" style="max-width: 80%;">
+                            <div class="p-3 rounded churchmeet-chat-bubble {{ $comment->user_id === Auth::id() ? 'bg-primary text-white' : 'bg-white border' }}">
                                 <div class="small fw-bold mb-1">
                                     {{ $comment->user?->name ?? 'System' }}
                                     <span class="text-muted small">

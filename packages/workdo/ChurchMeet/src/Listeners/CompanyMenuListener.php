@@ -14,7 +14,7 @@ class CompanyMenuListener
         $menu->add([
             'category' => 'Church',
             'title' => __('ChurchMeet'),
-            'icon' => 'video',
+            'icon' => 'building-church',
             'name' => 'churchmeet',
             'parent' => null,
             'order' => 5,
@@ -27,40 +27,11 @@ class CompanyMenuListener
 
         $menu->add([
             'category' => 'Church',
-            'title' => __('Event Management'),
+            'title' => __('Overview'),
             'icon' => '',
-            'name' => 'churchmeet-events-group',
+            'name' => 'churchmeet-overview',
             'parent' => 'churchmeet',
             'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => '',
-            'module' => $module,
-            'permission' => 'churchly event manage',
-        ]);
-
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Events'),
-            'icon' => '',
-            'name' => 'churchmeet-events',
-            'parent' => 'churchmeet-events-group',
-            'order' => 1,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'churchmeet.events.index',
-            'module' => $module,
-            'permission' => 'churchly event manage',
-        ]);
-
-
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Event Analytics'),
-            'icon' => '',
-            'name' => 'churchmeet-events-analytics',
-            'parent' => 'churchmeet-events-group',
-            'order' => 3,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'churchmeet.events.analytics.overall',
@@ -70,16 +41,30 @@ class CompanyMenuListener
 
         $menu->add([
             'category' => 'Church',
-            'title' => __('Attendance'),
+            'title' => __('All Events'),
             'icon' => '',
-            'name' => 'churchmeet-attendance-group',
+            'name' => 'churchmeet-events',
             'parent' => 'churchmeet',
             'order' => 2,
             'ignore_if' => [],
             'depend_on' => [],
-            'route' => '',
+            'route' => 'churchmeet.events.index',
             'module' => $module,
-            'permission' => 'churchly attendance manage',
+            'permission' => 'churchly event manage',
+        ]);
+
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Create Event'),
+            'icon' => '',
+            'name' => 'churchmeet-events-create',
+            'parent' => 'churchmeet',
+            'order' => 3,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchmeet.events.create',
+            'module' => $module,
+            'permission' => 'churchly event manage',
         ]);
 
         $menu->add([
@@ -87,8 +72,8 @@ class CompanyMenuListener
             'title' => __('Attendance Sessions'),
             'icon' => '',
             'name' => 'churchmeet-attendance',
-            'parent' => 'churchmeet-attendance-group',
-            'order' => 1,
+            'parent' => 'churchmeet',
+            'order' => 4,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'churchmeet.attendance_events.index',
@@ -96,15 +81,27 @@ class CompanyMenuListener
             'permission' => 'churchly attendance manage',
         ]);
 
-       
+        $menu->add([
+            'category' => 'Church',
+            'title' => __('Create Attendance Session'),
+            'icon' => '',
+            'name' => 'churchmeet-attendance-create',
+            'parent' => 'churchmeet',
+            'order' => 5,
+            'ignore_if' => [],
+            'depend_on' => [],
+            'route' => 'churchmeet.attendance_events.create',
+            'module' => $module,
+            'permission' => 'churchly attendance manage',
+        ]);
 
         $menu->add([
             'category' => 'Church',
             'title' => __('Attendance Reports'),
             'icon' => '',
             'name' => 'churchmeet-reports',
-            'parent' => 'churchmeet-attendance-group',
-            'order' => 3,
+            'parent' => 'churchmeet',
+            'order' => 6,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'churchmeet.attendance.reports.dashboard',
@@ -114,25 +111,11 @@ class CompanyMenuListener
 
         $menu->add([
             'category' => 'Church',
-            'title' => __('Live & Tools'),
-            'icon' => '',
-            'name' => 'churchmeet-tools-group',
-            'parent' => 'churchmeet',
-            'order' => 3,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => '',
-            'module' => $module,
-            'permission' => 'churchly settings manage',
-        ]);
-
-        $menu->add([
-            'category' => 'Church',
-            'title' => __('Integrations'),
+            'title' => __('Meeting Integrations'),
             'icon' => '',
             'name' => 'churchmeet-integrations',
-            'parent' => 'churchmeet-tools-group',
-            'order' => 1,
+            'parent' => 'churchmeet',
+            'order' => 7,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'churchmeet.integrations.index',
@@ -145,8 +128,8 @@ class CompanyMenuListener
             'title' => __('Event Stage Timer'),
             'icon' => '',
             'name' => 'churchmeet-timer',
-            'parent' => 'churchmeet-tools-group',
-            'order' => 2,
+            'parent' => 'churchmeet',
+            'order' => 8,
             'ignore_if' => [],
             'depend_on' => [],
             'route' => 'timer.church',

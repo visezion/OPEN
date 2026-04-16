@@ -25,6 +25,10 @@ if (!function_exists('getMenu')) {
     function getMenu()
     {
         $user = auth()->user();
+        if (!$user) {
+            return '';
+        }
+
         return Cache::rememberForever(
             'sidebar_menu_' . $user->id,
             function () use ($user) {
@@ -32,7 +36,7 @@ if (!function_exists('getMenu')) {
                 $menu = new \App\Classes\Menu($user);
 
 
-                if ($role->name == 'super admin') {
+                if (($role && $role->name == 'super admin') || $user->type === 'super admin') {
                     event(new \App\Events\SuperAdminMenuEvent($menu));
                 } else {
                     event(new \App\Events\CompanyMenuEvent($menu));
@@ -376,20 +380,25 @@ if (!function_exists('getActiveWorkSpace')) {
         }
 
         if ($user) {
-            if (!empty($user->active_workspace)) {
+            if ($user->active_workspace !== null && $user->active_workspace !== '') {
                 return $user->active_workspace;
+            } elseif ($user->workspace_id !== null && $user->workspace_id !== '') {
+                return $user->workspace_id;
             } else {
                 if ($user->type == 'super admin') {
                     return 0;
                 } else {
-                    static $WorkSpace = null;
-                    if ($WorkSpace == null) {
-                        $workspace = WorkSpace::where('created_by', $user->id)->first();
+                    static $workspacesByOwner = [];
+                    if (!array_key_exists($user->id, $workspacesByOwner)) {
+                        $workspacesByOwner[$user->id] = WorkSpace::where('created_by', $user->id)->first();
                     }
-                    return $workspace->id;
+
+                    return optional($workspacesByOwner[$user->id])->id ?? 0;
                 }
             }
         }
+
+        return 0;
     }
 }
 

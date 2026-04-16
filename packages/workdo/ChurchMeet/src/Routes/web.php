@@ -10,10 +10,10 @@ use Workdo\ChurchMeet\Http\Controllers\ZoomIntegrationController;
 use Workdo\ChurchMeet\Http\Controllers\ZoomMeetingController;
 
 Route::prefix('churchmeet')->name('churchmeet.')->group(function () {
-    Route::resource('events', EventController::class);
-    Route::get('events/{id}/export-pdf', [EventController::class, 'exportPdf'])->name('events.export.pdf');
     Route::get('events/analytics', [EventController::class, 'analytics'])->name('events.analytics');
     Route::get('events/analytics/overall', [EventController::class, 'analytics'])->name('events.analytics.overall');
+    Route::resource('events', EventController::class);
+    Route::get('events/{id}/export-pdf', [EventController::class, 'exportPdf'])->name('events.export.pdf');
     Route::get('events/{id}/review', [EventController::class, 'review'])->name('events.review');
     Route::post('events/{id}/submit-review', [EventController::class, 'submitForReview'])->name('events.submitReview');
     Route::get('events/{id}/approve', [EventController::class, 'approve'])->name('events.approve');

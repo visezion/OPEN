@@ -3,11 +3,8 @@
 @section('page-title', __('Setup Attendance Event'))
 
 @push('css')
-<style>
-    .attendance-events-create .card {
-        border: 1px solid var(--bs-border-color, #dee2e6) !important;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 @endpush
 
 @section('page-action')
@@ -120,7 +117,7 @@
                     </div>
 
                     {{-- Online Config --}}
-                    <div id="online-config" class="mb-4" style="display:none;">
+                    <div id="online-config" class="mb-4 churchmeet-hidden">
                         <label class="form-label fw-semibold">
                             <i class="ti ti-video text-danger"></i> {{ __('Online Configuration (Optional)') }}
                         </label>

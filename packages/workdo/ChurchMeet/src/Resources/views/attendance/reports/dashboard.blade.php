@@ -11,115 +11,8 @@
 @endsection
 
 @push('css')
-<style>
-    .attendance-analytics-page {
-        padding-bottom: 2rem;
-    }
-
-    .attendance-analytics-page .card {
-        border: 1px solid var(--bs-border-color, #dee2e6) !important;
-        border-radius: 12px;
-        box-shadow: none !important;
-        background: #fff;
-    }
-
-    .attendance-analytics-page .card-header {
-        border-bottom: 1px solid var(--bs-border-color, #dee2e6) !important;
-        background: #fff;
-        padding: 1rem 1.25rem;
-    }
-
-    .attendance-analytics-page .metric-label {
-        font-size: 0.74rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--bs-secondary-color);
-    }
-
-    .attendance-analytics-page .metric-value {
-        font-size: 1.9rem;
-        font-weight: 700;
-        line-height: 1.05;
-        margin-top: 0.45rem;
-        color: var(--bs-heading-color, #1f2937);
-    }
-
-    .attendance-analytics-page .metric-help {
-        font-size: 0.82rem;
-        color: var(--bs-secondary-color);
-        margin-top: 0.5rem;
-    }
-
-    .attendance-analytics-page .insight-pills {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.65rem;
-    }
-
-    .attendance-analytics-page .insight-pill {
-        border: 1px solid var(--bs-border-color, #dee2e6);
-        border-radius: 10px;
-        padding: 0.75rem;
-    }
-
-    .attendance-analytics-page .insight-pill .value {
-        font-size: 1.15rem;
-        font-weight: 700;
-    }
-
-    .attendance-analytics-page .analytics-table thead th {
-        font-size: 0.74rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--bs-secondary-color);
-        background: var(--bs-tertiary-bg);
-        border-bottom-color: var(--bs-border-color, #dee2e6);
-        border-top: 0;
-    }
-
-    .attendance-analytics-page .analytics-table tbody td {
-        vertical-align: middle;
-        border-bottom-color: var(--bs-border-color, #dee2e6);
-        padding-top: 0.85rem;
-        padding-bottom: 0.85rem;
-    }
-
-    .attendance-analytics-page .analytics-table tbody tr:hover {
-        background: rgba(13, 110, 253, 0.04);
-    }
-
-    .attendance-analytics-page .branch-line:last-child {
-        margin-bottom: 0 !important;
-    }
-
-    .attendance-analytics-page .branch-line .progress {
-        height: 8px;
-    }
-
-    .attendance-analytics-page .chart-wrap {
-        min-height: 280px;
-    }
-
-    .attendance-analytics-page .chart-wrap canvas {
-        width: 100% !important;
-        height: 280px !important;
-    }
-
-    .attendance-analytics-page .card-header h5 {
-        font-weight: 600;
-    }
-
-    @media (max-width: 767.98px) {
-        .attendance-analytics-page .metric-value {
-            font-size: 1.6rem;
-        }
-
-        .attendance-analytics-page .insight-pills {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 @endpush
 
 @section('content')
@@ -287,7 +180,7 @@
                                     </div>
                                 </div>
                                 <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ $branch->attendance_rate }}%"></div>
+                                    <div class="progress-bar bg-success" role="progressbar" data-progress-width="{{ $branch->attendance_rate }}"></div>
                                 </div>
                             </div>
                         @empty
@@ -340,6 +233,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/js/churchmeet-view-helpers.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     (function () {

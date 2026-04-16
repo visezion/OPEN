@@ -6,6 +6,10 @@
 
 @section('page-breadcrumb', __('Events,Approve'))
 
+@push('css')
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+@endpush
+
 @section('content')
 <div class="card shadow-sm border-0">
     <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
@@ -92,10 +96,10 @@
                 <i class="ti ti-message-dots"></i> Reviewer Comments / Discussion
             </h6>
 
-            <div class="chat-container bg-light rounded shadow-sm p-3" style="max-height: 350px; overflow-y: auto;">
+            <div class="chat-container bg-light rounded shadow-sm p-3 churchmeet-chat-scroll">
                 @forelse ($event->reviewerComments as $comment)
                     <div class="mb-3 d-flex {{ $comment->user_id === Auth::id() ? 'justify-content-end' : 'justify-content-start' }}">
-                        <div class="p-3 rounded {{ $comment->role === 'Approver' ? 'bg-success text-white' : ($comment->user_id === Auth::id() ? 'bg-primary text-white' : 'bg-white border') }}" style="max-width: 80%;">
+                        <div class="p-3 rounded churchmeet-chat-bubble {{ $comment->role === 'Approver' ? 'bg-success text-white' : ($comment->user_id === Auth::id() ? 'bg-primary text-white' : 'bg-white border') }}">
                             <div class="small fw-bold mb-1">
                                 {{ $comment->user?->name ?? 'System' }} 
                                 <span class="text-muted small">Ã¢â‚¬Â¢ {{ \Carbon\Carbon::parse($comment->commented_at)->diffForHumans() }}</span>

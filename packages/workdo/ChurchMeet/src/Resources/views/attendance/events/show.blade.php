@@ -9,100 +9,8 @@
 @endsection
 
 @push('css')
-<style>
-    .church-event-show .card {
-        border: 1px solid #d8e2ef !important;
-        box-shadow: none !important;
-    }
-
-    .church-event-show .event-hero {
-        border-top: 3px solid #245f86 !important;
-        background: linear-gradient(180deg, rgba(36, 95, 134, 0.05), rgba(36, 95, 134, 0)), #fff;
-    }
-
-    .church-event-show .hero-copy,
-    .church-event-show .muted-copy {
-        color: #6b7d90 !important;
-    }
-
-    .church-event-show .metric-card {
-        background: #f7fafc;
-        border: 1px solid #d8e2ef;
-        border-radius: 10px;
-        padding: 0.9rem 1rem;
-        height: 100%;
-    }
-
-    .church-event-show .metric-label {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #6b7d90;
-        font-weight: 700;
-    }
-
-    .church-event-show .metric-value {
-        display: block;
-        margin-top: 0.35rem;
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #19324a;
-    }
-
-    .church-event-show .detail-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.85rem;
-    }
-
-    .church-event-show .detail-item {
-        border: 1px solid #d8e2ef;
-        border-radius: 10px;
-        padding: 0.75rem 0.85rem;
-        background: #fff;
-    }
-
-    .church-event-show .detail-item label {
-        margin: 0;
-        display: block;
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #6b7d90;
-        font-weight: 700;
-    }
-
-    .church-event-show .detail-item span {
-        display: block;
-        margin-top: 0.3rem;
-        color: #19324a;
-        font-weight: 600;
-    }
-
-    .church-event-show .discussion-item {
-        border: 1px solid #d8e2ef;
-        border-radius: 10px;
-        background: #fff;
-        padding: 0.8rem 0.9rem;
-    }
-
-    .church-event-show .discussion-meta {
-        font-size: 0.8rem;
-        color: #6b7d90;
-    }
-
-    .church-event-show .discussion-message {
-        margin-top: 0.45rem;
-        color: #19324a;
-        line-height: 1.55;
-    }
-
-    @media (max-width: 991.98px) {
-        .church-event-show .detail-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
+<link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/attendance.css') }}">
 @endpush
 
 @section('page-action')
@@ -339,10 +247,10 @@
                                         <table class="table table-hover align-middle mb-0">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th style="width: 60px;">#</th>
+                                                    <th class="churchmeet-col-60">#</th>
                                                     <th>{{ __('Program Item') }}</th>
-                                                    <th style="width: 140px;">{{ __('Duration') }}</th>
-                                                    <th style="width: 200px;">{{ __('Leader') }}</th>
+                                                    <th class="churchmeet-col-140">{{ __('Duration') }}</th>
+                                                    <th class="churchmeet-col-200">{{ __('Leader') }}</th>
                                                     <th>{{ __('Notes') }}</th>
                                                 </tr>
                                             </thead>
@@ -407,7 +315,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>{{ __('File') }}</th>
-                                                        <th style="width: 140px;">{{ __('Action') }}</th>
+                                                        <th class="churchmeet-col-140">{{ __('Action') }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
