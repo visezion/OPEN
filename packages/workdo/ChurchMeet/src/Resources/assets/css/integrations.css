@@ -260,6 +260,57 @@
             background: #fff;
         }
 
+.meeting-guest-gate {
+        max-width: 560px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .meeting-guest-gate .card {
+        border-top: 3px solid #245f86 !important;
+        background: linear-gradient(180deg, rgba(36, 95, 134, 0.08), rgba(36, 95, 134, 0)), #fff;
+    }
+
+    .meeting-guest-gate-copy {
+        color: #6b7d90;
+        line-height: 1.65;
+    }
+
+    .meeting-guest-gate-form {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .meeting-guest-gate-label {
+        display: block;
+        margin-bottom: 0.4rem;
+        color: #102840;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .meeting-guest-gate-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .meeting-guest-gate-actions .btn {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding-inline: 1rem;
+    }
+
+    .meeting-guest-gate-note {
+        color: #6b7d90;
+        font-size: 0.92rem;
+        flex-basis: 100%;
+    }
+
         .churchmeet-zoom-join .join-hero {
             border-top: 3px solid #245f86 !important;
             background: linear-gradient(180deg, rgba(36, 95, 134, 0.05), rgba(36, 95, 134, 0)), #fff;

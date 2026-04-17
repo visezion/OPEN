@@ -1368,7 +1368,7 @@ p:not(:last-of-type) {
 }
 
 .nice-select.disabled:after {
-    border-color: #cccccc;
+    border-color: rgb(226 232 240 / var(--tw-border-opacity, 1))ccc;
 }
 
 .nice-select.wide {

@@ -239,7 +239,7 @@ function animateBorder(color) {
     readerEl.style.borderColor = color;
     const defaultBorderColor = getComputedStyle(document.documentElement)
         .getPropertyValue('--app-card-border-color')
-        .trim() || '#ccc';
+        .trim() || 'rgb(226 232 240 / var(--tw-border-opacity, 1))';
     setTimeout(() => readerEl.style.borderColor = defaultBorderColor, 700);
 }
 

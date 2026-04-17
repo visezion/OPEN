@@ -235,6 +235,7 @@ Route::get('/birthday-card/{member}', [BirthdayCardController::class, 'generate'
 
 // Route group for Church Feedback, assuming 'auth' and 'workspace' middleware
         Route::get('/feedback/dashboard', [ChurchFeedbackController::class, 'dashboard'])->name('feedback.dashboard');
+        Route::get('/feedback/attendance-summary', [ChurchFeedbackController::class, 'attendanceSummary'])->name('feedback.attendanceSummary');
 
         // Use resource routes, but exclude ones we define manually
         Route::resource('feedback', ChurchFeedbackController::class)->except(['edit', 'update', 'destroy', 'index']);

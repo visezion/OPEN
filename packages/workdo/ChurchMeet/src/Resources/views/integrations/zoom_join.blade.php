@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends(Auth::check() ? 'layouts.main' : 'churchmeet::layouts.public_join')
 
 @section('page-title', __('Join Zoom Meeting'))
 
@@ -10,24 +10,30 @@
 @endpush
 
 @section('page-action')
-    @if($canStartMeeting)
-        <a href="{{ $attendanceEvent->host_start_url }}" target="_blank" rel="noopener" class="btn btn-warning btn-sm">
-            <i class="ti ti-player-play"></i> {{ __('Start As Host') }}
+    @auth
+        @if($canStartMeeting)
+            <a href="{{ $attendanceEvent->host_start_url }}" target="_blank" rel="noopener" class="btn btn-warning btn-sm">
+                <i class="ti ti-player-play"></i> {{ __('Start As Host') }}
+            </a>
+        @endif
+        @if($attendanceEvent->meeting_link)
+            <a href="{{ $attendanceEvent->meeting_link }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+                <i class="ti ti-external-link"></i> {{ __('Open Zoom Fallback') }}
+            </a>
+        @endif
+        <a href="{{ route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id) }}" class="btn btn-light btn-sm">
+            <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
         </a>
-    @endif
-    @if($attendanceEvent->meeting_link)
-        <a href="{{ $attendanceEvent->meeting_link }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
-            <i class="ti ti-external-link"></i> {{ __('Open Zoom Fallback') }}
-        </a>
-    @endif
-    <a href="{{ route('churchmeet.events.show', $attendanceEvent->event_id) }}" class="btn btn-light btn-sm">
-        <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
-    </a>
+    @endauth
 @endsection
 
 @section('content')
     @php
         $eventTitle = optional($attendanceEvent->event)->title ?: __('Zoom Meeting');
+        $meetingShareUrl = route('churchmeet.meetings.join', $attendanceEvent->public_join_key);
+        $meetingLoginUrl = route('login', ['lang' => app()->getLocale(), 'redirect_to' => url()->current()]);
+        $guestDisplayName = trim((string) ($guestDisplayName ?? request('guest_name', session('churchmeet_guest_display_name', ''))));
+        $requiresGuestName = (bool) ($requiresGuestName ?? (!Auth::check() && $guestDisplayName === ''));
         $rawMeetingId = trim((string) ($attendanceEvent->meeting_id ?? ''));
         $parsedMeetingNumber = null;
 
@@ -44,6 +50,44 @@
     @endphp
 
     <div class="churchmeet-zoom-join">
+        @if($requiresGuestName)
+            <div class="meeting-guest-gate">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <span class="chip"><i class="ti ti-user-plus"></i>{{ __('Public Meeting Access') }}</span>
+                        <h3 class="mt-3 mb-2">{{ __('Enter your display name') }}</h3>
+                        <p class="meeting-guest-gate-copy mb-0">{{ __('Sign in with your WorkDo account or continue as a guest. Guest access only needs the name other participants should see.') }}</p>
+
+                        <form action="{{ url()->current() }}" method="GET" class="meeting-guest-gate-form mt-4">
+                            <div>
+                                <label for="guest_name" class="meeting-guest-gate-label">{{ __('Display Name') }}</label>
+                                <input
+                                    type="text"
+                                    id="guest_name"
+                                    name="guest_name"
+                                    class="form-control"
+                                    maxlength="60"
+                                    required
+                                    autocomplete="name"
+                                    placeholder="{{ __('Enter your name') }}"
+                                    value="{{ $guestDisplayName }}"
+                                >
+                            </div>
+                            <div class="meeting-guest-gate-actions">
+                                <a href="{{ $meetingLoginUrl }}" class="btn btn-outline-secondary">
+                                    <i class="ti ti-login"></i> {{ __('Login') }}
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-door-enter"></i> {{ __('Join as Guest') }}
+                                </button>
+                                <span class="meeting-guest-gate-note">{{ __('Your name will be reused for this browser session until you change it.') }}</span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="card join-hero mb-4">
             <div class="card-body p-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
@@ -51,6 +95,11 @@
                         <span class="chip"><i class="ti ti-brand-zoom"></i>{{ __('ChurchMeet Live Room') }}</span>
                         <h3 class="mt-3 mb-1">{{ $eventTitle }}</h3>
                         <p class="hero-copy mb-0">{{ __('Join this Zoom meeting inside OPEN. Meeting session status and fallback controls stay on this page.') }}</p>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary churchmeet-copy-trigger" data-copy-text="{{ $meetingShareUrl }}" data-copy-default="{{ __('Copy Invite') }}" data-copy-success="{{ __('Copied') }}">
+                                <i class="ti ti-link"></i> <span>{{ __('Copy Invite') }}</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="text-end">
                         <span class="badge bg-light text-dark border">{{ strtoupper((string) ($attendanceEvent->online_platform ?: 'zoom')) }}</span>
@@ -166,7 +215,7 @@
                     </div>
                     <div class="card-body">
                         <div id="zoom-status" class="zoom-status-panel is-info">
-                            {{ __('Preparing Zoom meeting room...') }}
+                            {{ $requiresGuestName ? __('Enter your display name above to load the Zoom room.') : __('Preparing Zoom meeting room...') }}
                         </div>
                         <div id="meetingSDKElement"></div>
                     </div>
@@ -177,6 +226,37 @@
 @endsection
 
 @push('scripts')
+    @unless($requiresGuestName)
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.churchmeet-copy-trigger').forEach(function (button) {
+                button.addEventListener('click', async function () {
+                    const copyText = button.dataset.copyText || '';
+                    const defaultLabel = button.dataset.copyDefault || 'Copy Invite';
+                    const successLabel = button.dataset.copySuccess || 'Copied';
+                    const label = button.querySelector('span');
+
+                    if (!copyText) {
+                        return;
+                    }
+
+                    try {
+                        await navigator.clipboard.writeText(copyText);
+                        if (label) {
+                            label.textContent = successLabel;
+                        }
+                        setTimeout(function () {
+                            if (label) {
+                                label.textContent = defaultLabel;
+                            }
+                        }, 1600);
+                    } catch (error) {
+                        window.prompt('Copy this link', copyText);
+                    }
+                });
+            });
+        });
+    </script>
     @if($meetingSdkEnabled)
         <script src="https://source.zoom.us/5.1.4/lib/vendor/react.min.js" data-zoom-vendor="react" onload="this.dataset.loaded='1'"></script>
         <script src="https://source.zoom.us/5.1.4/lib/vendor/react-dom.min.js" data-zoom-vendor="react-dom" onload="this.dataset.loaded='1'"></script>
@@ -189,7 +269,7 @@
                 const statusBox = document.getElementById('zoom-status');
                 const rootElement = document.getElementById('meetingSDKElement');
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || @json(csrf_token());
-                const meetingPresenceUrl = @json(route('churchmeet.meetings.presence', $attendanceEvent->id));
+                const meetingPresenceUrl = @json(route('churchmeet.meetings.presence', $attendanceEvent->public_join_key));
                 const zoomEmbeddedSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-embedded-5.1.4.min.js';
                 const zoomClientSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-5.1.4.min.js';
                 const zoomVendorScripts = [
@@ -352,7 +432,7 @@
 
                     return await new Promise((resolve, reject) => {
                         ZoomMtg.init({
-                            leaveUrl: @json(route('churchmeet.events.show', $attendanceEvent->event_id)),
+                            leaveUrl: @json(Auth::check() ? route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id) : route('churchmeet.meetings.join', $attendanceEvent->public_join_key)),
                             patchJsMedia: true,
                             leaveOnPageUnload: true,
                             success: function () {
@@ -386,7 +466,7 @@
                 try {
                     setStatus('Requesting secure Zoom session...', 'info');
 
-                    const response = await fetch(@json(route('churchmeet.zoom.meetings.signature', $attendanceEvent->id)), {
+                    const response = await fetch(@json(route('churchmeet.zoom.meetings.signature', $attendanceEvent->public_join_key)), {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
@@ -470,4 +550,5 @@
             });
         </script>
     @endif
+    @endunless
 @endpush

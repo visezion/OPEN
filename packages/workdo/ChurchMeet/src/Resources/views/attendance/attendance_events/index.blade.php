@@ -83,7 +83,7 @@
                                     <tr>
                                         <td>
                                             @if($attendanceEvent->event)
-                                                <a href="{{ route('churchmeet.events.show', $attendanceEvent->event_id) }}" 
+                                                <a href="{{ route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id) }}" 
                                                 class="fw-semibold text-primary text-decoration-none">
                                                     {{ $attendanceEvent->event->title ?? __('N/A') }}
                                                 </a>

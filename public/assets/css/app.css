@@ -1526,7 +1526,7 @@ select:not([multiple]) {
 .btn {
     padding: 4px 10px;
     border-radius: 3px;
-    border: 1px solid #ccc;
+    border: 1px solid rgb(226 232 240 / var(--tw-border-opacity, 1));
     background: #fff;
     display: inline-block;
     font-size: 1em;

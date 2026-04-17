@@ -69,7 +69,7 @@
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $events; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
                                     <td>
-                                        <a href="<?php echo e(route('churchmeet.events.show', $event->id)); ?>" class="fw-semibold text-primary">
+                                        <a href="<?php echo e(route('churchmeet.events.show', $event->public_view_key)); ?>" class="fw-semibold text-primary">
                                             <?php echo e($event->title); ?>
 
                                         </a>
@@ -98,7 +98,7 @@
                                             <a href="<?php echo e(route('churchmeet.events.review', $event->id)); ?>" class="btn btn-sm btn-outline-warning" title="<?php echo e(__('View Preview')); ?>">
                                                 <i class="ti ti-check"></i>
                                             </a>    
-                                            <a href="<?php echo e(route('churchmeet.events.show', $event->id)); ?>" class="btn btn-sm btn-outline-primary" title="<?php echo e(__('View Details')); ?>">
+                                            <a href="<?php echo e(route('churchmeet.events.show', $event->public_view_key)); ?>" class="btn btn-sm btn-outline-primary" title="<?php echo e(__('View Details')); ?>">
                                                 <i class="ti ti-eye"></i>
                                             </a>
                                             <a href="<?php echo e(route('churchmeet.events.edit', $event->id)); ?>" class="btn btn-sm btn-outline-secondary" title="<?php echo e(__('Edit Event')); ?>">

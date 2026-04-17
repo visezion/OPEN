@@ -15,7 +15,7 @@
     width: 100%;
     max-width: 480px;
     margin: 25px auto;
-    border: 2px dashed #ccc;
+    border: 2px dashed rgb(226 232 240 / var(--tw-border-opacity, 1));
     border-radius: 12px;
     background: #fafafa;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
@@ -276,7 +276,7 @@ cameraSelect.addEventListener('change', e => {
 // ✨ Helpers
 function animateBorder(color) {
     readerEl.style.borderColor = color;
-    setTimeout(() => readerEl.style.borderColor = '#ccc', 700);
+    setTimeout(() => readerEl.style.borderColor = 'rgb(226 232 240 / var(--tw-border-opacity, 1))', 700);
 }
 
 // ✅ Store and show recent scans

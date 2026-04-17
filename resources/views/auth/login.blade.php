@@ -10,7 +10,7 @@
         </a>
         <div class="dropdown-menu dash-h-dropdown dropdown-menu-end">
             @foreach (languages() as $key => $language)
-                <a href="{{ route('login', $key) }}"
+                <a href="{{ route('login', ['lang' => $key, 'redirect_to' => $redirectTo ?? request('redirect_to')]) }}"
                     class="dropdown-item @if ($lang == $key) text-primary @endif">
                     <span>{{ Str::ucfirst($language) }}</span>
                 </a>
@@ -88,9 +88,18 @@
                     <div class="dms-error">{{ $errors->first() }}</div>
                 @endif
 
+                @if(!empty($redirectTo))
+                    <div class="alert alert-info border mb-3">
+                        {{ __('Sign in to continue back to your meeting room.') }}
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('login') }}" class="needs-validation dms-login-form" novalidate=""
                     id="form_data" autocomplete="off">
                     @csrf
+                    @if(!empty($redirectTo))
+                        <input type="hidden" name="redirect_to" value="{{ $redirectTo }}">
+                    @endif
                     <div class="dms-form-group">
                         <label class="dms-label" for="email">{{ __('Email') }}</label>
                         <div class="dms-field-wrap">

@@ -33,7 +33,7 @@ class LivekitMeetingService
         $this->assertConfigured($setting);
 
         $resolvedRoomName = $this->sanitizeRoomName($roomName ?: $attendanceEvent->meeting_id ?: $this->makeRoomName($attendanceEvent));
-        $joinUrl = route('churchmeet.meetings.join', $attendanceEvent->id);
+        $joinUrl = route('churchmeet.meetings.join', $attendanceEvent->public_join_key);
 
         $enabledMethods = collect($attendanceEvent->enabled_methods ?? [])
             ->push('livekit')

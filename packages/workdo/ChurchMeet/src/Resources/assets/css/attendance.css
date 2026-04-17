@@ -3,7 +3,7 @@
     width: 100%;
     max-width: 480px;
     margin: 25px auto;
-    border: var(--app-card-border-width, 2px) dashed var(--app-card-border-color, #ccc);
+    border: var(--app-card-border-width, 2px) dashed var(--app-card-border-color, rgb(226 232 240 / var(--tw-border-opacity, 1)));
     border-radius: var(--app-card-radius, 12px);
     background: #fafafa;
     box-shadow: var(--app-card-shadow, 0 4px 12px rgba(0,0,0,0.05));

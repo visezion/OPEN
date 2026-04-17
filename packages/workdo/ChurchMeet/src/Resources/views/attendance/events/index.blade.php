@@ -69,7 +69,7 @@
                                 @foreach($events as $event)
                                 <tr>
                                     <td>
-                                        <a href="{{ route('churchmeet.events.show', $event->id) }}" class="fw-semibold text-primary">
+                                        <a href="{{ route('churchmeet.events.show', $event->public_view_key) }}" class="fw-semibold text-primary">
                                             {{ $event->title }}
                                         </a>
                                         <br>
@@ -95,7 +95,7 @@
                                             <a href="{{ route('churchmeet.events.review', $event->id) }}" class="btn btn-sm btn-outline-warning" title="{{ __('View Preview') }}">
                                                 <i class="ti ti-check"></i>
                                             </a>    
-                                            <a href="{{ route('churchmeet.events.show', $event->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View Details') }}">
+                                            <a href="{{ route('churchmeet.events.show', $event->public_view_key) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View Details') }}">
                                                 <i class="ti ti-eye"></i>
                                             </a>
                                             <a href="{{ route('churchmeet.events.edit', $event->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit Event') }}">

@@ -52,17 +52,14 @@ class MeetingRoomController extends Controller
     }
 
     public function join(
-        int $attendanceEventId,
+        Request $request,
+        string $attendanceEventId,
         ZoomMeetingService $zoomMeetingService,
         JitsiMeetingService $jitsiMeetingService,
         LivekitMeetingService $livekitMeetingService
     )
     {
-        $attendanceEvent = AttendanceEvent::with('event')
-            ->where('workspace_id', getActiveWorkSpace())
-            ->findOrFail($attendanceEventId);
-
-        abort_unless(Auth::check(), 403);
+        $attendanceEvent = $this->resolveJoinableAttendanceEvent($attendanceEventId);
 
         $platform = strtolower((string) $attendanceEvent->online_platform);
 
@@ -73,7 +70,7 @@ class MeetingRoomController extends Controller
                 __('Zoom meeting not found for this event.')
             );
 
-            $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+            $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => $attendanceEvent->workspace_id]);
 
             return view('churchmeet::integrations.zoom_join', [
                 'attendanceEvent' => $attendanceEvent,
@@ -87,6 +84,7 @@ class MeetingRoomController extends Controller
             abort_if(!$attendanceEvent->meeting_id && !$attendanceEvent->meeting_link, 404, __('Jitsi meeting room not found for this event.'));
 
             $meeting = $jitsiMeetingService->getMeetingDetails($attendanceEvent);
+            $guestDisplayName = $this->resolveParticipantDisplayName($request, $livekitMeetingService);
 
             return view('churchmeet::integrations.jitsi_join', [
                 'attendanceEvent' => $attendanceEvent,
@@ -94,48 +92,63 @@ class MeetingRoomController extends Controller
                 'jitsiRoomName' => $meeting['room_name'],
                 'jitsiMeetingLink' => $meeting['meeting_link'],
                 'canStartMeeting' => $this->userCanManageOnlineMeeting($attendanceEvent),
+                'guestDisplayName' => $guestDisplayName,
+                'requiresGuestName' => !Auth::check() && $guestDisplayName === '',
             ]);
         }
 
         if ($platform === 'livekit') {
             abort_if(!$attendanceEvent->meeting_id, 404, __('LiveKit room not found for this event.'));
 
-            $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+            $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => $attendanceEvent->workspace_id]);
             abort_unless($livekitMeetingService->canUseLiveKit($setting), 422, __('Configure LiveKit integration settings before joining this room.'));
 
             $user = Auth::user();
-            $displayName = $livekitMeetingService->makeDisplayNameForUser($user);
-            $identity = $livekitMeetingService->makeIdentityForUser($user) . '-' . $attendanceEvent->id . '-' . Str::lower(Str::random(6));
+            $displayName = $this->resolveParticipantDisplayName($request, $livekitMeetingService);
+            $requiresGuestName = !$user && $displayName === '';
+            $identity = $requiresGuestName ? null : $this->resolveParticipantIdentity($request, $attendanceEvent, $livekitMeetingService);
             $participantAvatarUrl = $this->resolveUserAvatarUrl($user);
 
             return view('churchmeet::integrations.livekit_join', [
                 'attendanceEvent' => $attendanceEvent,
                 'livekitRoomName' => $attendanceEvent->meeting_id,
                 'livekitServerUrl' => $livekitMeetingService->websocketUrl($setting->livekit_server_url),
-                'livekitToken' => $livekitMeetingService->makeParticipantToken(
-                    $setting,
-                    $attendanceEvent->meeting_id,
-                    $identity,
-                    $displayName,
-                    $this->userCanManageOnlineMeeting($attendanceEvent),
-                    [
-                        'avatarUrl' => $participantAvatarUrl,
-                    ]
-                ),
+                'livekitToken' => $requiresGuestName
+                    ? null
+                    : $livekitMeetingService->makeParticipantToken(
+                        $setting,
+                        $attendanceEvent->meeting_id,
+                        $identity,
+                        $displayName,
+                        $this->userCanManageOnlineMeeting($attendanceEvent),
+                        [
+                            'avatarUrl' => $participantAvatarUrl,
+                        ]
+                    ),
                 'participantName' => $displayName,
                 'participantAvatarUrl' => $participantAvatarUrl,
                 'canManageMeeting' => $this->userCanManageOnlineMeeting($attendanceEvent),
+                'requiresGuestName' => $requiresGuestName,
             ]);
         }
 
         abort(404, __('This event does not have a supported online meeting room.'));
     }
 
-    public function markPresence(Request $request, int $attendanceEventId): JsonResponse
+    public function markPresence(Request $request, string $attendanceEventId): JsonResponse
     {
-        $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($attendanceEventId);
+        $attendanceEvent = $this->resolveJoinableAttendanceEvent($attendanceEventId);
 
-        abort_unless(Auth::check(), 403);
+        if (!Auth::check()) {
+            return response()->json([
+                'ok' => true,
+                'guest' => true,
+                'action' => strtolower((string) $request->input('action', 'join')),
+                'stats' => null,
+                'check_in_time' => null,
+                'check_out_time' => null,
+            ]);
+        }
 
         $user = Auth::user();
         $memberId = ChurchMember::forWorkspace()
@@ -180,6 +193,14 @@ class MeetingRoomController extends Controller
             'check_in_time' => $record->check_in_time ? Carbon::parse($record->check_in_time)->toDateTimeString() : null,
             'check_out_time' => $record->check_out_time ? Carbon::parse($record->check_out_time)->toDateTimeString() : null,
         ]);
+    }
+
+    protected function resolveJoinableAttendanceEvent(string $attendanceEventId): AttendanceEvent
+    {
+        $resolvedId = AttendanceEvent::decodePublicJoinKey($attendanceEventId);
+        abort_if(!$resolvedId, 404, __('Meeting link is invalid.'));
+
+        return AttendanceEvent::with('event')->findOrFail($resolvedId);
     }
 
     protected function buildPresenceStats(AttendanceEvent $attendanceEvent, AttendanceRecord $record): array
@@ -294,5 +315,44 @@ class MeetingRoomController extends Controller
         }
 
         return check_file($avatar) ? get_file($avatar) : null;
+    }
+
+    protected function resolveParticipantDisplayName(Request $request, LivekitMeetingService $livekitMeetingService): string
+    {
+        if (Auth::check()) {
+            return $livekitMeetingService->makeDisplayNameForUser(Auth::user());
+        }
+
+        $sessionKey = 'churchmeet_guest_display_name';
+        $requestedName = trim((string) $request->query('guest_name', $request->input('guest_name', '')));
+
+        if ($requestedName !== '') {
+            $normalizedName = Str::limit($requestedName, 60, '');
+            $request->session()->put($sessionKey, $normalizedName);
+
+            return $normalizedName;
+        }
+
+        $storedName = trim((string) $request->session()->get($sessionKey, ''));
+        return $storedName;
+    }
+
+    protected function resolveParticipantIdentity(Request $request, AttendanceEvent $attendanceEvent, LivekitMeetingService $livekitMeetingService): string
+    {
+        if (Auth::check()) {
+            return $livekitMeetingService->makeIdentityForUser(Auth::user()) . '-' . $attendanceEvent->id . '-' . Str::lower(Str::random(6));
+        }
+
+        $sessionKey = 'churchmeet_guest_identity_' . $attendanceEvent->id;
+        $storedIdentity = trim((string) $request->session()->get($sessionKey, ''));
+
+        if ($storedIdentity !== '') {
+            return $storedIdentity;
+        }
+
+        $identity = $livekitMeetingService->makeIdentityForUser(null) . '-' . $attendanceEvent->id;
+        $request->session()->put($sessionKey, $identity);
+
+        return $identity;
     }
 }

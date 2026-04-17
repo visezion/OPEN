@@ -12,6 +12,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -37,7 +38,7 @@ class AuthenticatedSessionController extends Controller
         }
         // $this->middleware('guest')->except('logout');
     }
-    public function create($lang = '')
+    public function create(Request $request, $lang = '')
     {
         if($lang == '')
         {
@@ -50,10 +51,16 @@ class AuthenticatedSessionController extends Controller
         \App::setLocale($lang);
         $captcha = $this->buildLoginCaptcha();
         session(['login_captcha_answer' => $captcha['answer']]);
+        $redirectTo = $this->sanitizeRedirectTo($request->query('redirect_to'));
+
+        if ($redirectTo) {
+            $request->session()->put('url.intended', $redirectTo);
+        }
 
         return view('auth.login', [
             'lang' => $lang,
             'captchaImage' => $captcha['image'],
+            'redirectTo' => $redirectTo,
         ]);
     }
 
@@ -75,6 +82,11 @@ class AuthenticatedSessionController extends Controller
     {
         $validation = [];
         $redirect = false;
+        $redirectTo = $this->sanitizeRedirectTo($request->input('redirect_to'));
+
+        if ($redirectTo) {
+            $request->session()->put('url.intended', $redirectTo);
+        }
 
         $submittedCaptcha = strtoupper((string) preg_replace('/[^A-Za-z0-9]/', '', (string) $request->input('captcha_answer', '')));
         $expectedCaptcha = strtoupper((string) $request->session()->get('login_captcha_answer', ''));
@@ -268,5 +280,41 @@ class AuthenticatedSessionController extends Controller
             'answer' => $answer,
             'image' => 'data:image/svg+xml;base64,' . base64_encode($svg),
         ];
+    }
+
+    private function sanitizeRedirectTo(?string $redirectTo): ?string
+    {
+        $redirectTo = trim((string) $redirectTo);
+
+        if ($redirectTo === '') {
+            return null;
+        }
+
+        $appUrl = url('/');
+        $appHost = parse_url($appUrl, PHP_URL_HOST);
+        $appScheme = parse_url($appUrl, PHP_URL_SCHEME);
+        $appPort = parse_url($appUrl, PHP_URL_PORT);
+
+        if (Str::startsWith($redirectTo, '/')) {
+            return url($redirectTo);
+        }
+
+        if (!filter_var($redirectTo, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        $redirectHost = parse_url($redirectTo, PHP_URL_HOST);
+        $redirectScheme = parse_url($redirectTo, PHP_URL_SCHEME);
+        $redirectPort = parse_url($redirectTo, PHP_URL_PORT);
+
+        if ($redirectHost !== $appHost || $redirectScheme !== $appScheme) {
+            return null;
+        }
+
+        if (($redirectPort ?: null) !== ($appPort ?: null)) {
+            return null;
+        }
+
+        return $redirectTo;
     }
 }

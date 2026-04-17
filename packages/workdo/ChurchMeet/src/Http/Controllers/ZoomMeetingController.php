@@ -22,7 +22,7 @@ class ZoomMeetingController extends Controller
 
         $this->authorizeMeetingCreation($attendanceEvent);
 
-        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => $attendanceEvent->workspace_id]);
 
         if (!$setting->account_id || !$setting->client_id || !$setting->client_secret) {
             return back()->with('error', __('Configure Zoom Server-to-Server OAuth before creating meetings.'));
@@ -41,9 +41,9 @@ class ZoomMeetingController extends Controller
         return back()->with('success', __('Zoom meeting created successfully.'));
     }
 
-    public function join(int $attendanceEventId, ZoomMeetingService $zoomMeetingService)
+    public function join(Request $request, string $attendanceEventId, ZoomMeetingService $zoomMeetingService)
     {
-        $attendanceEvent = AttendanceEvent::with('event')->where('workspace_id', getActiveWorkSpace())->findOrFail($attendanceEventId);
+        $attendanceEvent = $this->resolveJoinableAttendanceEvent($attendanceEventId);
 
         $this->authorizeMeetingJoin($attendanceEvent);
         $meetingNumber = $this->resolveMeetingNumber($attendanceEvent);
@@ -52,19 +52,22 @@ class ZoomMeetingController extends Controller
             return back()->with('error', __('Zoom meeting number is invalid. Update the event meeting details or recreate the Zoom meeting.'));
         }
 
-        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => $attendanceEvent->workspace_id]);
+        $guestDisplayName = $this->resolveParticipantDisplayName($request);
 
         return view('churchmeet::integrations.zoom_join', [
             'attendanceEvent' => $attendanceEvent,
             'zoomSetting' => $setting,
             'meetingSdkEnabled' => $zoomMeetingService->canUseMeetingSdk($setting),
             'canStartMeeting' => $this->userCanManageZoom($attendanceEvent) && !empty($attendanceEvent->host_start_url),
+            'guestDisplayName' => $guestDisplayName,
+            'requiresGuestName' => !Auth::check() && $guestDisplayName === '',
         ]);
     }
 
-    public function signature(Request $request, int $attendanceEventId, ZoomMeetingService $zoomMeetingService): JsonResponse
+    public function signature(Request $request, string $attendanceEventId, ZoomMeetingService $zoomMeetingService): JsonResponse
     {
-        $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($attendanceEventId);
+        $attendanceEvent = $this->resolveJoinableAttendanceEvent($attendanceEventId);
 
         $this->authorizeMeetingJoin($attendanceEvent);
         $meetingNumber = $this->resolveMeetingNumber($attendanceEvent);
@@ -75,7 +78,14 @@ class ZoomMeetingController extends Controller
             ], 422);
         }
 
-        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
+        $displayName = $this->resolveParticipantDisplayName($request);
+        if (!Auth::check() && $displayName === '') {
+            return response()->json([
+                'message' => 'Enter your display name before joining this meeting.',
+            ], 422);
+        }
+
+        $setting = ZoomSyncSetting::firstOrNew(['workspace_id' => $attendanceEvent->workspace_id]);
 
         try {
             $signature = $zoomMeetingService->makeMeetingSdkSignature($setting, $meetingNumber, 0);
@@ -88,7 +98,7 @@ class ZoomMeetingController extends Controller
             'sdkKey' => $setting->meeting_sdk_key,
             'meetingNumber' => $meetingNumber,
             'password' => $attendanceEvent->meeting_passcode,
-            'userName' => Auth::user()?->name ?: 'Church Member',
+            'userName' => $displayName,
             'userEmail' => Auth::user()?->email,
         ]);
     }
@@ -130,8 +140,35 @@ class ZoomMeetingController extends Controller
 
     protected function authorizeMeetingJoin(AttendanceEvent $attendanceEvent): void
     {
-        abort_unless(Auth::check(), 403);
         abort_if(!$this->resolveMeetingNumber($attendanceEvent), 404, __('Zoom meeting not found for this event.'));
+    }
+
+    protected function resolveJoinableAttendanceEvent(string $attendanceEventId): AttendanceEvent
+    {
+        $resolvedId = AttendanceEvent::decodePublicJoinKey($attendanceEventId);
+        abort_if(!$resolvedId, 404, __('Meeting link is invalid.'));
+
+        return AttendanceEvent::with('event')->findOrFail($resolvedId);
+    }
+
+    protected function resolveParticipantDisplayName(Request $request): string
+    {
+        if (Auth::check()) {
+            return Auth::user()?->name ?: 'Church Member';
+        }
+
+        $sessionKey = 'churchmeet_guest_display_name';
+        $requestedName = trim((string) $request->query('guest_name', $request->input('guest_name', '')));
+
+        if ($requestedName !== '') {
+            $normalizedName = \Illuminate\Support\Str::limit($requestedName, 60, '');
+            $request->session()->put($sessionKey, $normalizedName);
+
+            return $normalizedName;
+        }
+
+        $storedName = trim((string) $request->session()->get($sessionKey, ''));
+        return $storedName;
     }
 
     protected function userCanManageZoom(?AttendanceEvent $attendanceEvent = null): bool

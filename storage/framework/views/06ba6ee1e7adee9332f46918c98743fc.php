@@ -82,7 +82,7 @@
                                     <tr>
                                         <td>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($attendanceEvent->event): ?>
-                                                <a href="<?php echo e(route('churchmeet.events.show', $attendanceEvent->event_id)); ?>" 
+                                                <a href="<?php echo e(route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id)); ?>" 
                                                 class="fw-semibold text-primary text-decoration-none">
                                                     <?php echo e($attendanceEvent->event->title ?? __('N/A')); ?>
 

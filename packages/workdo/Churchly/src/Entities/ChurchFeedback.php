@@ -3,8 +3,7 @@
 namespace Workdo\Churchly\Entities;
 
 use Illuminate\Database\Eloquent\Model;
-use Workdo\Churchly\Entities\ChurchBranch;
-use Workdo\Churchly\Entities\ChurchDepartment;
+
 class ChurchFeedback extends Model
 {
     
@@ -28,11 +27,19 @@ class ChurchFeedback extends Model
         'workspace_id',
         'branch_id',
         'department_id',
+        'attendance_event_id',
+        'record_kind',
+        'week_ending_date',
+        'report_payload',
+        'attendance_summary',
     ];
 
     protected $casts = [
         'is_anonymous' => 'boolean',
         'reviewed_at' => 'datetime',
+        'week_ending_date' => 'date',
+        'report_payload' => 'array',
+        'attendance_summary' => 'array',
     ];
 
     /**
@@ -73,6 +80,28 @@ class ChurchFeedback extends Model
     public function department()
     {
         return $this->belongsTo(ChurchDepartment::class, 'department_id');
+    }
+
+    public function attendanceEvent()
+    {
+        return $this->belongsTo(AttendanceEvent::class, 'attendance_event_id');
+    }
+
+    public function isReport(): bool
+    {
+        return $this->record_kind === 'weekly_report';
+    }
+
+    public function getWeekEndingFormattedAttribute(): string
+    {
+        return $this->week_ending_date ? $this->week_ending_date->format('d M Y') : '-';
+    }
+
+    public function getAttendanceRateAttribute(): ?float
+    {
+        $rate = data_get($this->attendance_summary, 'attendance_rate');
+
+        return $rate === null ? null : (float) $rate;
     }
 
 

@@ -176,7 +176,7 @@
                                     <small class="text-muted">{{ __('Create or update Zoom, Jitsi, or LiveKit meeting details members will join from OPEN.') }}</small>
                                 </div>
                                 @if($currentPlatform === 'livekit' ? !empty(optional($attendanceEvent)->meeting_id) : (optional($attendanceEvent)->meeting_id || optional($attendanceEvent)->meeting_link))
-                                    <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->id) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->public_join_key) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="ti ti-video"></i> {{ __('Open Join Room') }}
                                     </a>
                                 @endif

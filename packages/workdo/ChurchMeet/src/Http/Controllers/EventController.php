@@ -565,6 +565,9 @@ public function publishAction(Request $request, $id)
  */
     public function show($id)
     {
+        $resolvedId = Event::decodePublicViewKey((string) $id);
+        abort_if(!$resolvedId, 404, __('Event link is invalid.'));
+
         // Ã¢Å“â€¦ Load the event with all relations for a full detail view
         $event = Event::with([
                 'lead',
@@ -647,7 +650,7 @@ public function publishAction(Request $request, $id)
                 'reviewerComments.user'
             ])
             ->inWorkspace()
-            ->findOrFail($id);
+            ->findOrFail($resolvedId);
 
         $attendanceEvent = AttendanceEvent::where('event_id', $id)
             ->where('workspace_id', getActiveWorkSpace())

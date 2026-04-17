@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends(Auth::check() ? 'layouts.main' : 'churchmeet::layouts.public_join')
 
 @section('page-title', __('Join Jitsi Meeting'))
 
@@ -7,14 +7,16 @@
 @endsection
 
 @section('page-action')
-    <div class="d-flex gap-2">
-        <a href="{{ route('churchmeet.events.show', $attendanceEvent->event_id) }}" class="btn btn-sm btn-outline-secondary">
-            <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
-        </a>
-        <a href="{{ $jitsiMeetingLink }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
-            <i class="ti ti-external-link"></i> {{ $canStartMeeting ? __('Open in New Tab') : __('Fallback Join Link') }}
-        </a>
-    </div>
+    @auth
+        <div class="d-flex gap-2">
+            <a href="{{ route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
+            </a>
+            <a href="{{ $jitsiMeetingLink }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
+                <i class="ti ti-external-link"></i> {{ $canStartMeeting ? __('Open in New Tab') : __('Fallback Join Link') }}
+            </a>
+        </div>
+    @endauth
 @endsection
 
 @push('css')
@@ -26,9 +28,55 @@
 @php
     $eventTitle = optional($attendanceEvent->event)->title ?: __('Church Meeting');
     $meetingLabel = $attendanceEvent->meeting_id ?: $jitsiRoomName;
+    $meetingShareUrl = route('churchmeet.meetings.join', $attendanceEvent->public_join_key);
+    $meetingLoginUrl = route('login', ['lang' => app()->getLocale(), 'redirect_to' => url()->current()]);
+    $guestDisplayName = trim((string) ($guestDisplayName ?? request('guest_name', session('churchmeet_guest_display_name', ''))));
+    $requiresGuestName = (bool) ($requiresGuestName ?? (!Auth::check() && $guestDisplayName === ''));
 @endphp
 
 <div class="container-fluid jitsi-join-page">
+    @if($requiresGuestName)
+        <div class="meeting-guest-gate">
+            <div class="card">
+                <div class="card-body p-4">
+                    <span class="jitsi-eyebrow">
+                        <i class="ti ti-user-plus"></i> {{ __('Public Meeting Access') }}
+                    </span>
+                    <h3 class="mt-3 mb-2">{{ __('Enter your display name') }}</h3>
+                    <p class="meeting-guest-gate-copy mb-0">
+                        {{ __('Sign in with your WorkDo account or continue as a guest. Guest access only needs the name other participants should see.') }}
+                    </p>
+
+                    <form action="{{ url()->current() }}" method="GET" class="meeting-guest-gate-form mt-4">
+                        <div>
+                            <label for="guest_name" class="meeting-guest-gate-label">{{ __('Display Name') }}</label>
+                            <input
+                                type="text"
+                                id="guest_name"
+                                name="guest_name"
+                                class="form-control"
+                                maxlength="60"
+                                required
+                                autocomplete="name"
+                                placeholder="{{ __('Enter your name') }}"
+                                value="{{ $guestDisplayName }}"
+                            >
+                        </div>
+                        <div class="meeting-guest-gate-actions">
+                            <a href="{{ $meetingLoginUrl }}" class="btn btn-outline-secondary">
+                                <i class="ti ti-login"></i> {{ __('Login') }}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-door-enter"></i> {{ __('Join as Guest') }}
+                            </button>
+                            <span class="meeting-guest-gate-note">{{ __('Your name will be shown inside the room and reused for this browser session.') }}</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="jitsi-shell">
         <div class="jitsi-stack">
             <div class="card jitsi-hero">
@@ -44,6 +92,9 @@
                         <span class="jitsi-pill"><i class="ti ti-hash"></i> {{ $meetingLabel }}</span>
                         <span class="jitsi-pill"><i class="ti ti-world"></i> {{ $jitsiDomain }}</span>
                         <span class="jitsi-pill"><i class="ti ti-user-check"></i> {{ __('Attendance linked') }}</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary churchmeet-copy-trigger" data-copy-text="{{ $meetingShareUrl }}" data-copy-default="{{ __('Copy Invite') }}" data-copy-success="{{ __('Copied') }}">
+                            <i class="ti ti-link"></i> <span>{{ __('Copy Invite') }}</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -129,8 +180,10 @@
                         <i class="ti ti-loader"></i>
                     </div>
                     <div>
-                        <div class="fw-bold">{{ __('Preparing Jitsi room') }}</div>
-                        <div class="jitsi-status-copy">{{ __('Loading the meeting API and connecting your browser to the live room.') }}</div>
+                        <div class="fw-bold">{{ $requiresGuestName ? __('Display name required') : __('Preparing Jitsi room') }}</div>
+                        <div class="jitsi-status-copy">
+                            {{ $requiresGuestName ? __('Enter your display name above to load the embedded meeting room.') : __('Loading the meeting API and connecting your browser to the live room.') }}
+                        </div>
                     </div>
                 </div>
 
@@ -142,6 +195,37 @@
 @endsection
 
 @push('scripts')
+@unless($requiresGuestName)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.churchmeet-copy-trigger').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const copyText = button.dataset.copyText || '';
+            const defaultLabel = button.dataset.copyDefault || 'Copy Invite';
+            const successLabel = button.dataset.copySuccess || 'Copied';
+            const label = button.querySelector('span');
+
+            if (!copyText) {
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(copyText);
+                if (label) {
+                    label.textContent = successLabel;
+                }
+                setTimeout(function () {
+                    if (label) {
+                        label.textContent = defaultLabel;
+                    }
+                }, 1600);
+            } catch (error) {
+                window.prompt('Copy this link', copyText);
+            }
+        });
+    });
+});
+</script>
 <script src="https://{{ $jitsiDomain }}/external_api.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -151,11 +235,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const statusCopy = statusPanel.querySelector('.jitsi-status-copy');
     const statusIcon = statusPanel.querySelector('.jitsi-status-icon i');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-    const meetingPresenceUrl = @json(route('churchmeet.meetings.presence', $attendanceEvent->id));
+    const meetingPresenceUrl = @json(route('churchmeet.meetings.presence', $attendanceEvent->public_join_key));
     const meetingFallbackUrl = @json($jitsiMeetingLink);
     const domain = @json($jitsiDomain);
     const roomName = @json($jitsiRoomName);
-    const displayName = @json(Auth::user()->name ?? 'Guest');
+    const displayName = @json(Auth::user()->name ?? $guestDisplayName);
     const email = @json(Auth::user()->email ?? '');
     let joinPresenceSent = false;
     let leavePresenceSent = false;
@@ -291,4 +375,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@endunless
 @endpush

@@ -1,7 +1,7 @@
 
 
 <?php $__env->startSection('page-title'); ?>
-    <?php echo e(__('Feedback Analytics Dashboard')); ?>
+    <?php echo e(__('Reports Dashboard')); ?>
 
 <?php $__env->stopSection(); ?>
 
@@ -17,10 +17,12 @@
 
 <?php $__env->startSection('page-action'); ?>
     <a href="<?php echo e(route('feedback.index')); ?>" class="btn btn-sm btn-primary">
-        <i class="ti ti-eye"></i> View All Feedback
+        <i class="ti ti-eye"></i> <?php echo e(__('View All Reports')); ?>
+
     </a>
     <a href="<?php echo e(route('feedback.create')); ?>" class="btn btn-sm btn-primary">
-            <i class="ti ti-plus"></i> 
+            <i class="ti ti-plus"></i> <?php echo e(__('New Report')); ?>
+
         </a>
 <?php $__env->stopSection(); ?>
 
@@ -41,11 +43,11 @@
                     <div class="card-inner">
                         <div class="card-content">
                             <h2><?php echo e(Auth::user()->ActiveWorkspaceName()); ?></h2>
-                                <p><?php echo e(__('Manage your church Feedback and Workers Report with ease through organized feedback, automated reminders, and real-time service analytics.')); ?></p>
+                                <p><?php echo e(__('Track weekly departmental reports, attendance snapshots, service notes, and leadership follow-up from one dashboard.')); ?></p>
                             <div class="btn-wrp d-flex gap-3">
                                 <a href="<?php echo e(route('feedback.create')); ?>" class="btn btn-primary d-flex align-items-center gap-1 cp_link" tabindex="0" data-link="<?php echo e(route('feedback.create')); ?>" data-bs-whatever="Copy Link" data-bs-toggle="tooltip" data-bs-original-title="" title="">
                                     <i class="ti ti-link text-white"></i>
-                                <span>Create Feedback</span></a>
+                                <span><?php echo e(__('Create Report')); ?></span></a>
                                 <!-- <a href="javascript:" class="btn btn-primary" tabindex="0">
                                     <i class="ti ti-share text-white"></i>
                                 </a> -->
@@ -72,9 +74,9 @@
                     $feedbackStats = [
                       
                         ['label' => 'Pending Reviews', 'icon' => 'ti ti-clock', 'count' => $statswithcount['pending'] ?? 0, 'color' => 'text-danger'],
-                        ['label' => 'Resolved', 'icon' => 'ti ti-check', 'count' => $statswithcount['resolved'] ?? 0, 'color' => 'text-success'],
-                        ['label' => 'Reviewed', 'icon' => 'ti ti-eye-check', 'count' => $statswithcount['reviewed'] ?? 0, 'color' => 'text-warning'],
-                        ['label' => 'Total Feedbacks', 'icon' => 'ti ti-message-dots', 'count' => $statswithcount['total'] ?? 0, 'color' => 'text-primary'],
+                        ['label' => 'Resolved Reports', 'icon' => 'ti ti-check', 'count' => $statswithcount['resolved'] ?? 0, 'color' => 'text-success'],
+                        ['label' => 'Reviewed Reports', 'icon' => 'ti ti-eye-check', 'count' => $statswithcount['reviewed'] ?? 0, 'color' => 'text-warning'],
+                        ['label' => 'Total Reports', 'icon' => 'ti ti-clipboard-list', 'count' => $statswithcount['total'] ?? 0, 'color' => 'text-primary'],
                         
                     ];
                 ?>
@@ -106,18 +108,18 @@
             <div class="col-xxl-6 col-12">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>Recent Feedback</h5>
+                        <h5><?php echo e(__('Recent Reports')); ?></h5>
                     </div>
                     <div class="card-body table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Type</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
-                                    <th>Submitted</th>
-                                    <th>Action</th>
+                                    <th><?php echo e(__('Title')); ?></th>
+                                    <th><?php echo e(__('Type')); ?></th>
+                                    <th><?php echo e(__('Category')); ?></th>
+                                    <th><?php echo e(__('Status')); ?></th>
+                                    <th><?php echo e(__('Submitted')); ?></th>
+                                    <th><?php echo e(__('Action')); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -129,7 +131,7 @@
                                     <td><span class="badge bg-<?php echo e($feedback->status == 'resolved' ? 'success' : ($feedback->status == 'reviewed' ? 'warning' : 'secondary')); ?>"><?php echo e(ucfirst($feedback->status)); ?></span></td>
                                     <td><?php echo e($feedback->created_at->diffForHumans()); ?> </td>
                                     <td>
-                                        <a href="<?php echo e(route('feedback.show', \Illuminate\Support\Facades\Crypt::encrypt( $feedback->id))); ?>" class="btn btn-sm btn-info">View</a>
+                                        <a href="<?php echo e(route('feedback.show', \Illuminate\Support\Facades\Crypt::encrypt( $feedback->id))); ?>" class="btn btn-sm btn-info"><?php echo e(__('View')); ?></a>
                                     </td>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -142,7 +144,7 @@
             <div class="col-xxl-3 col-12">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5>Feedback Category Chart</h5>
+                        <h5><?php echo e(__('Report Category Chart')); ?></h5>
                     </div>
                     <div class="card-body">
                         <canvas id="feedbackCategoryChart" height="300"></canvas>
@@ -152,7 +154,7 @@
             <div class="col-xxl-3 col-12">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5>Feedback Type Chart</h5>
+                        <h5><?php echo e(__('Report Status Chart')); ?></h5>
                     </div>
                     <div class="card-body">
                         <canvas id="feedbackTypeChart" height="10"></canvas>
@@ -229,7 +231,7 @@
                 data: {
                     labels: <?php echo json_encode(array_keys($stats)); ?>,
                     datasets: [{
-                        label: 'Feedback Types',
+                        label: 'Report Status',
                         data: <?php echo json_encode(array_values($stats)); ?>,
                         backgroundColor: ['#dc3545', '#ffc107', '#198754', '#0d6efd']
                     }]

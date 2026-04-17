@@ -18,7 +18,7 @@
     top: -7px;
     border-right: 7px solid transparent;
     border-left: 7px solid transparent;
-    border-bottom: 7px solid #ccc; }
+    border-bottom: 7px solid rgb(226 232 240 / var(--tw-border-opacity, 1)); }
   .daterangepicker:after {
     top: -6px;
     border-right: 6px solid transparent;
@@ -50,7 +50,7 @@
       top: initial;
       bottom: -7px;
       border-bottom: initial;
-      border-top: 7px solid #ccc; }
+      border-top: 7px solid rgb(226 232 240 / var(--tw-border-opacity, 1)); }
     .daterangepicker.dropup:after {
       top: initial;
       bottom: -6px;
@@ -95,7 +95,7 @@
       color: inherit; }
     .daterangepicker td.week, .daterangepicker th.week {
       font-size: 80%;
-      color: #ccc; }
+      color: rgb(226 232 240 / var(--tw-border-opacity, 1)); }
   .daterangepicker td.off, .daterangepicker td.off.in-range, .daterangepicker td.off.start-date, .daterangepicker td.off.end-date {
     background-color: #fff;
     border-color: transparent;
@@ -136,7 +136,7 @@
     width: 50px;
     margin-bottom: 0; }
   .daterangepicker .input-mini {
-    border: 1px solid #ccc;
+    border: 1px solid rgb(226 232 240 / var(--tw-border-opacity, 1));
     border-radius: 4px;
     color: #555;
     height: 30px;
@@ -168,7 +168,7 @@
     position: relative;
     padding-left: 28px; }
     .daterangepicker .calendar-time select.disabled {
-      color: #ccc;
+      color: rgb(226 232 240 / var(--tw-border-opacity, 1));
       cursor: not-allowed; }
 
 .ranges {

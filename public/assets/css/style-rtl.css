@@ -24878,11 +24878,11 @@ body.theme-10 .team-lists img {
 }
 
 .ticket-block .hd-body {
-    border-left: 3px solid #ccc;
+    border-left: 3px solid rgb(226 232 240 / var(--tw-border-opacity, 1));
 }
 
 .ticket-block .col.border-right {
-    border-color: #ccc !important;
+    border-color: rgb(226 232 240 / var(--tw-border-opacity, 1)) !important;
 }
 
 .ticket-block .ticket-type-icon {

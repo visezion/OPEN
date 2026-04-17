@@ -184,7 +184,7 @@
                                     <small class="text-muted"><?php echo e(__('Create or update Zoom, Jitsi, or LiveKit meeting details members will join from OPEN.')); ?></small>
                                 </div>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($currentPlatform === 'livekit' ? !empty(optional($attendanceEvent)->meeting_id) : (optional($attendanceEvent)->meeting_id || optional($attendanceEvent)->meeting_link)): ?>
-                                    <a href="<?php echo e(route('churchmeet.meetings.join', $attendanceEvent->id)); ?>" class="btn btn-sm btn-outline-primary">
+                                    <a href="<?php echo e(route('churchmeet.meetings.join', $attendanceEvent->public_join_key)); ?>" class="btn btn-sm btn-outline-primary">
                                         <i class="ti ti-video"></i> <?php echo e(__('Open Join Room')); ?>
 
                                     </a>

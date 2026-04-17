@@ -11,7 +11,7 @@ class RouteServiceProvider extends ServiceProvider
 
     public function map(): void
     {
-        Route::middleware(['web', 'auth', 'verified'])
+        Route::middleware(['web'])
             ->namespace($this->namespace)
             ->group(__DIR__ . '/../Routes/web.php');
     }

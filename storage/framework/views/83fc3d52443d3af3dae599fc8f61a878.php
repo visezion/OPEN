@@ -8,27 +8,33 @@
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('page-action'); ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canStartMeeting): ?>
-        <a href="<?php echo e($attendanceEvent->host_start_url); ?>" target="_blank" rel="noopener" class="btn btn-warning btn-sm">
-            <i class="ti ti-player-play"></i> <?php echo e(__('Start As Host')); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canStartMeeting): ?>
+            <a href="<?php echo e($attendanceEvent->host_start_url); ?>" target="_blank" rel="noopener" class="btn btn-warning btn-sm">
+                <i class="ti ti-player-play"></i> <?php echo e(__('Start As Host')); ?>
+
+            </a>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($attendanceEvent->meeting_link): ?>
+            <a href="<?php echo e($attendanceEvent->meeting_link); ?>" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+                <i class="ti ti-external-link"></i> <?php echo e(__('Open Zoom Fallback')); ?>
+
+            </a>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <a href="<?php echo e(route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id)); ?>" class="btn btn-light btn-sm">
+            <i class="ti ti-arrow-left"></i> <?php echo e(__('Back to Events')); ?>
 
         </a>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($attendanceEvent->meeting_link): ?>
-        <a href="<?php echo e($attendanceEvent->meeting_link); ?>" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
-            <i class="ti ti-external-link"></i> <?php echo e(__('Open Zoom Fallback')); ?>
-
-        </a>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    <a href="<?php echo e(route('churchmeet.events.show', $attendanceEvent->event_id)); ?>" class="btn btn-light btn-sm">
-        <i class="ti ti-arrow-left"></i> <?php echo e(__('Back to Events')); ?>
-
-    </a>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
     <?php
         $eventTitle = optional($attendanceEvent->event)->title ?: __('Zoom Meeting');
+        $meetingShareUrl = route('churchmeet.meetings.join', $attendanceEvent->public_join_key);
+        $meetingLoginUrl = route('login', ['lang' => app()->getLocale(), 'redirect_to' => url()->current()]);
+        $guestDisplayName = trim((string) ($guestDisplayName ?? request('guest_name', session('churchmeet_guest_display_name', ''))));
+        $requiresGuestName = (bool) ($requiresGuestName ?? (!Auth::check() && $guestDisplayName === ''));
         $rawMeetingId = trim((string) ($attendanceEvent->meeting_id ?? ''));
         $parsedMeetingNumber = null;
 
@@ -45,6 +51,46 @@
     ?>
 
     <div class="churchmeet-zoom-join">
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requiresGuestName): ?>
+            <div class="meeting-guest-gate">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <span class="chip"><i class="ti ti-user-plus"></i><?php echo e(__('Public Meeting Access')); ?></span>
+                        <h3 class="mt-3 mb-2"><?php echo e(__('Enter your display name')); ?></h3>
+                        <p class="meeting-guest-gate-copy mb-0"><?php echo e(__('Sign in with your WorkDo account or continue as a guest. Guest access only needs the name other participants should see.')); ?></p>
+
+                        <form action="<?php echo e(url()->current()); ?>" method="GET" class="meeting-guest-gate-form mt-4">
+                            <div>
+                                <label for="guest_name" class="meeting-guest-gate-label"><?php echo e(__('Display Name')); ?></label>
+                                <input
+                                    type="text"
+                                    id="guest_name"
+                                    name="guest_name"
+                                    class="form-control"
+                                    maxlength="60"
+                                    required
+                                    autocomplete="name"
+                                    placeholder="<?php echo e(__('Enter your name')); ?>"
+                                    value="<?php echo e($guestDisplayName); ?>"
+                                >
+                            </div>
+                            <div class="meeting-guest-gate-actions">
+                                <a href="<?php echo e($meetingLoginUrl); ?>" class="btn btn-outline-secondary">
+                                    <i class="ti ti-login"></i> <?php echo e(__('Login')); ?>
+
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-door-enter"></i> <?php echo e(__('Join as Guest')); ?>
+
+                                </button>
+                                <span class="meeting-guest-gate-note"><?php echo e(__('Your name will be reused for this browser session until you change it.')); ?></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         <div class="card join-hero mb-4">
             <div class="card-body p-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
@@ -52,6 +98,11 @@
                         <span class="chip"><i class="ti ti-brand-zoom"></i><?php echo e(__('ChurchMeet Live Room')); ?></span>
                         <h3 class="mt-3 mb-1"><?php echo e($eventTitle); ?></h3>
                         <p class="hero-copy mb-0"><?php echo e(__('Join this Zoom meeting inside OPEN. Meeting session status and fallback controls stay on this page.')); ?></p>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary churchmeet-copy-trigger" data-copy-text="<?php echo e($meetingShareUrl); ?>" data-copy-default="<?php echo e(__('Copy Invite')); ?>" data-copy-success="<?php echo e(__('Copied')); ?>">
+                                <i class="ti ti-link"></i> <span><?php echo e(__('Copy Invite')); ?></span>
+                            </button>
+                        </div>
                     </div>
                     <div class="text-end">
                         <span class="badge bg-light text-dark border"><?php echo e(strtoupper((string) ($attendanceEvent->online_platform ?: 'zoom'))); ?></span>
@@ -168,7 +219,7 @@
                     </div>
                     <div class="card-body">
                         <div id="zoom-status" class="zoom-status-panel is-info">
-                            <?php echo e(__('Preparing Zoom meeting room...')); ?>
+                            <?php echo e($requiresGuestName ? __('Enter your display name above to load the Zoom room.') : __('Preparing Zoom meeting room...')); ?>
 
                         </div>
                         <div id="meetingSDKElement"></div>
@@ -180,6 +231,37 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('scripts'); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! ($requiresGuestName)): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.churchmeet-copy-trigger').forEach(function (button) {
+                button.addEventListener('click', async function () {
+                    const copyText = button.dataset.copyText || '';
+                    const defaultLabel = button.dataset.copyDefault || 'Copy Invite';
+                    const successLabel = button.dataset.copySuccess || 'Copied';
+                    const label = button.querySelector('span');
+
+                    if (!copyText) {
+                        return;
+                    }
+
+                    try {
+                        await navigator.clipboard.writeText(copyText);
+                        if (label) {
+                            label.textContent = successLabel;
+                        }
+                        setTimeout(function () {
+                            if (label) {
+                                label.textContent = defaultLabel;
+                            }
+                        }, 1600);
+                    } catch (error) {
+                        window.prompt('Copy this link', copyText);
+                    }
+                });
+            });
+        });
+    </script>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($meetingSdkEnabled): ?>
         <script src="https://source.zoom.us/5.1.4/lib/vendor/react.min.js" data-zoom-vendor="react" onload="this.dataset.loaded='1'"></script>
         <script src="https://source.zoom.us/5.1.4/lib/vendor/react-dom.min.js" data-zoom-vendor="react-dom" onload="this.dataset.loaded='1'"></script>
@@ -192,7 +274,7 @@
                 const statusBox = document.getElementById('zoom-status');
                 const rootElement = document.getElementById('meetingSDKElement');
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || <?php echo json_encode(csrf_token(), 15, 512) ?>;
-                const meetingPresenceUrl = <?php echo json_encode(route('churchmeet.meetings.presence', $attendanceEvent->id), 512) ?>;
+                const meetingPresenceUrl = <?php echo json_encode(route('churchmeet.meetings.presence', $attendanceEvent->public_join_key), 512) ?>;
                 const zoomEmbeddedSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-embedded-5.1.4.min.js';
                 const zoomClientSdkUrl = 'https://source.zoom.us/5.1.4/zoom-meeting-5.1.4.min.js';
                 const zoomVendorScripts = [
@@ -355,7 +437,7 @@
 
                     return await new Promise((resolve, reject) => {
                         ZoomMtg.init({
-                            leaveUrl: <?php echo json_encode(route('churchmeet.events.show', $attendanceEvent->event_id), 512) ?>,
+                            leaveUrl: <?php echo json_encode(Auth::check() ? route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id) : route('churchmeet.meetings.join', $attendanceEvent->public_join_key)) ?>,
                             patchJsMedia: true,
                             leaveOnPageUnload: true,
                             success: function () {
@@ -389,7 +471,7 @@
                 try {
                     setStatus('Requesting secure Zoom session...', 'info');
 
-                    const response = await fetch(<?php echo json_encode(route('churchmeet.zoom.meetings.signature', $attendanceEvent->id), 512) ?>, {
+                    const response = await fetch(<?php echo json_encode(route('churchmeet.zoom.meetings.signature', $attendanceEvent->public_join_key), 512) ?>, {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
@@ -473,6 +555,7 @@
             });
         </script>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopPush(); ?>
 
-<?php echo $__env->make('layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\ChurchMeet\src\Resources\views\integrations\zoom_join.blade.php ENDPATH**/ ?>
+<?php echo $__env->make(Auth::check() ? 'layouts.main' : 'churchmeet::layouts.public_join', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\ChurchMeet\src\Resources\views\integrations\zoom_join.blade.php ENDPATH**/ ?>

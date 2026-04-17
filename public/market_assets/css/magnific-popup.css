@@ -84,7 +84,7 @@
     display: none !important;
 }
 .mfp-preloader {
-    color: #ccc;
+    color: rgb(226 232 240 / var(--tw-border-opacity, 1));
     position: absolute;
     top: 50%;
     width: auto;
@@ -95,7 +95,7 @@
     z-index: 1044;
 }
 .mfp-preloader a {
-    color: #ccc;
+    color: rgb(226 232 240 / var(--tw-border-opacity, 1));
 }
 .mfp-preloader a:hover {
     color: #fff;
@@ -162,7 +162,7 @@ button::-moz-focus-inner {
     position: absolute;
     top: 0;
     right: 0;
-    color: #ccc;
+    color: rgb(226 232 240 / var(--tw-border-opacity, 1));
     font-size: 12px;
     line-height: 18px;
     white-space: nowrap;

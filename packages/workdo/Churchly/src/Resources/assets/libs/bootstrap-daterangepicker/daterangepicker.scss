@@ -49,7 +49,7 @@ $daterangepicker-padding:        4px !default;
 $daterangepicker-z-index:        3000 !default;
 
 $daterangepicker-border-size:    1px !default;
-$daterangepicker-border-color:   #ccc !default;
+$daterangepicker-border-color:   rgb(226 232 240 / var(--tw-border-opacity, 1)) !default;
 $daterangepicker-border-radius:  4px !default;
 
 
@@ -82,14 +82,14 @@ $daterangepicker-control-line-height:          $daterangepicker-control-height !
 $daterangepicker-control-color:                #555 !default;
 
 $daterangepicker-control-border-size:          1px !default;
-$daterangepicker-control-border-color:         #ccc !default;
+$daterangepicker-control-border-color:         rgb(226 232 240 / var(--tw-border-opacity, 1)) !default;
 $daterangepicker-control-border-radius:        4px !default;
 
 $daterangepicker-control-active-border-size:   1px !default;
 $daterangepicker-control-active-border-color:  #08c !default;
 $daterangepicker-control-active-border-radius: $daterangepicker-control-border-radius !default;
 
-$daterangepicker-control-disabled-color:       #ccc !default;
+$daterangepicker-control-disabled-color:       rgb(226 232 240 / var(--tw-border-opacity, 1)) !default;
 
 //
 // Ranges
@@ -283,7 +283,7 @@ $daterangepicker-ranges-active-border-radius: $daterangepicker-border-radius !de
 
     &.week {
       font-size: 80%;
-      color: #ccc;
+      color: rgb(226 232 240 / var(--tw-border-opacity, 1));
     }
   }
 

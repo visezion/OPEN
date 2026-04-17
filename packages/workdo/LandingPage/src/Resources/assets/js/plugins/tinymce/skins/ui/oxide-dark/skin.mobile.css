@@ -227,7 +227,7 @@
 .tinymce-mobile-toolstrip .tinymce-mobile-toolbar {
   align-items: center;
   background-color: #fff;
-  border-bottom: 1px solid #cccccc;
+  border-bottom: 1px solid rgb(226 232 240 / var(--tw-border-opacity, 1))ccc;
   display: flex;
   flex: 1;
   height: 2.5em;
@@ -265,7 +265,7 @@
 }
 .tinymce-mobile-toolstrip .tinymce-mobile-toolbar:not(.tinymce-mobile-context-toolbar) .tinymce-mobile-toolbar-group .tinymce-mobile-toolbar-group-item.tinymce-mobile-toolbar-button.tinymce-mobile-toolbar-button-selected {
   background: #c8cbcf;
-  color: #cccccc;
+  color: rgb(226 232 240 / var(--tw-border-opacity, 1))ccc;
 }
 .tinymce-mobile-toolstrip .tinymce-mobile-toolbar:not(.tinymce-mobile-context-toolbar) .tinymce-mobile-toolbar-group:first-of-type,
 .tinymce-mobile-toolstrip .tinymce-mobile-toolbar:not(.tinymce-mobile-context-toolbar) .tinymce-mobile-toolbar-group:last-of-type {
@@ -350,7 +350,7 @@
   visibility: hidden;
 }
 .tinymce-mobile-toolstrip .tinymce-mobile-toolbar.tinymce-mobile-context-toolbar .tinymce-mobile-toolbar-group .tinymce-mobile-dot-item {
-  color: #cccccc;
+  color: rgb(226 232 240 / var(--tw-border-opacity, 1))ccc;
   font-size: 10px;
   line-height: 10px;
   margin: 0 2px;
@@ -384,7 +384,7 @@
   height: 100%;
 }
 .tinymce-mobile-toolstrip .tinymce-mobile-toolbar.tinymce-mobile-context-toolbar .tinymce-mobile-toolbar-group .tinymce-mobile-slider .tinymce-mobile-slider-size-container .tinymce-mobile-slider-size-line {
-  background: #cccccc;
+  background: rgb(226 232 240 / var(--tw-border-opacity, 1))ccc;
   display: flex;
   flex: 1;
   height: 0.2em;

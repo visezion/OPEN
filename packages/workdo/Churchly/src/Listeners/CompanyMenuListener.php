@@ -42,9 +42,9 @@ class CompanyMenuListener
             'permission' => 'church_member manage'
         ]);
         
-         $menu->add([
+        $menu->add([
             'category' => 'Church',
-            'title' => __('Feedback System'),
+            'title' => __('Weekly Reports'),
             'icon' => 'ti ti-clipboard-list',
             'name' => 'church-timmer',
             'parent' => '',

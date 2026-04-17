@@ -83,7 +83,7 @@
             font-size: 11px;
             color: #777;
             margin-top: 25px;
-            border-top: 1px dashed #ccc;
+            border-top: 1px dashed rgb(226 232 240 / var(--tw-border-opacity, 1));
             padding-top: 6px;
         }
 

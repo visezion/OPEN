@@ -4,6 +4,7 @@ namespace Workdo\ChurchMeet\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 
 class Event extends Model
 {
@@ -108,6 +109,46 @@ class Event extends Model
     {
         return $this->hasMany(ChurchEventReviewerComment::class, 'event_id')
                     ->orderBy('commented_at', 'asc');
+    }
+
+    public function getPublicViewKeyAttribute(): string
+    {
+        return static::encodePublicViewKey($this->getKey());
+    }
+
+    public static function encodePublicViewKey($eventId): string
+    {
+        $encrypted = Crypt::encryptString((string) $eventId);
+
+        return rtrim(strtr($encrypted, '+/', '-_'), '=');
+    }
+
+    public static function decodePublicViewKey(string $value): ?int
+    {
+        $normalized = trim($value);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (ctype_digit($normalized)) {
+            return (int) $normalized;
+        }
+
+        $normalized = strtr($normalized, '-_', '+/');
+        $padding = strlen($normalized) % 4;
+
+        if ($padding > 0) {
+            $normalized .= str_repeat('=', 4 - $padding);
+        }
+
+        try {
+            $decrypted = Crypt::decryptString($normalized);
+        } catch (\Throwable $exception) {
+            return null;
+        }
+
+        return ctype_digit($decrypted) ? (int) $decrypted : null;
     }
 
 

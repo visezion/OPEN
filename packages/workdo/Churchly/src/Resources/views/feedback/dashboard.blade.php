@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('page-title')
-    {{ __('Feedback Analytics Dashboard') }}
+    {{ __('Reports Dashboard') }}
 @endsection
 
 @section('page-breadcrumb')
@@ -15,10 +15,10 @@
 
 @section('page-action')
     <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-primary">
-        <i class="ti ti-eye"></i> View All Feedback
+        <i class="ti ti-eye"></i> {{ __('View All Reports') }}
     </a>
     <a href="{{ route('feedback.create') }}" class="btn btn-sm btn-primary">
-            <i class="ti ti-plus"></i> 
+            <i class="ti ti-plus"></i> {{ __('New Report') }}
         </a>
 @endsection
 
@@ -38,11 +38,11 @@
                     <div class="card-inner">
                         <div class="card-content">
                             <h2>{{ Auth::user()->ActiveWorkspaceName() }}</h2>
-                                <p>{{ __('Manage your church Feedback and Workers Report with ease through organized feedback, automated reminders, and real-time service analytics.') }}</p>
+                                <p>{{ __('Track weekly departmental reports, attendance snapshots, service notes, and leadership follow-up from one dashboard.') }}</p>
                             <div class="btn-wrp d-flex gap-3">
                                 <a href="{{ route('feedback.create') }}" class="btn btn-primary d-flex align-items-center gap-1 cp_link" tabindex="0" data-link="{{ route('feedback.create') }}" data-bs-whatever="Copy Link" data-bs-toggle="tooltip" data-bs-original-title="" title="">
                                     <i class="ti ti-link text-white"></i>
-                                <span>Create Feedback</span></a>
+                                <span>{{ __('Create Report') }}</span></a>
                                 <!-- <a href="javascript:" class="btn btn-primary" tabindex="0">
                                     <i class="ti ti-share text-white"></i>
                                 </a> -->
@@ -69,9 +69,9 @@
                     $feedbackStats = [
                       
                         ['label' => 'Pending Reviews', 'icon' => 'ti ti-clock', 'count' => $statswithcount['pending'] ?? 0, 'color' => 'text-danger'],
-                        ['label' => 'Resolved', 'icon' => 'ti ti-check', 'count' => $statswithcount['resolved'] ?? 0, 'color' => 'text-success'],
-                        ['label' => 'Reviewed', 'icon' => 'ti ti-eye-check', 'count' => $statswithcount['reviewed'] ?? 0, 'color' => 'text-warning'],
-                        ['label' => 'Total Feedbacks', 'icon' => 'ti ti-message-dots', 'count' => $statswithcount['total'] ?? 0, 'color' => 'text-primary'],
+                        ['label' => 'Resolved Reports', 'icon' => 'ti ti-check', 'count' => $statswithcount['resolved'] ?? 0, 'color' => 'text-success'],
+                        ['label' => 'Reviewed Reports', 'icon' => 'ti ti-eye-check', 'count' => $statswithcount['reviewed'] ?? 0, 'color' => 'text-warning'],
+                        ['label' => 'Total Reports', 'icon' => 'ti ti-clipboard-list', 'count' => $statswithcount['total'] ?? 0, 'color' => 'text-primary'],
                         
                     ];
                 @endphp
@@ -103,18 +103,18 @@
             <div class="col-xxl-6 col-12">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>Recent Feedback</h5>
+                        <h5>{{ __('Recent Reports') }}</h5>
                     </div>
                     <div class="card-body table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Type</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
-                                    <th>Submitted</th>
-                                    <th>Action</th>
+                                    <th>{{ __('Title') }}</th>
+                                    <th>{{ __('Type') }}</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Submitted') }}</th>
+                                    <th>{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -126,7 +126,7 @@
                                     <td><span class="badge bg-{{ $feedback->status == 'resolved' ? 'success' : ($feedback->status == 'reviewed' ? 'warning' : 'secondary') }}">{{ ucfirst($feedback->status) }}</span></td>
                                     <td>{{ $feedback->created_at->diffForHumans() }} </td>
                                     <td>
-                                        <a href="{{ route('feedback.show', \Illuminate\Support\Facades\Crypt::encrypt( $feedback->id)) }}" class="btn btn-sm btn-info">View</a>
+                                        <a href="{{ route('feedback.show', \Illuminate\Support\Facades\Crypt::encrypt( $feedback->id)) }}" class="btn btn-sm btn-info">{{ __('View') }}</a>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -139,7 +139,7 @@
             <div class="col-xxl-3 col-12">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5>Feedback Category Chart</h5>
+                        <h5>{{ __('Report Category Chart') }}</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="feedbackCategoryChart" height="300"></canvas>
@@ -149,7 +149,7 @@
             <div class="col-xxl-3 col-12">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5>Feedback Type Chart</h5>
+                        <h5>{{ __('Report Status Chart') }}</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="feedbackTypeChart" height="10"></canvas>
@@ -226,7 +226,7 @@
                 data: {
                     labels: {!! json_encode(array_keys($stats)) !!},
                     datasets: [{
-                        label: 'Feedback Types',
+                        label: 'Report Status',
                         data: {!! json_encode(array_values($stats)) !!},
                         backgroundColor: ['#dc3545', '#ffc107', '#198754', '#0d6efd']
                     }]

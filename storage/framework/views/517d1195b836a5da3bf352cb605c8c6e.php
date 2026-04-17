@@ -7,7 +7,7 @@
             <i class="ti ti-chart-donut-3 me-1"></i><?php echo e(__('Reports Dashboard')); ?>
 
         </a>
-        <a href="<?php echo e(route('churchmeet.events.show', $attendanceEvent->event_id)); ?>" class="btn btn-sm btn-primary">
+        <a href="<?php echo e(route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id)); ?>" class="btn btn-sm btn-primary">
             <i class="ti ti-calendar-event me-1"></i><?php echo e(__('Open Event')); ?>
 
         </a>

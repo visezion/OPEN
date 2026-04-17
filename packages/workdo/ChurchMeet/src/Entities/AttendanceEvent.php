@@ -3,6 +3,7 @@
 namespace Workdo\ChurchMeet\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class AttendanceEvent extends Model
 {
@@ -49,6 +50,53 @@ class AttendanceEvent extends Model
     public function records()
     {
         return $this->hasMany(AttendanceRecord::class, 'attendance_event_id');
+    }
+
+    public function getPublicJoinKeyAttribute(): string
+    {
+        return static::encodePublicJoinKey($this->getKey());
+    }
+
+    public static function encodePublicJoinKey($attendanceEventId): string
+    {
+        $encrypted = Crypt::encryptString((string) $attendanceEventId);
+
+        return rtrim(strtr($encrypted, '+/', '-_'), '=');
+    }
+
+    public static function decodePublicJoinKey(string $value): ?int
+    {
+        $normalized = trim($value);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (ctype_digit($normalized)) {
+            return (int) $normalized;
+        }
+
+        $decrypted = static::decryptPublicJoinKey($normalized);
+
+        return is_string($decrypted) && ctype_digit($decrypted)
+            ? (int) $decrypted
+            : null;
+    }
+
+    protected static function decryptPublicJoinKey(string $value): ?string
+    {
+        $normalized = strtr($value, '-_', '+/');
+        $padding = strlen($normalized) % 4;
+
+        if ($padding > 0) {
+            $normalized .= str_repeat('=', 4 - $padding);
+        }
+
+        try {
+            return Crypt::decryptString($normalized);
+        } catch (\Throwable $exception) {
+            return null;
+        }
     }
 }
 

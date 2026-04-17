@@ -15,7 +15,7 @@
 
 <?php $__env->startSection('page-action'); ?>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canJoinOnlineMeeting): ?>
-        <a href="<?php echo e(route('churchmeet.meetings.join', $attendanceEvent->id)); ?>" class="btn btn-primary btn-sm">
+        <a href="<?php echo e(route('churchmeet.meetings.join', $attendanceEvent->public_join_key)); ?>" class="btn btn-primary btn-sm">
             <i class="ti ti-video"></i> <?php echo e(__('Join Meeting')); ?>
 
         </a>
@@ -42,7 +42,7 @@
         <form method="POST" action="<?php echo e(route('churchmeet.livekit.meetings.create', $event->id)); ?>" class="d-inline">
             <?php echo csrf_field(); ?>
             <button type="submit" class="btn btn-primary btn-sm">
-                <i class="ti ti-brand-webrtc"></i> <?php echo e(__('Create LiveKit Room')); ?>
+                <i class="ti ti-brand-webrtc"></i> <?php echo e(__('Create Meeting Room')); ?>
 
             </button>
         </form>
@@ -86,6 +86,10 @@
 ?>
 
 <div class="church-event-show">
+    <?php
+        $eventShareUrl = route('churchmeet.events.show', $event->public_view_key);
+        $meetingShareUrl = $canJoinOnlineMeeting && $attendanceEvent ? route('churchmeet.meetings.join', $attendanceEvent->public_join_key) : null;
+    ?>
     <div class="card event-hero mb-4">
         <div class="card-body p-4">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
@@ -93,9 +97,17 @@
                     <h4 class="mb-1"><?php echo e($event->title); ?></h4>
                     <p class="hero-copy mb-0"><?php echo e(__('Complete event profile, attendance outcome, and online meeting controls in one page.')); ?></p>
                 </div>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
                     <span class="badge <?php echo e($statusClass); ?>"><?php echo e($statusLabel); ?></span>
                     <span class="badge bg-light text-dark border"><?php echo e(ucfirst((string) ($event->event_type ?? 'event'))); ?></span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary churchmeet-copy-trigger" data-copy-text="<?php echo e($eventShareUrl); ?>" data-copy-default="<?php echo e(__('Copy Event Link')); ?>" data-copy-success="<?php echo e(__('Copied')); ?>">
+                        <i class="ti ti-link me-1"></i><span><?php echo e(__('Copy Event Link')); ?></span>
+                    </button>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($meetingShareUrl): ?>
+                        <button type="button" class="btn btn-sm btn-outline-primary churchmeet-copy-trigger" data-copy-text="<?php echo e($meetingShareUrl); ?>" data-copy-default="<?php echo e(__('Copy Meeting Link')); ?>" data-copy-success="<?php echo e(__('Copied')); ?>">
+                            <i class="ti ti-copy me-1"></i><span><?php echo e(__('Copy Meeting Link')); ?></span>
+                        </button>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -220,10 +232,14 @@
 
                                     <div class="d-grid gap-2">
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canJoinOnlineMeeting): ?>
-                                            <a href="<?php echo e(route('churchmeet.meetings.join', $attendanceEvent->id)); ?>" class="btn btn-outline-primary btn-sm">
+                                            <a href="<?php echo e(route('churchmeet.meetings.join', $attendanceEvent->public_join_key)); ?>" class="btn btn-outline-primary btn-sm">
                                                 <?php echo e(__('Open Join Room')); ?>
 
                                             </a>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm churchmeet-copy-trigger" data-copy-text="<?php echo e($meetingShareUrl); ?>" data-copy-default="<?php echo e(__('Copy Meeting Link')); ?>" data-copy-success="<?php echo e(__('Copied')); ?>">
+                                                <?php echo e(__('Copy Meeting Link')); ?>
+
+                                            </button>
                                         <?php elseif($canCreateZoomMeeting): ?>
                                             <form method="POST" action="<?php echo e(route('churchmeet.zoom.meetings.create', $event->id)); ?>">
                                                 <?php echo csrf_field(); ?>
@@ -237,7 +253,7 @@
                                         <?php elseif($canCreateLivekitMeeting): ?>
                                             <form method="POST" action="<?php echo e(route('churchmeet.livekit.meetings.create', $event->id)); ?>">
                                                 <?php echo csrf_field(); ?>
-                                                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><?php echo e(__('Create LiveKit Room')); ?></button>
+                                                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><?php echo e(__('Create Meeting Room')); ?></button>
                                             </form>
                                         <?php else: ?>
                                             <span class="text-muted small"><?php echo e(__('No online meeting action available for this event.')); ?></span>
@@ -373,5 +389,38 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.churchmeet-copy-trigger').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const copyText = button.dataset.copyText || '';
+            const defaultLabel = button.dataset.copyDefault || 'Copy';
+            const successLabel = button.dataset.copySuccess || 'Copied';
+            const label = button.querySelector('span');
+
+            if (!copyText) {
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(copyText);
+                if (label) {
+                    label.textContent = successLabel;
+                }
+                setTimeout(function () {
+                    if (label) {
+                        label.textContent = defaultLabel;
+                    }
+                }, 1600);
+            } catch (error) {
+                window.prompt('Copy this link', copyText);
+            }
+        });
+    });
+});
+</script>
+<?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\ChurchMeet\src\Resources\views\attendance\events\show.blade.php ENDPATH**/ ?>

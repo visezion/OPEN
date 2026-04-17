@@ -504,19 +504,19 @@
 @media (pointer: coarse) {
   .ql-bubble.ql-toolbar button:hover:not(.ql-active),
   .ql-bubble .ql-toolbar button:hover:not(.ql-active) {
-    color: #ccc;
+    color: rgb(226 232 240 / var(--tw-border-opacity, 1));
   }
   .ql-bubble.ql-toolbar button:hover:not(.ql-active) .ql-fill,
   .ql-bubble .ql-toolbar button:hover:not(.ql-active) .ql-fill,
   .ql-bubble.ql-toolbar button:hover:not(.ql-active) .ql-stroke.ql-fill,
   .ql-bubble .ql-toolbar button:hover:not(.ql-active) .ql-stroke.ql-fill {
-    fill: #ccc;
+    fill: rgb(226 232 240 / var(--tw-border-opacity, 1));
   }
   .ql-bubble.ql-toolbar button:hover:not(.ql-active) .ql-stroke,
   .ql-bubble .ql-toolbar button:hover:not(.ql-active) .ql-stroke,
   .ql-bubble.ql-toolbar button:hover:not(.ql-active) .ql-stroke-miter,
   .ql-bubble .ql-toolbar button:hover:not(.ql-active) .ql-stroke-miter {
-    stroke: #ccc;
+    stroke: rgb(226 232 240 / var(--tw-border-opacity, 1));
   }
 }
 .ql-bubble {
@@ -554,20 +554,20 @@
 }
 .ql-bubble .ql-stroke {
   fill: none;
-  stroke: #ccc;
+  stroke: rgb(226 232 240 / var(--tw-border-opacity, 1));
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2;
 }
 .ql-bubble .ql-stroke-miter {
   fill: none;
-  stroke: #ccc;
+  stroke: rgb(226 232 240 / var(--tw-border-opacity, 1));
   stroke-miterlimit: 10;
   stroke-width: 2;
 }
 .ql-bubble .ql-fill,
 .ql-bubble .ql-stroke.ql-fill {
-  fill: #ccc;
+  fill: rgb(226 232 240 / var(--tw-border-opacity, 1));
 }
 .ql-bubble .ql-empty {
   fill: none;
@@ -613,7 +613,7 @@
   text-decoration: underline;
 }
 .ql-bubble .ql-editor blockquote {
-  border-left: 4px solid #ccc;
+  border-left: 4px solid rgb(226 232 240 / var(--tw-border-opacity, 1));
   margin-bottom: 5px;
   margin-top: 5px;
   padding-left: 16px;
@@ -642,7 +642,7 @@
   max-width: 100%;
 }
 .ql-bubble .ql-picker {
-  color: #ccc;
+  color: rgb(226 232 240 / var(--tw-border-opacity, 1));
   display: inline-block;
   float: left;
   font-size: 14px;
@@ -906,7 +906,7 @@
   right: 20px;
 }
 .ql-bubble .ql-tooltip-editor a:before {
-  color: #ccc;
+  color: rgb(226 232 240 / var(--tw-border-opacity, 1));
   content: "\D7";
   font-size: 16px;
   font-weight: bold;

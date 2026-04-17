@@ -363,7 +363,7 @@
                                     ['face_ai', 'Face AI Detection', 'ti-camera'],
                                     ['zoom', 'Zoom Attendance Sync', 'ti-video'],
                                     ['jitsi', 'Jitsi Meeting Room', 'ti-brand-tabler'],
-                                    ['livekit', 'LiveKit Room', 'ti-brand-webrtc'],
+                                    ['livekit', 'Meeting Room', 'ti-brand-webrtc'],
                                     ['youtube', 'YouTube Live Tracking', 'ti-brand-youtube']
                                 ];
                             @endphp

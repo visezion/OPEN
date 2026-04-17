@@ -84,8 +84,8 @@
                             <i class="ti ti-brand-zoom me-1"></i>{{ __('Join Zoom Meeting') }}
                         </a>
                     @elseif($platform === 'livekit')
-                        <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->id) }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
-                            <i class="ti ti-brand-webrtc me-1"></i>{{ __('Open LiveKit Room') }}
+                        <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->public_join_key) }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
+                            <i class="ti ti-brand-webrtc me-1"></i>{{ __('Open Meeting Room') }}
                         </a>
                     @elseif($platform === 'youtube' && $attendanceEvent->meeting_link)
                         <iframe

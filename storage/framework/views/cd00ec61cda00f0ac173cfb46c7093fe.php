@@ -11,7 +11,7 @@
         </a>
         <div class="dropdown-menu dash-h-dropdown dropdown-menu-end">
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = languages(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $language): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <a href="<?php echo e(route('login', $key)); ?>"
+                <a href="<?php echo e(route('login', ['lang' => $key, 'redirect_to' => $redirectTo ?? request('redirect_to')])); ?>"
                     class="dropdown-item <?php if($lang == $key): ?> text-primary <?php endif; ?>">
                     <span><?php echo e(Str::ucfirst($language)); ?></span>
                 </a>
@@ -89,9 +89,19 @@
                     <div class="dms-error"><?php echo e($errors->first()); ?></div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($redirectTo)): ?>
+                    <div class="alert alert-info border mb-3">
+                        <?php echo e(__('Sign in to continue back to your meeting room.')); ?>
+
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                 <form method="POST" action="<?php echo e(route('login')); ?>" class="needs-validation dms-login-form" novalidate=""
                     id="form_data" autocomplete="off">
                     <?php echo csrf_field(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($redirectTo)): ?>
+                        <input type="hidden" name="redirect_to" value="<?php echo e($redirectTo); ?>">
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <div class="dms-form-group">
                         <label class="dms-label" for="email"><?php echo e(__('Email')); ?></label>
                         <div class="dms-field-wrap">

@@ -15,7 +15,7 @@
 
 @section('page-action')
     @if($canJoinOnlineMeeting)
-        <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->id) }}" class="btn btn-primary btn-sm">
+        <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->public_join_key) }}" class="btn btn-primary btn-sm">
             <i class="ti ti-video"></i> {{ __('Join Meeting') }}
         </a>
     @endif
@@ -39,7 +39,7 @@
         <form method="POST" action="{{ route('churchmeet.livekit.meetings.create', $event->id) }}" class="d-inline">
             @csrf
             <button type="submit" class="btn btn-primary btn-sm">
-                <i class="ti ti-brand-webrtc"></i> {{ __('Create LiveKit Room') }}
+                <i class="ti ti-brand-webrtc"></i> {{ __('Create Meeting Room') }}
             </button>
         </form>
     @endif
@@ -80,6 +80,10 @@
 @endphp
 
 <div class="church-event-show">
+    @php
+        $eventShareUrl = route('churchmeet.events.show', $event->public_view_key);
+        $meetingShareUrl = $canJoinOnlineMeeting && $attendanceEvent ? route('churchmeet.meetings.join', $attendanceEvent->public_join_key) : null;
+    @endphp
     <div class="card event-hero mb-4">
         <div class="card-body p-4">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
@@ -87,9 +91,17 @@
                     <h4 class="mb-1">{{ $event->title }}</h4>
                     <p class="hero-copy mb-0">{{ __('Complete event profile, attendance outcome, and online meeting controls in one page.') }}</p>
                 </div>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
                     <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                     <span class="badge bg-light text-dark border">{{ ucfirst((string) ($event->event_type ?? 'event')) }}</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary churchmeet-copy-trigger" data-copy-text="{{ $eventShareUrl }}" data-copy-default="{{ __('Copy Event Link') }}" data-copy-success="{{ __('Copied') }}">
+                        <i class="ti ti-link me-1"></i><span>{{ __('Copy Event Link') }}</span>
+                    </button>
+                    @if($meetingShareUrl)
+                        <button type="button" class="btn btn-sm btn-outline-primary churchmeet-copy-trigger" data-copy-text="{{ $meetingShareUrl }}" data-copy-default="{{ __('Copy Meeting Link') }}" data-copy-success="{{ __('Copied') }}">
+                            <i class="ti ti-copy me-1"></i><span>{{ __('Copy Meeting Link') }}</span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -210,9 +222,12 @@
 
                                     <div class="d-grid gap-2">
                                         @if($canJoinOnlineMeeting)
-                                            <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->id) }}" class="btn btn-outline-primary btn-sm">
+                                            <a href="{{ route('churchmeet.meetings.join', $attendanceEvent->public_join_key) }}" class="btn btn-outline-primary btn-sm">
                                                 {{ __('Open Join Room') }}
                                             </a>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm churchmeet-copy-trigger" data-copy-text="{{ $meetingShareUrl }}" data-copy-default="{{ __('Copy Meeting Link') }}" data-copy-success="{{ __('Copied') }}">
+                                                {{ __('Copy Meeting Link') }}
+                                            </button>
                                         @elseif($canCreateZoomMeeting)
                                             <form method="POST" action="{{ route('churchmeet.zoom.meetings.create', $event->id) }}">
                                                 @csrf
@@ -226,7 +241,7 @@
                                         @elseif($canCreateLivekitMeeting)
                                             <form method="POST" action="{{ route('churchmeet.livekit.meetings.create', $event->id) }}">
                                                 @csrf
-                                                <button type="submit" class="btn btn-outline-primary btn-sm w-100">{{ __('Create LiveKit Room') }}</button>
+                                                <button type="submit" class="btn btn-outline-primary btn-sm w-100">{{ __('Create Meeting Room') }}</button>
                                             </form>
                                         @else
                                             <span class="text-muted small">{{ __('No online meeting action available for this event.') }}</span>
@@ -361,3 +376,36 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.churchmeet-copy-trigger').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const copyText = button.dataset.copyText || '';
+            const defaultLabel = button.dataset.copyDefault || 'Copy';
+            const successLabel = button.dataset.copySuccess || 'Copied';
+            const label = button.querySelector('span');
+
+            if (!copyText) {
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(copyText);
+                if (label) {
+                    label.textContent = successLabel;
+                }
+                setTimeout(function () {
+                    if (label) {
+                        label.textContent = defaultLabel;
+                    }
+                }, 1600);
+            } catch (error) {
+                window.prompt('Copy this link', copyText);
+            }
+        });
+    });
+});
+</script>
+@endpush
