@@ -577,7 +577,7 @@ public function publishAction(Request $request, $id)
                 'reviewerComments.user'
             ])
             ->inWorkspace()
-            ->findOrFail($id);
+            ->findOrFail($resolvedId);
 
         // Ã¢Å“â€¦ Load attendance data if available
         $attendanceEvent = AttendanceEvent::with(['event', 'records.member'])
@@ -643,6 +643,8 @@ public function publishAction(Request $request, $id)
 
     public function edit($id)
     {
+        $resolvedId = Event::decodePublicViewKey((string) $id) ?: $id;
+
         $event = Event::with([
                 'programs.leader',
                 'lead',
@@ -652,7 +654,7 @@ public function publishAction(Request $request, $id)
             ->inWorkspace()
             ->findOrFail($resolvedId);
 
-        $attendanceEvent = AttendanceEvent::where('event_id', $id)
+        $attendanceEvent = AttendanceEvent::where('event_id', $resolvedId)
             ->where('workspace_id', getActiveWorkSpace())
             ->first();
         $events = Event::all();

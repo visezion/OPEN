@@ -118,9 +118,7 @@ class Event extends Model
 
     public static function encodePublicViewKey($eventId): string
     {
-        $encrypted = Crypt::encryptString((string) $eventId);
-
-        return rtrim(strtr($encrypted, '+/', '-_'), '=');
+        return static::makeShortPublicToken((int) $eventId, 'event');
     }
 
     public static function decodePublicViewKey(string $value): ?int
@@ -133,6 +131,11 @@ class Event extends Model
 
         if (ctype_digit($normalized)) {
             return (int) $normalized;
+        }
+
+        $shortTokenId = static::decodeShortPublicToken($normalized, 'event');
+        if ($shortTokenId) {
+            return $shortTokenId;
         }
 
         $normalized = strtr($normalized, '-_', '+/');
@@ -149,6 +152,33 @@ class Event extends Model
         }
 
         return ctype_digit($decrypted) ? (int) $decrypted : null;
+    }
+
+    protected static function makeShortPublicToken(int $id, string $context): string
+    {
+        $encodedId = strtolower(base_convert((string) $id, 10, 36));
+        $signature = substr(hash_hmac('sha256', $context . ':' . $encodedId, (string) config('app.key')), 0, 8);
+
+        return $encodedId . '-' . $signature;
+    }
+
+    protected static function decodeShortPublicToken(string $value, string $context): ?int
+    {
+        if (!preg_match('/^([0-9a-z]+)-([0-9a-f]{8})$/i', $value, $matches)) {
+            return null;
+        }
+
+        $encodedId = strtolower($matches[1]);
+        $signature = strtolower($matches[2]);
+        $expectedSignature = substr(hash_hmac('sha256', $context . ':' . $encodedId, (string) config('app.key')), 0, 8);
+
+        if (!hash_equals($expectedSignature, $signature)) {
+            return null;
+        }
+
+        $decodedId = base_convert($encodedId, 36, 10);
+
+        return ctype_digit((string) $decodedId) ? (int) $decodedId : null;
     }
 
 
