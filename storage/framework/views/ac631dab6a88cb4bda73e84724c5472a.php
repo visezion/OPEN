@@ -2,7 +2,11 @@
     $isEditing = isset($feedback) && $feedback->exists;
     $reportPayload = $feedback->report_payload ?? [];
     $attendanceSummary = $attendancePreview ?? ($feedback->attendance_summary ?? []);
-    $weekEndingValue = old('week_ending_date', optional($feedback->week_ending_date)->toDateString() ?? ($defaultWeekEnding ?? now()->endOfWeek(\Carbon\Carbon::SUNDAY)->toDateString()));
+    $weekEndingValue = old(
+    'week_ending_date',
+    optional($feedback)->week_ending_date?->toDateString()
+        ?? ($defaultWeekEnding ?? now()->endOfWeek(\Carbon\Carbon::SUNDAY)->toDateString())
+);
     $steps = [
         1 => ['label' => __('Week'), 'icon' => 'ti ti-calendar-event'],
         2 => ['label' => __('Activities'), 'icon' => 'ti ti-clipboard-text'],

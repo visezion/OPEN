@@ -54,7 +54,17 @@
 ?>
 
 <?php $__env->startPush('css'); ?>
-<link rel="stylesheet" href="<?php echo e(asset('packages/workdo/ChurchMeet/src/Resources/assets/css/livekit-room.css')); ?>">
+    <?php
+        $livekitRoomCssPath = base_path('packages/workdo/ChurchMeet/src/Resources/assets/css/livekit-room.css');
+    ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_file($livekitRoomCssPath)): ?>
+        <style>
+            <?php echo file_get_contents($livekitRoomCssPath); ?>
+
+        </style>
+    <?php else: ?>
+        <link rel="stylesheet" href="<?php echo e(asset('packages/workdo/ChurchMeet/src/Resources/assets/css/livekit-room.css')); ?>">
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -197,11 +207,6 @@
                             <button type="button" class="meeting-control is-stack" id="toggle-sidebar" aria-label="<?php echo e(__('Hide Participants')); ?>" title="<?php echo e(__('Hide Participants')); ?>">
                                 <i class="control-icon ti ti-users"></i>
                                 <span class="control-label"><?php echo e(__('Participants')); ?></span>
-                            </button>
-
-                            <button type="button" class="meeting-control is-stack" id="toggle-hand-raise" data-static-label="<?php echo e(__('Hand')); ?>" aria-label="<?php echo e(__('Raise Hand')); ?>" title="<?php echo e(__('Raise Hand')); ?>" disabled>
-                                <i class="control-icon ti ti-hand-click"></i>
-                                <span class="control-label"><?php echo e(__('Hand')); ?></span>
                             </button>
 
                             <button type="button" class="meeting-control is-stack" id="toggle-reactions" data-static-label="<?php echo e(__('React')); ?>" aria-label="<?php echo e(__('Open Reactions')); ?>" title="<?php echo e(__('Open Reactions')); ?>" disabled>
@@ -360,7 +365,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-<script src="<?php echo e(asset('packages/workdo/ChurchMeet/src/Resources/assets/js/churchmeet-view-helpers.js')); ?>"></script>
+<?php
+    $churchmeetViewHelpersPath = base_path('packages/workdo/ChurchMeet/src/Resources/assets/js/churchmeet-view-helpers.js');
+?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_file($churchmeetViewHelpersPath)): ?>
+    <script>
+        <?php echo file_get_contents($churchmeetViewHelpersPath); ?>
+
+    </script>
+<?php else: ?>
+    <script src="<?php echo e(asset('packages/workdo/ChurchMeet/src/Resources/assets/js/churchmeet-view-helpers.js')); ?>"></script>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <script type="module">
 import { MediaDeviceFailure, Room, RoomEvent, Track } from 'https://cdn.jsdelivr.net/npm/livekit-client@2.18.2/dist/livekit-client.esm.mjs';
 
@@ -381,7 +396,6 @@ const sidebarToggleButton = document.getElementById('toggle-sidebar');
 const fullscreenButton = document.getElementById('toggle-fullscreen');
 const micButton = document.getElementById('toggle-mic');
 const cameraButton = document.getElementById('toggle-camera');
-const handRaiseButton = document.getElementById('toggle-hand-raise');
 const reactionsButton = document.getElementById('toggle-reactions');
 const reactionPicker = document.getElementById('reaction-picker');
 const screenAudioShareButton = document.getElementById('toggle-screen-audio-share');
@@ -769,7 +783,6 @@ function getParticipantState(identity, name = identity, isLocal = false) {
             hasMicTrack: false,
             hasCameraTrack: false,
             screenOn: false,
-            handRaised: false,
             activeReaction: '',
             reactionTimeoutId: null,
         });
@@ -817,11 +830,10 @@ function renderParticipantsList() {
                 <span class="participant-list-avatar">${escapeHtml(getInitials(state.name))}</span>
                 <div class="participant-list-meta">
                     <span class="participant-list-name">${escapeHtml(state.name)}</span>
-                    <span class="participant-list-role">${state.isLocal ? 'You' : 'Guest'}${state.screenOn ? ' / Sharing screen' : ''}${state.handRaised ? ' / Hand raised' : ''}</span>
+                    <span class="participant-list-role">${state.isLocal ? 'You' : 'Guest'}${state.screenOn ? ' / Sharing screen' : ''}</span>
                 </div>
             </div>
             <div class="participant-status-icons">
-                ${state.handRaised ? '<span class="status-pill is-hand"><i class="ti ti-hand-click"></i></span>' : ''}
                 <span class="status-pill${state.micOn ? '' : ' is-off'}"><i class="ti ${state.micOn ? 'ti-microphone' : 'ti-microphone-off'}"></i></span>
                 <span class="status-pill${state.cameraOn ? '' : ' is-off'}"><i class="ti ${state.cameraOn ? 'ti-video' : 'ti-video-off'}"></i></span>
             </div>
@@ -980,18 +992,6 @@ function updateScreenShareButtons() {
     setButtonLabel(screenAudioShareButton, 'Stop Screen + Audio', 'ti-screen-share-off');
     screenAudioShareButton.classList.add('is-highlight');
     screenAudioShareButton.disabled = false;
-}
-
-function updateHandRaiseButton() {
-    if (!handRaiseButton) {
-        return;
-    }
-
-    const localIdentity = room?.localParticipant?.identity || null;
-    const raised = localIdentity ? !!participantStates.get(localIdentity)?.handRaised : false;
-    handRaiseButton.disabled = !room;
-    handRaiseButton.classList.toggle('is-highlight', raised);
-    setButtonLabel(handRaiseButton, raised ? 'Lower Hand' : 'Raise Hand', 'ti-hand-click');
 }
 
 function updateReactionControls() {
@@ -1425,17 +1425,6 @@ function updateParticipantCardBadges(identity) {
     grid.querySelectorAll(`[data-participant="${CSS.escape(identity)}"]`).forEach((card) => {
         const media = card.querySelector('.participant-media');
         const meta = card.querySelector('.participant-footer-meta');
-        if (media) {
-            media.querySelectorAll('[data-hand-badge]').forEach((element) => element.remove());
-
-            if (state.handRaised) {
-                const handBadge = document.createElement('div');
-                handBadge.className = 'participant-hand-badge';
-                handBadge.dataset.handBadge = 'true';
-                handBadge.innerHTML = '<i class="ti ti-hand-click"></i>';
-                media.appendChild(handBadge);
-            }
-        }
 
         if (!meta) {
             return;
@@ -1522,9 +1511,6 @@ function setParticipantState(identity, payload = {}) {
     updateParticipantCardBadges(identity);
     updateParticipantReactionDisplay(identity);
     updateParticipantCardPlaceholder(identity);
-    if (state.isLocal) {
-        updateHandRaiseButton();
-    }
 }
 
 function removeParticipantState(identity) {
@@ -1753,38 +1739,6 @@ async function sendChatMessage(body) {
     });
 }
 
-async function sendHandRaiseState(raised, destinationIdentities = undefined) {
-    if (!room?.localParticipant) {
-        return;
-    }
-
-    const payload = {
-        type: 'hand_state',
-        sender: participantName,
-        senderIdentity: room.localParticipant.identity,
-        sentAt: new Date().toISOString(),
-        handRaised: !!raised,
-    };
-
-    await room.localParticipant.publishData(textEncoder.encode(JSON.stringify(payload)), {
-        reliable: true,
-        destinationIdentities,
-    });
-}
-
-async function toggleHandRaise() {
-    if (!room?.localParticipant) {
-        return;
-    }
-
-    const localIdentity = room.localParticipant.identity;
-    const currentState = getParticipantState(localIdentity, participantName, true);
-    const nextState = !currentState.handRaised;
-
-    setParticipantState(localIdentity, { handRaised: nextState });
-    await sendHandRaiseState(nextState);
-}
-
 function showParticipantReaction(identity, emoji) {
     const state = getParticipantState(identity);
 
@@ -1857,14 +1811,6 @@ function handleIncomingData(payload, participant) {
             sentAt: parsed.sentAt,
             role: isPrivate ? 'Private to you' : (participant ? 'Guest' : ''),
             isPrivate,
-        });
-        return;
-    }
-
-    if (parsed?.type === 'hand_state' && senderIdentity) {
-        setParticipantState(senderIdentity, {
-            name: participant?.name || parsed.sender || senderIdentity,
-            handRaised: !!parsed.handRaised,
         });
         return;
     }
@@ -2032,7 +1978,6 @@ async function joinRoom() {
             updateScreenShareButtons();
             updateMicButton();
             updateCameraButton();
-            updateHandRaiseButton();
             updateReactionControls();
             setButtonLabel(joinButton, 'Reconnect', 'ti-rotate-2');
             updateChatComposerState();
@@ -2063,7 +2008,6 @@ async function joinRoom() {
             updateCameraButton();
             setButtonLabel(joinButton, 'Reconnect', 'ti-rotate-2');
             updateScreenShareButtons();
-            updateHandRaiseButton();
             updateReactionControls();
             setReactionPickerOpen(false);
             participantStates.clear();
@@ -2108,11 +2052,6 @@ async function joinRoom() {
         room.on(RoomEvent.ParticipantConnected, (participant) => {
             ensureCard(participant.identity, participant.name || participant.identity, false, 'camera');
             syncParticipantStatus(participant, false);
-            const localIdentity = room?.localParticipant?.identity || null;
-            const localState = localIdentity ? participantStates.get(localIdentity) : null;
-            if (localState?.handRaised) {
-                sendHandRaiseState(true, [participant.identity]).catch(() => null);
-            }
             appendChatMessage({
                 author: 'System',
                 body: `${participant.name || participant.identity} joined the room.`,
@@ -2166,7 +2105,6 @@ async function joinRoom() {
         setParticipantState(room.localParticipant.identity, {
             name: participantName,
             isLocal: true,
-            handRaised: false,
         });
         micButton.disabled = false;
         cameraButton.disabled = false;
@@ -2194,7 +2132,6 @@ async function joinRoom() {
         micButton.disabled = true;
         cameraButton.disabled = true;
         updateScreenShareButtons();
-        updateHandRaiseButton();
         updateReactionControls();
         setReactionPickerOpen(false);
         room = null;
@@ -2233,13 +2170,6 @@ async function leaveRoom() {
 
 joinButton.addEventListener('click', joinRoom);
 leaveButton.addEventListener('click', leaveRoom);
-handRaiseButton?.addEventListener('click', async () => {
-    try {
-        await toggleHandRaise();
-    } catch (error) {
-        setRoomMessage(error?.message || 'Unable to update hand raise status.', 'warning');
-    }
-});
 reactionsButton?.addEventListener('click', () => {
     setReactionPickerOpen(!isReactionPickerOpen);
 });

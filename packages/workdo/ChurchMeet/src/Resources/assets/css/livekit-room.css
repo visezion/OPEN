@@ -753,48 +753,6 @@
         color: var(--text-soft);
     }
 
-    .participant-chip-hand {
-        gap: 0.3rem;
-        color: var(--accent);
-        background: rgba(var(--brand-rgb, 20, 83, 136), 0.14);
-    }
-
-    .participant-chip-hand i {
-        font-size: 0.8rem;
-    }
-
-    .participant-hand-badge {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        width: 44px;
-        height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 999px;
-        background: rgba(var(--brand-rgb, 20, 83, 136), 0.94);
-        color: #fff;
-        border: var(--panel-border-width) solid rgba(255, 255, 255, 0.22);
-        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
-        z-index: 2;
-        pointer-events: none;
-        animation: participantHandPulse 1.8s ease-in-out infinite;
-    }
-
-    .participant-hand-badge i {
-        font-size: 1rem;
-    }
-
-    @keyframes participantHandPulse {
-        0%, 100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.08);
-        }
-    }
-
     .participant-footer-icons {
         display: inline-flex;
         align-items: center;
@@ -1611,11 +1569,6 @@
         border-color: rgba(156, 163, 175, 0.18);
     }
 
-    .status-pill.is-hand {
-        background: rgba(var(--brand-rgb, 20, 83, 136), 0.12);
-        color: var(--accent);
-    }
-
     .meeting-layout:fullscreen {
         position: relative;
         width: 100%;
@@ -1790,12 +1743,6 @@
         background: rgba(var(--brand-rgb, 81, 69, 157), 0.95);
         border-color: rgba(var(--brand-rgb, 81, 69, 157), 0.95);
         color: #fff;
-    }
-
-    .meeting-layout:fullscreen .participant-hand-badge {
-        background: rgba(var(--brand-rgb, 81, 69, 157), 0.95);
-        border-color: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 22px 40px rgba(0, 0, 0, 0.28);
     }
 
     .meeting-layout:fullscreen #room-message {
