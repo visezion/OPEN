@@ -218,6 +218,18 @@ class EventController extends Controller
             ->inWorkspace()
             ->findOrFail($id);
 
+        if ($event->status === 'approved') {
+            return redirect()
+                ->route('churchmeet.events.approve', $event->id)
+                ->with('info', __('This event has already moved to the approval stage.'));
+        }
+
+        if ($event->status === 'published') {
+            return redirect()
+                ->route('churchmeet.events.publish', $event->id)
+                ->with('info', __('This event has already moved to the publish stage.'));
+        }
+
         $members = ChurchMember::forWorkspace()->select('id', 'name')->get();
 
         return view('churchmeet::attendance.events.review', compact('event', 'members'));
@@ -231,6 +243,12 @@ class EventController extends Controller
     {
         $event = Event::inWorkspace()->findOrFail($id);
 
+        if (!in_array((string) $event->status, ['draft', 'review', 'revision_required'], true)) {
+            return redirect()
+                ->route('churchmeet.events.index')
+                ->with('error', __('This event cannot move through the review stage from its current status.'));
+        }
+  
         $request->validate([
             'comments' => 'nullable|string|max:1000',
             'action'   => 'required|in:adjust,approve',
@@ -328,6 +346,18 @@ class EventController extends Controller
             ->inWorkspace()
             ->findOrFail($id);
 
+        if ($event->status === 'published') {
+            return redirect()
+                ->route('churchmeet.events.publish', $event->id)
+                ->with('info', __('This event is already in the publish stage.'));
+        }
+
+        if ($event->status !== 'approved') {
+            return redirect()
+                ->route('churchmeet.events.index')
+                ->with('error', __('This event is not ready for the approval stage yet.'));
+        }
+  
         // abort_unless(Auth::user()->can('approve events'), 403);
 
         return view('churchmeet::attendance.events.approve', compact('event'));
@@ -341,6 +371,12 @@ class EventController extends Controller
     {
         $event = Event::inWorkspace()->findOrFail($id);
 
+        if ($event->status !== 'approved') {
+            return redirect()
+                ->route('churchmeet.events.index')
+                ->with('error', __('This event is not ready for approval action.'));
+        }
+  
         $request->validate([
             'comments' => 'nullable|string|max:1000',
             'action'   => 'required|in:approve,reject',
@@ -381,6 +417,7 @@ class EventController extends Controller
             }
 
             $msg = __('Event approved successfully.');
+            $redirectRoute = route('churchmeet.events.publish', $event->id);
 
         // Ã°Å¸â€Â´ CASE 2: REJECTED
         } else {
@@ -403,11 +440,11 @@ class EventController extends Controller
             }
 
             $msg = __('Event was rejected.');
+            $redirectRoute = route('churchmeet.events.index');
         }
-
-        // Redirect to Publish Stage or back to list
+  
         return redirect()
-            ->route('churchmeet.events.publish', $event->id)
+            ->to($redirectRoute)
             ->with('success', $msg);
     }
 
@@ -422,6 +459,12 @@ class EventController extends Controller
             ->inWorkspace()
             ->findOrFail($id);
 
+        if (!in_array((string) $event->status, ['approved', 'published'], true)) {
+            return redirect()
+                ->route('churchmeet.events.index')
+                ->with('error', __('This event is not ready for the publish stage.'));
+        }
+  
         $members = ChurchMember::forWorkspace()->select('id', 'name', 'phone')->get();
         $groups = ZenderWaGroup::with(['branches', 'departments', 'designations'])
             ->where('workspace_id', getActiveWorkSpace())
@@ -440,6 +483,12 @@ public function publishAction(Request $request, $id)
     $event = Event::with(['programs.leader', 'lead', 'assistant', 'creator'])
         ->inWorkspace()
         ->findOrFail($id);
+
+    if ($event->status !== 'approved') {
+        return redirect()
+            ->route('churchmeet.events.index')
+            ->with('error', __('Only approved events can be published.'));
+    }
 
     $request->validate([
         'groups' => 'array|nullable',

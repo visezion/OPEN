@@ -306,18 +306,22 @@
                     <li>Saved events stay in <strong>Draft</strong> until approved or published by authorized personnel.</li>
                 </ul>
                  <hr>
-                <p class="fw-semibold text-dark mb-2">{{ __('To edit or modify an Attendance Menthod:') }}</p>
-                <ul class="ps-3 mb-0">
-                    @if($attendanceEvent)
-                        <a href="{{ route('churchmeet.attendance_events.edit', $attendanceEvent->id) }}"
-                           class="btn btn-sm btn-outline-warning"
-                           title="{{ __('Edit Attendance Event') }}">
-                            <i class="ti ti-pencil">Clink to edit or modify an Attendance Menthod</i>
-                        </a>
-                    @else
-                        <span class="text-muted">{{ __('Attendance settings will appear after the event is saved.') }}</span>
-                    @endif
-                </ul>
+                 <p class="fw-semibold text-dark mb-2">{{ __('Attendance Setup') }}</p>
+                 <div class="mb-0">
+                     @if($attendanceEvent)
+                         <a href="{{ route('churchmeet.attendance_events.edit', $attendanceEvent->id) }}"
+                            class="btn btn-sm btn-outline-warning"
+                            title="{{ __('Edit Attendance Event') }}">
+                             <i class="ti ti-pencil me-1"></i>{{ __('Open Attendance Session') }}
+                         </a>
+                     @else
+                         <a href="{{ route('churchmeet.attendance_events.create', ['event_id' => $event->id]) }}"
+                            class="btn btn-sm btn-outline-primary"
+                            title="{{ __('Create Attendance Event') }}">
+                             <i class="ti ti-clipboard-check me-1"></i>{{ __('Set Up Attendance For This Event') }}
+                         </a>
+                     @endif
+                 </div>
                 <hr>
                 <p class="fw-semibold text-dark mb-2">{{ __('Review Comments / Descussions') }}</p><br>
                 <ul class="ps-0 mb-0"> 

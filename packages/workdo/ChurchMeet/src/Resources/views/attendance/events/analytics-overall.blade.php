@@ -38,34 +38,155 @@
         $departmentLabels = $departmentInsights->pluck('name')->values();
         $departmentRates = $departmentInsights->pluck('rate')->values();
         $departmentPresents = $departmentInsights->pluck('present')->values();
+        $topEvent = $eventLeaderboard->first();
+        $bottomEvent = $eventLeaderboard->last();
+        $topDepartment = $departmentInsights->first();
+        $healthTone = $avgRate >= 80 ? __('Thriving') : ($avgRate >= 60 ? __('Steady') : __('Rebuild'));
+        $momentumTone = $predictedLift >= 3 ? __('Growing') : ($predictedLift >= 0 ? __('Stable') : __('Watch closely'));
     @endphp
 
-    <div class="churchmeet-analytics">
-        <div class="card hero mb-4">
-            <div class="card-body">
-                <span class="eyebrow"><i class="ti ti-sparkles"></i>{{ __('ChurchMeet Intelligence') }}</span>
-                <h2>{{ __('Overall Events Analytics and Ministry Insight') }}</h2>
-                <p>{{ __('Measure turnout, compare departments, and understand where leadership attention should move next from one stronger ChurchMeet analytics screen.') }}</p>
-                <div class="hero-grid">
-                    <div class="hero-stat"><small>{{ __('Published Events') }}</small><strong>{{ $analyticsSummary['total_events'] ?? 0 }}</strong><span>{{ __('Events included in this snapshot.') }}</span></div>
-                    <div class="hero-stat"><small>{{ __('Attendance Records') }}</small><strong>{{ $analyticsSummary['total_attendance_records'] ?? 0 }}</strong><span>{{ __('Captured records across all tracked events.') }}</span></div>
-                    <div class="hero-stat"><small>{{ __('Average Attendance') }}</small><strong>{{ number_format($avgRate, 1) }}%</strong><span>{{ $avgRate >= 80 ? __('Strong congregational consistency') : ($avgRate >= 60 ? __('Healthy but improvable engagement') : __('Renewal and follow-up needed')) }}</span></div>
-                    <div class="hero-stat"><small>{{ __('Next Events Forecast') }}</small><strong>{{ number_format($predictedRate, 1) }}%</strong><span>{{ $predictedLift >= 0 ? __('Projected lift of :value points.', ['value' => abs($predictedLift)]) : __('Trend suggests stable turnout if follow-up continues.') }}</span></div>
+    <div class="churchmeet-shell churchmeet-analytics">
+        <div class="card churchmeet-hero analytics-hero mb-4">
+            <div class="card-body churchmeet-hero-body">
+                <div class="hero-layout">
+                    <div>
+                        <span class="churchmeet-kicker"><i class="ti ti-sparkles"></i>{{ __('ChurchMeet Intelligence') }}</span>
+                        <h2 class="churchmeet-title">{{ __('Overall Events Analytics and Ministry Insight') }}</h2>
+                        <p class="churchmeet-copy hero-copy">{{ __('Measure turnout, compare departments, and understand where leadership attention should move next from one stronger ChurchMeet analytics screen.') }}</p>
+                        <div class="churchmeet-stat-grid hero-grid">
+                            <div class="churchmeet-stat-card hero-stat">
+                                <small class="churchmeet-stat-label">{{ __('Published Events') }}</small>
+                                <strong class="churchmeet-stat-value">{{ $analyticsSummary['total_events'] ?? 0 }}</strong>
+                                <span class="churchmeet-stat-note">{{ __('Events included in this snapshot.') }}</span>
+                            </div>
+                            <div class="churchmeet-stat-card hero-stat">
+                                <small class="churchmeet-stat-label">{{ __('Attendance Records') }}</small>
+                                <strong class="churchmeet-stat-value">{{ $analyticsSummary['total_attendance_records'] ?? 0 }}</strong>
+                                <span class="churchmeet-stat-note">{{ __('Captured records across all tracked events.') }}</span>
+                            </div>
+                            <div class="churchmeet-stat-card hero-stat">
+                                <small class="churchmeet-stat-label">{{ __('Average Attendance') }}</small>
+                                <strong class="churchmeet-stat-value">{{ number_format($avgRate, 1) }}%</strong>
+                                <span class="churchmeet-stat-note">{{ $avgRate >= 80 ? __('Strong congregational consistency') : ($avgRate >= 60 ? __('Healthy but improvable engagement') : __('Renewal and follow-up needed')) }}</span>
+                            </div>
+                            <div class="churchmeet-stat-card hero-stat">
+                                <small class="churchmeet-stat-label">{{ __('Next Events Forecast') }}</small>
+                                <strong class="churchmeet-stat-value">{{ number_format($predictedRate, 1) }}%</strong>
+                                <span class="churchmeet-stat-note">{{ $predictedLift >= 0 ? __('Projected lift of :value points.', ['value' => abs($predictedLift)]) : __('Trend suggests stable turnout if follow-up continues.') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="hero-focus">
+                        <div class="focus-panel">
+                            <div class="focus-head">
+                                <span class="focus-kicker">{{ __('At A Glance') }}</span>
+                                <h5>{{ __('Ministry Focus Window') }}</h5>
+                                <p>{{ __('A quick leadership reading of current turnout strength, forecast direction, and where to lean in next.') }}</p>
+                            </div>
+                            <div class="focus-grid">
+                                <div class="focus-mini">
+                                    <small>{{ __('Health') }}</small>
+                                    <strong>{{ $healthTone }}</strong>
+                                    <span>{{ __('Based on current average turnout.') }}</span>
+                                </div>
+                                <div class="focus-mini">
+                                    <small>{{ __('Momentum') }}</small>
+                                    <strong>{{ $momentumTone }}</strong>
+                                    <span>{{ __('Forecast compared with current average.') }}</span>
+                                </div>
+                            </div>
+                            <div class="focus-list">
+                                <div class="focus-item">
+                                    <i class="ti ti-trophy"></i>
+                                    <div>
+                                        <strong>{{ __('Top Event') }}</strong>
+                                        <span>{{ $topEvent?->title ?? __('No event data yet') }}{{ $topEvent ? ' - ' . number_format($topEvent->rate, 1) . '%' : '' }}</span>
+                                    </div>
+                                </div>
+                                <div class="focus-item">
+                                    <i class="ti ti-activity-heartbeat"></i>
+                                    <div>
+                                        <strong>{{ __('Top Department') }}</strong>
+                                        <span>{{ $topDepartment?->name ?? __('No department data yet') }}{{ $topDepartment ? ' - ' . number_format($topDepartment->rate, 1) . '%' : '' }}</span>
+                                    </div>
+                                </div>
+                                <div class="focus-item">
+                                    <i class="ti ti-alert-triangle"></i>
+                                    <div>
+                                        <strong>{{ __('Attention Area') }}</strong>
+                                        <span>{{ $bottomEvent?->title ?? __('No event data yet') }}{{ $bottomEvent ? ' - ' . number_format($bottomEvent->rate, 1) . '%' : '' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-up-right-circle"></i></div><span class="label">{{ __('Best Performing Events') }}</span><strong>{{ number_format(optional($eventLeaderboard->first())->rate ?? 0, 1) }}%</strong><span class="note">{{ $analyticsSummary['highest_attendance_event'] ?? __('No event data yet') }}</span><span class="chip ok">{{ __('Top turnout') }}</span></div></div></div>
-            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-arrow-down-right-circle"></i></div><span class="label">{{ __('Needs Attention') }}</span><strong>{{ number_format(optional($eventLeaderboard->last())->rate ?? 0, 1) }}%</strong><span class="note">{{ $analyticsSummary['lowest_attendance_event'] ?? __('No event data yet') }}</span><span class="chip warn">{{ __('Review scheduling') }}</span></div></div></div>
-            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-building-community"></i></div><span class="label">{{ __('Most Active Department') }}</span><strong>{{ $analyticsSummary['most_active_dept'] ?? __('N/A') }}</strong><span class="note">{{ __('Highest participation count across event records.') }}</span><span class="chip neutral">{{ __('Leadership signal') }}</span></div></div></div>
-            <div class="col-xl-3 col-md-6"><div class="card metric h-100"><div class="card-body"><div class="metric-icon"><i class="ti ti-target-arrow"></i></div><span class="label">{{ __('Unreached Capacity') }}</span><strong>{{ number_format($gapRate, 1) }}%</strong><span class="note">{{ __('Gap between current turnout and full church attendance.') }}</span><span class="chip neutral">{{ __('Planning window') }}</span></div></div></div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card metric h-100">
+                    <div class="card-body">
+                        <div class="metric-top">
+                            <div class="metric-icon"><i class="ti ti-arrow-up-right-circle"></i></div>
+                            <span class="churchmeet-badge success">{{ __('Top turnout') }}</span>
+                        </div>
+                        <span class="label">{{ __('Best Performing Event') }}</span>
+                        <strong>{{ number_format($topEvent?->rate ?? 0, 1) }}%</strong>
+                        <span class="note">{{ $analyticsSummary['highest_attendance_event'] ?? __('No event data yet') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card metric h-100">
+                    <div class="card-body">
+                        <div class="metric-top">
+                            <div class="metric-icon"><i class="ti ti-arrow-down-right-circle"></i></div>
+                            <span class="churchmeet-badge warning">{{ __('Review scheduling') }}</span>
+                        </div>
+                        <span class="label">{{ __('Needs Attention') }}</span>
+                        <strong>{{ number_format($bottomEvent?->rate ?? 0, 1) }}%</strong>
+                        <span class="note">{{ $analyticsSummary['lowest_attendance_event'] ?? __('No event data yet') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card metric h-100">
+                    <div class="card-body">
+                        <div class="metric-top">
+                            <div class="metric-icon"><i class="ti ti-building-community"></i></div>
+                            <span class="churchmeet-badge">{{ __('Leadership signal') }}</span>
+                        </div>
+                        <span class="label">{{ __('Most Active Department') }}</span>
+                        <strong>{{ $analyticsSummary['most_active_dept'] ?? __('N/A') }}</strong>
+                        <span class="note">{{ __('Highest participation count across event records.') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card metric h-100">
+                    <div class="card-body">
+                        <div class="metric-top">
+                            <div class="metric-icon"><i class="ti ti-target-arrow"></i></div>
+                            <span class="churchmeet-badge">{{ __('Planning window') }}</span>
+                        </div>
+                        <span class="label">{{ __('Unreached Capacity') }}</span>
+                        <strong>{{ number_format($gapRate, 1) }}%</strong>
+                        <span class="note">{{ __('Gap between current turnout and full church attendance.') }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="row g-3 mb-4">
             <div class="col-xl-8">
                 <div class="card h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Attendance Rate Across Events') }}</h5><p class="text-muted mb-0">{{ __('A rate-based view of how each published event performed against your current member base.') }}</p></div>
+                    <div class="card-header card-head">
+                        <span class="section-kicker">{{ __('Event Trend') }}</span>
+                        <h5 class="mb-1">{{ __('Attendance Rate Across Events') }}</h5>
+                        <p class="text-muted mb-0">{{ __('A rate-based view of how each published event performed against your current member base.') }}</p>
+                    </div>
                     <div class="chart-body">
                         @if ($eventLeaderboard->isEmpty())
                             <div class="empty"><div><div class="fw-semibold mb-2">{{ __('No event analytics yet') }}</div><div>{{ __('Publish events and capture attendance to populate this chart.') }}</div></div></div>
@@ -77,7 +198,11 @@
             </div>
             <div class="col-xl-4">
                 <div class="card h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Ministry Pulse') }}</h5><p class="text-muted mb-0">{{ __('A compact reading of turnout strength and forecast momentum.') }}</p></div>
+                    <div class="card-header card-head">
+                        <span class="section-kicker">{{ __('Pulse') }}</span>
+                        <h5 class="mb-1">{{ __('Ministry Pulse') }}</h5>
+                        <p class="text-muted mb-0">{{ __('A compact reading of turnout strength and forecast momentum.') }}</p>
+                    </div>
                     <div class="card-body">
                         <div class="ring" data-ring-angle="{{ $ringAngle }}"><div><strong>{{ number_format($avgRate, 1) }}%</strong><span>{{ __('Average event attendance') }}</span></div></div>
                         <div class="mini-grid">
@@ -94,7 +219,11 @@
         <div class="row g-3 mb-4">
             <div class="col-xl-5">
                 <div class="card insight h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Spiritual Insight and Recommended Actions') }}</h5><p class="text-muted mb-0">{{ __('A practical reading of engagement patterns for leadership follow-up.') }}</p></div>
+                    <div class="card-header card-head">
+                        <span class="section-kicker">{{ __('Insight') }}</span>
+                        <h5 class="mb-1">{{ __('Spiritual Insight and Recommended Actions') }}</h5>
+                        <p class="text-muted mb-0">{{ __('A practical reading of engagement patterns for leadership follow-up.') }}</p>
+                    </div>
                     <div class="card-body">
                         <div class="quote">{{ $spiritualInsight }}</div>
                         <ul class="actions">
@@ -107,7 +236,11 @@
             </div>
             <div class="col-xl-7">
                 <div class="card ranking h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Events Leaderboard') }}</h5><p class="text-muted mb-0">{{ __('Quick ranking of your strongest and weakest events by attendance rate.') }}</p></div>
+                    <div class="card-header card-head">
+                        <span class="section-kicker">{{ __('Leaderboard') }}</span>
+                        <h5 class="mb-1">{{ __('Events Leaderboard') }}</h5>
+                        <p class="text-muted mb-0">{{ __('Quick ranking of your strongest and weakest events by attendance rate.') }}</p>
+                    </div>
                     <div class="card-body">
                         @if ($eventLeaderboard->isEmpty())
                             <div class="empty"><div><div class="fw-semibold mb-2">{{ __('No leaderboard available') }}</div><div>{{ __('This section fills automatically once attendance is tracked.') }}</div></div></div>
@@ -133,7 +266,11 @@
         <div class="row g-3 mb-4">
             <div class="col-xl-7">
                 <div class="card h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Department Attendance Rate') }}</h5><p class="text-muted mb-0">{{ __('Participation rate by department, normalized against registered members in each department.') }}</p></div>
+                    <div class="card-header card-head">
+                        <span class="section-kicker">{{ __('Departments') }}</span>
+                        <h5 class="mb-1">{{ __('Department Attendance Rate') }}</h5>
+                        <p class="text-muted mb-0">{{ __('Participation rate by department, normalized against registered members in each department.') }}</p>
+                    </div>
                     <div class="chart-body">
                         @if ($departmentInsights->isEmpty())
                             <div class="empty"><div><div class="fw-semibold mb-2">{{ __('No department comparison yet') }}</div><div>{{ __('Department-based attendance will appear here once members are mapped and checked in.') }}</div></div></div>
@@ -145,7 +282,11 @@
             </div>
             <div class="col-xl-5">
                 <div class="card h-100">
-                    <div class="card-header"><h5 class="mb-1">{{ __('Department Spotlight') }}</h5><p class="text-muted mb-0">{{ __('Your most responsive ministry areas right now.') }}</p></div>
+                    <div class="card-header card-head">
+                        <span class="section-kicker">{{ __('Spotlight') }}</span>
+                        <h5 class="mb-1">{{ __('Department Spotlight') }}</h5>
+                        <p class="text-muted mb-0">{{ __('Your most responsive ministry areas right now.') }}</p>
+                    </div>
                     <div class="card-body">
                         @if ($departmentInsights->isEmpty())
                             <div class="empty"><div><div class="fw-semibold mb-2">{{ __('No department spotlight yet') }}</div><div>{{ __('Assign members to departments and capture attendance to unlock this view.') }}</div></div></div>
@@ -162,9 +303,13 @@
         </div>
 
         <div class="card">
-            <div class="card-header"><h5 class="mb-1">{{ __('Department Comparison Detail') }}</h5><p class="text-muted mb-0">{{ __('Detailed comparison of turnout by department, including absolute participation and normalized attendance rate.') }}</p></div>
+            <div class="card-header card-head">
+                <span class="section-kicker">{{ __('Breakdown') }}</span>
+                <h5 class="mb-1">{{ __('Department Comparison Detail') }}</h5>
+                <p class="text-muted mb-0">{{ __('Detailed comparison of turnout by department, including absolute participation and normalized attendance rate.') }}</p>
+            </div>
             <div class="table-responsive">
-                <table class="table analytics-table align-middle mb-0">
+                <table class="table churchmeet-table analytics-table align-middle mb-0">
                     <thead><tr><th>{{ __('Department') }}</th><th class="text-center">{{ __('Present') }}</th><th class="text-center">{{ __('Total Members') }}</th><th>{{ __('Rate Progress') }}</th><th class="text-end">{{ __('Attendance Rate') }}</th></tr></thead>
                     <tbody>
                         @forelse ($departmentInsights as $department)
@@ -190,12 +335,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     (function () {
-        const css = getComputedStyle(document.documentElement);
-        const primary = (css.getPropertyValue('--bs-primary') || '#145388').trim();
-        const info = (css.getPropertyValue('--bs-info') || '#2f7cb8').trim();
-        const warning = (css.getPropertyValue('--bs-warning') || '#c69214').trim();
-        const success = (css.getPropertyValue('--bs-success') || '#168873').trim();
-        const muted = (css.getPropertyValue('--bs-secondary-color') || '#68788f').trim();
+        const shell = document.querySelector('.churchmeet-analytics');
+        const css = getComputedStyle(shell || document.documentElement);
+        const primary = (css.getPropertyValue('--churchmeet-primary') || css.getPropertyValue('--primary') || '#145388').trim();
+        const deep = (css.getPropertyValue('--churchmeet-deep') || css.getPropertyValue('--deep') || '#0f2d4e').trim();
+        const muted = (css.getPropertyValue('--churchmeet-muted') || css.getPropertyValue('--muted') || '#68788f').trim();
+        const info = '#2f7cb8';
+        const warning = '#c69214';
+        const success = '#168873';
+        const rose = '#c8614f';
+        const teal = '#2f8c86';
         const softGrid = 'rgba(107, 122, 144, 0.12)';
 
         const eventLabels = @json(array_values($chartData['labels'] ?? []));
@@ -208,7 +357,7 @@
         if (eventTarget && eventLabels.length) {
             new Chart(eventTarget, {
                 type: 'line',
-                data: {labels: eventLabels, datasets: [{label: @json(__('Attendance Rate (%)')), data: eventRates, borderColor: primary, backgroundColor: 'rgba(20, 83, 136, 0.12)', fill: true, tension: 0.34, borderWidth: 3, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: warning}]},
+                data: {labels: eventLabels, datasets: [{label: @json(__('Attendance Rate (%)')), data: eventRates, borderColor: primary, backgroundColor: 'rgba(20, 83, 136, 0.12)', fill: true, tension: 0.34, borderWidth: 3, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: deep, pointBorderColor: '#ffffff', pointBorderWidth: 2}]},
                 options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {labels: {color: muted, boxWidth: 14, usePointStyle: true}}, tooltip: {callbacks: {label: ctx => ctx.formattedValue + '%'}}}, scales: {x: {ticks: {color: muted}, grid: {display: false}}, y: {beginAtZero: true, suggestedMax: 100, ticks: {color: muted, callback: value => value + '%'}, grid: {color: softGrid}}}}
             });
         }
@@ -217,7 +366,7 @@
         if (deptTarget && departmentLabels.length) {
             new Chart(deptTarget, {
                 type: 'bar',
-                data: {labels: departmentLabels, datasets: [{label: @json(__('Attendance Rate (%)')), data: departmentRates, backgroundColor: [primary, info, success, warning, '#8f67d0', '#3a9d9c', '#d46b3b'], borderRadius: 10, borderSkipped: false}]},
+                data: {labels: departmentLabels, datasets: [{label: @json(__('Attendance Rate (%)')), data: departmentRates, backgroundColor: [primary, info, success, warning, deep, teal, rose], borderRadius: 10, borderSkipped: false}]},
                 options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}, tooltip: {callbacks: {afterLabel: ctx => @json(__('Present records:')) + ' ' + (departmentPresents[ctx.dataIndex] ?? 0)}}}, scales: {x: {beginAtZero: true, suggestedMax: 100, ticks: {color: muted, callback: value => value + '%'}, grid: {color: softGrid}}, y: {ticks: {color: muted}, grid: {display: false}}}}
             });
         }

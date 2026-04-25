@@ -24,26 +24,52 @@ class AttendanceEventController extends Controller
 
     public function create()
     {
-        $events = Event::all();
-        return view('churchmeet::attendance.attendance_events.create', compact('events'));
+        $selectedEventId = (int) request('event_id');
+        $events = Event::query()
+            ->inWorkspace()
+            ->withCount('attendanceEvents')
+            ->orderByRaw('CASE WHEN start_time IS NULL THEN 1 ELSE 0 END')
+            ->orderByDesc('start_time')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('churchmeet::attendance.attendance_events.create', compact('events', 'selectedEventId'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'event_id' => 'required|exists:events,id',
+            'event_id' => 'required|integer',
             'mode' => 'required|string|in:onsite,online,hybrid',
             'checkin_start_at' => 'nullable|date',
             'checkin_end_at' => 'nullable|date|after_or_equal:checkin_start_at',
         ]);
 
-        AttendanceEvent::create([
-            'checkin_start_at' => $request->checkin_start_at,
-            'checkin_end_at' => $request->checkin_end_at,
-            'workspace_id' => getActiveWorkSpace(),
+        $workspaceId = getActiveWorkSpace();
+        $event = Event::query()
+            ->inWorkspace()
+            ->findOrFail((int) $request->event_id);
+
+        $existingAttendanceEvent = AttendanceEvent::query()
+            ->where('workspace_id', $workspaceId)
+            ->where('event_id', $event->id)
+            ->first();
+
+        if ($existingAttendanceEvent) {
+            return redirect()
+                ->route('churchmeet.attendance_events.edit', $existingAttendanceEvent->id)
+                ->with('info', __('Attendance tracking is already linked to ":event". The existing session has been opened so you can keep using the same records.', [
+                    'event' => $event->title,
+                ]));
+        }
+
+        $attendanceEvent = AttendanceEvent::create([
+            'checkin_start_at' => $request->checkin_start_at ?: $event->start_time,
+            'checkin_end_at' => $request->checkin_end_at ?: $event->end_time,
+            'workspace_id' => $workspaceId,
             'branch_id' => $request->branch_id,
             'department_id' => $request->department_id,
-            'event_id' => $request->event_id,
+            'event_id' => $event->id,
             'mode' => $request->mode,
             'enabled_methods' => $request->enabled_methods ?? [],
             'online_platform' => $request->online_platform,
@@ -54,15 +80,20 @@ class AttendanceEventController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        return redirect()->route('churchmeet.attendance_events.index')
+        return redirect()->route('churchmeet.attendance_events.edit', $attendanceEvent->id)
             ->with('success', __('Attendance event created successfully.'));
     }
 
     // Edit form
     public function edit($id)
     {
-        $attendanceEvent = AttendanceEvent::findOrFail($id);
-        $events = Event::all();
+        $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
+        $events = Event::query()
+            ->inWorkspace()
+            ->orderByRaw('CASE WHEN start_time IS NULL THEN 1 ELSE 0 END')
+            ->orderByDesc('start_time')
+            ->orderByDesc('created_at')
+            ->get();
 
         return view('churchmeet::attendance.attendance_events.edit', compact('attendanceEvent', 'events'));
     }
@@ -70,7 +101,7 @@ class AttendanceEventController extends Controller
     // Update existing record
     public function update(Request $request, $id)
     {
-        $attendanceEvent = AttendanceEvent::findOrFail($id);
+        $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
 
         $request->validate([
             'mode' => 'required|string|in:onsite,online,hybrid',
@@ -99,14 +130,16 @@ class AttendanceEventController extends Controller
 
     public function show($id)
     {
-        $attendanceEvent = AttendanceEvent::with('event','records')->findOrFail($id);
+        $attendanceEvent = AttendanceEvent::with('event','records')
+            ->where('workspace_id', getActiveWorkSpace())
+            ->findOrFail($id);
         return view('churchmeet::attendance.attendance_events.show', compact('attendanceEvent'));
     }
 
     // QR scanner
     public function showScanner($id)
     {
-        $event = AttendanceEvent::findOrFail($id);
+        $event = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
         return view('churchmeet::attendance.scanner', compact('event'));
     }
 
@@ -114,14 +147,14 @@ class AttendanceEventController extends Controller
     {
         $request->validate(['qr' => 'required|string']);
 
-        $event = AttendanceEvent::findOrFail($id);
+        $event = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
         $data = json_decode($request->qr, true);
 
         if (!$data || !isset($data['member_id'])) {
             return response()->json(['ok' => false, 'error' => 'Invalid QR data.']);
         }
 
-        $member = ChurchMember::find($data['member_id']);
+        $member = ChurchMember::forWorkspace()->find($data['member_id']);
         if (!$member) {
             return response()->json(['ok' => false, 'error' => 'Member not found.']);
         }

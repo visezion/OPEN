@@ -20,7 +20,7 @@ class CompanyMenuListener
             'order' => 5,
             'ignore_if' => [],
             'depend_on' => [],
-            'route' => 'churchmeet.events.analytics.overall',
+            'route' => '',
             'module' => $module,
             'permission' => 'churchly dashboard manage',
         ]);

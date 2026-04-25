@@ -291,7 +291,7 @@ class User extends Authenticatable implements LaratrustUser,MustVerifyEmail,JWTS
                 "site_date_format" => "d-m-Y",
                 "site_time_format" => "g:i A",
                 "title_text" => !empty($admin_settings['title_text']) ? $admin_settings['title_text'] : "WorkDo Dash",
-                "footer_text" => !empty($admin_settings['footer_text']) ? $admin_settings['footer_text'] :"Copyright © WorkDo Dash",
+                "footer_text" => !empty($admin_settings['footer_text']) ? $admin_settings['footer_text'] : "Copyright © " . config('app.name', 'Openzion'),
                 "site_rtl" => !empty($admin_settings['site_rtl']) ? $admin_settings['site_rtl'] : "off",
                 "cust_darklayout" => !empty($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] :"off",
                 "site_transparent" => !empty($admin_settings['site_transparent']) ? $admin_settings['site_transparent'] : "on",

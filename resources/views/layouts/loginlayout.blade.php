@@ -116,6 +116,18 @@
 </head>
 
 <body class="{{ $themeColor }} ui-border-clean">
+    @php
+        $footerText = $company_settings['footer_text'] ?? null;
+        $normalizedFooterText = trim((string) $footerText);
+        $legacyFooters = [
+            'Copyright © WorkDo Dash',
+            'Copyright Â© WorkDo Dash',
+        ];
+
+        if ($normalizedFooterText === '' || in_array($normalizedFooterText, $legacyFooters, true)) {
+            $footerText = __('Copyright') . ' © ' . config('app.name', 'Openzion');
+        }
+    @endphp
     <div class="custom-login">
         <div class="login-bg-img">
             {{-- <img src="{{ asset('images/'.$themeColor.'.svg') }}" class="login-bg-1"> --}}
@@ -181,10 +193,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <span>
-                                    @if (!empty($company_settings['footer_text']))
-                                        {{ $company_settings['footer_text'] }} @else{{ __('Copyright') }} &copy;
-                                        {{ config('app.name', 'WorkDo') }}
-                                    @endif{{ date('Y') }}
+                                    {{ $footerText }}{{ date('Y') }}
                                 </span>
                             </div>
                         </div>

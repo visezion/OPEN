@@ -1,14 +1,20 @@
 <footer class="mt-5 dash-footer">
     <div class="footer-wrapper">
         <div class="py-1">
+            @php
+                $footerText = $company_settings['footer_text'] ?? $admin_settings['footer_text'] ?? null;
+                $normalizedFooterText = trim((string) $footerText);
+                $legacyFooters = [
+                    'Copyright © WorkDo Dash',
+                    'Copyright Â© WorkDo Dash',
+                ];
+
+                if ($normalizedFooterText === '' || in_array($normalizedFooterText, $legacyFooters, true)) {
+                    $footerText = __('Copyright') . ' © ' . config('app.name', 'Openzion');
+                }
+            @endphp
             <span class="text-muted">
-                @if (isset($company_settings['footer_text']))
-                    {{ $company_settings['footer_text'] }}
-                @elseif(isset($admin_settings['footer_text']))
-                    {{ $admin_settings['footer_text'] }}
-                @else
-                    {{ __('Copyright') }} &copy; {{ config('app.name', 'WorkDo') }}
-                @endif
+                {{ $footerText }}
                 {{ date('Y') }}
             </span>
         </div>

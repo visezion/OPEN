@@ -237,47 +237,498 @@
     }
 
 /* packages/workdo/ChurchMeet/src/Resources/views/attendance/events/analytics-overall.blade.php */
-.churchmeet-analytics{--ink:#13253b;--muted:#68788f;--line:var(--app-card-border-color,#d8e1ec);--soft:#f5f7fa;--primary:#145388;--deep:#0f2d4e;--card-width:var(--app-card-border-width,1px);--card-radius:var(--app-card-radius,14px);--card-shadow:var(--app-card-shadow,none);color:var(--ink);padding-bottom:2rem}
-    .churchmeet-analytics .card{border:var(--card-width) solid var(--line)!important;border-radius:var(--card-radius);background:#fff;box-shadow:var(--card-shadow)!important}
-    .churchmeet-analytics .card-header{background:#fff;border-bottom:var(--card-width) solid var(--line)!important;padding:1rem 1.2rem .9rem}
-    .churchmeet-analytics .hero{overflow:hidden;background:#fff;border-top:3px solid var(--primary)}
-    .churchmeet-analytics .hero .card-body{padding:1.45rem}
-    .churchmeet-analytics .eyebrow{display:inline-flex;align-items:center;gap:.45rem;border-radius:999px;padding:.32rem .75rem;background:#f1f5f9;color:var(--primary);font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-    .churchmeet-analytics .hero h2{font-size:clamp(1.8rem,2.8vw,2.35rem);line-height:1.08;font-weight:800;color:var(--deep);margin:.85rem 0 .65rem}
-    .churchmeet-analytics .hero p{max-width:760px;color:var(--muted);line-height:1.7;margin:0}
-    .churchmeet-analytics .hero-grid,.churchmeet-analytics .dept-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.85rem;margin-top:1.2rem}
-    .churchmeet-analytics .hero-stat,.churchmeet-analytics .dept-box,.churchmeet-analytics .mini{border:var(--card-width) solid var(--line);border-radius:var(--card-radius);background:var(--soft);padding:1rem;box-shadow:var(--card-shadow)}
-    .churchmeet-analytics .hero-stat small,.churchmeet-analytics .mini small,.churchmeet-analytics .label{display:block;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-    .churchmeet-analytics .hero-stat strong,.churchmeet-analytics .metric strong,.churchmeet-analytics .mini strong,.churchmeet-analytics .dept-box strong{display:block;margin-top:.45rem;font-size:1.7rem;line-height:1;color:var(--deep)}
-    .churchmeet-analytics .hero-stat span,.churchmeet-analytics .note{display:block;margin-top:.45rem;color:var(--muted);font-size:.83rem;line-height:1.6}
-    .churchmeet-analytics .metric .card-body,.churchmeet-analytics .insight .card-body,.churchmeet-analytics .ranking .card-body{padding:1.2rem 1.25rem}
-    .churchmeet-analytics .metric-icon{width:42px;height:42px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:#f1f5f9;color:var(--primary);font-size:1.05rem;margin-bottom:.95rem}
-    .churchmeet-analytics .metric strong{font-size:2rem}
-    .churchmeet-analytics .chip{display:inline-flex;margin-top:.85rem;padding:.34rem .6rem;border-radius:999px;font-size:.76rem;font-weight:700;color:var(--primary);background:#eef4fb}
-    .churchmeet-analytics .chip.ok,.churchmeet-analytics .chip.warn,.churchmeet-analytics .chip.neutral{color:var(--primary);background:#eef4fb}
-    .churchmeet-analytics .quote{padding:1rem 1.05rem 1rem 1.15rem;border-radius:var(--card-radius);background:var(--soft);border:var(--card-width) solid var(--line);color:var(--deep);line-height:1.8;margin-bottom:1rem;box-shadow:var(--card-shadow)}
-    .churchmeet-analytics .actions{display:grid;gap:.75rem;margin:0;padding:0;list-style:none}
-    .churchmeet-analytics .actions li{display:flex;gap:.7rem;align-items:flex-start;padding:.8rem .9rem;border-radius:var(--card-radius);background:#fff;border:var(--card-width) solid var(--line);box-shadow:var(--card-shadow)}
-    .churchmeet-analytics .actions i{color:var(--primary);margin-top:.1rem}
-    .churchmeet-analytics .ring{width:188px;height:188px;border-radius:50%;padding:14px;background:conic-gradient(var(--primary) 0deg,var(--primary) var(--ring),rgba(20,83,136,.1) var(--ring),rgba(20,83,136,.1) 360deg);display:grid;place-items:center;margin:0 auto}
-    .churchmeet-analytics .ring>div{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;text-align:center;background:#fff;padding:1rem}
-    .churchmeet-analytics .ring>div strong{font-size:2.1rem;font-weight:800;color:var(--deep)} .churchmeet-analytics .ring>div span{color:var(--muted);font-size:.84rem}
-    .churchmeet-analytics .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin-top:1rem}
-    .churchmeet-analytics .chart-body{padding:1rem 1.1rem 1.2rem;min-height:320px}
-    .churchmeet-analytics .chart-wrap{height:300px}
-    .churchmeet-analytics .chart-wrap canvas{width:100%!important;height:300px!important}
-    .churchmeet-analytics .empty{display:grid;place-items:center;min-height:280px;text-align:center;color:var(--muted);border:var(--card-width) dashed var(--line);border-radius:var(--card-radius);background:var(--soft);padding:1rem;box-shadow:var(--card-shadow)}
-    .churchmeet-analytics .rank-list{display:grid;gap:.85rem}
-    .churchmeet-analytics .rank{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:center;padding:.95rem 1rem;border-radius:var(--card-radius);background:#fff;border:var(--card-width) solid var(--line);box-shadow:var(--card-shadow)}
-    .churchmeet-analytics .rank-badge{width:34px;height:34px;border-radius:10px;background:#edf2f7;color:var(--deep);display:inline-flex;align-items:center;justify-content:center;font-size:.88rem;font-weight:700}
-    .churchmeet-analytics .rank-title{font-weight:700;color:var(--deep)} .churchmeet-analytics .rank-sub{margin-top:.2rem;color:var(--muted);font-size:.82rem} .churchmeet-analytics .rank-rate{font-size:1.08rem;font-weight:800;color:var(--primary)}
-    .churchmeet-analytics .analytics-table thead th{border-top:0;border-bottom-color:var(--line);background:#f8fafc;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:.72rem;font-weight:800;padding:.95rem 1rem}
-    .churchmeet-analytics .analytics-table tbody td{vertical-align:middle;border-bottom-color:var(--line);padding:1rem}
-    .churchmeet-analytics .analytics-table tbody tr:hover{background:rgba(20,83,136,.03)}
-    .churchmeet-analytics .progress-shell{height:10px;border-radius:999px;background:rgba(20,83,136,.08);overflow:hidden}
-    .churchmeet-analytics .progress-fill{height:100%;border-radius:inherit;background:var(--primary)}
-    @media (max-width:1199.98px){.churchmeet-analytics .hero-grid,.churchmeet-analytics .dept-top{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:991.98px){.churchmeet-analytics .hero-grid,.churchmeet-analytics .mini-grid,.churchmeet-analytics .dept-top{grid-template-columns:1fr}.churchmeet-analytics .ring{width:170px;height:170px}}
+.churchmeet-analytics {
+        --ink: #13253b;
+        --muted: #68788f;
+        --line: var(--app-card-border-color, #d8e1ec);
+        --soft: #f5f7fa;
+        --soft-strong: #edf3f9;
+        --primary: #145388;
+        --deep: #0f2d4e;
+        --card-width: var(--app-card-border-width, 1px);
+        --card-radius: var(--app-card-radius, 14px);
+        --card-shadow: var(--app-card-shadow, none);
+        color: var(--ink);
+        padding-bottom: 2rem;
+    }
+
+    .churchmeet-analytics .card {
+        border: var(--card-width) solid var(--line) !important;
+        border-radius: var(--card-radius);
+        background: #fff;
+        box-shadow: var(--card-shadow) !important;
+    }
+
+    .churchmeet-analytics .card-header {
+        background: #fff;
+        border-bottom: var(--card-width) solid var(--line) !important;
+        padding: 1.1rem 1.25rem 1rem;
+    }
+
+    .churchmeet-analytics .analytics-hero {
+        overflow: hidden;
+    }
+
+    .churchmeet-analytics .hero-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.75fr) minmax(300px, 0.95fr);
+        gap: 1.15rem;
+        align-items: start;
+    }
+
+    .churchmeet-analytics .hero-copy {
+        max-width: 780px;
+    }
+
+    .churchmeet-analytics .hero-grid {
+        margin-top: 1.35rem;
+    }
+
+    .churchmeet-analytics .hero-stat {
+        min-height: 138px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.96)),
+            var(--soft);
+    }
+
+    .churchmeet-analytics .churchmeet-stat-value {
+        font-size: 1.75rem;
+    }
+
+    .churchmeet-analytics .focus-panel {
+        border: var(--card-width) solid rgba(20, 83, 136, 0.16);
+        border-radius: calc(var(--card-radius) + 2px);
+        background:
+            radial-gradient(circle at top left, rgba(20, 83, 136, 0.14), transparent 42%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 250, 0.98));
+        padding: 1.1rem;
+        min-height: 100%;
+    }
+
+    .churchmeet-analytics .focus-head h5 {
+        margin: 0.25rem 0 0;
+        color: var(--deep);
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .churchmeet-analytics .focus-head p {
+        margin: 0.45rem 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.65;
+    }
+
+    .churchmeet-analytics .focus-kicker,
+    .churchmeet-analytics .section-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--primary);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .churchmeet-analytics .focus-grid,
+    .churchmeet-analytics .dept-top {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+        margin-top: 1rem;
+    }
+
+    .churchmeet-analytics .focus-mini,
+    .churchmeet-analytics .dept-box,
+    .churchmeet-analytics .mini {
+        border: var(--card-width) solid var(--line);
+        border-radius: var(--card-radius);
+        background: rgba(255, 255, 255, 0.82);
+        padding: 0.9rem 0.95rem;
+        box-shadow: var(--card-shadow);
+    }
+
+    .churchmeet-analytics .focus-mini small,
+    .churchmeet-analytics .mini small,
+    .churchmeet-analytics .label {
+        display: block;
+        color: var(--muted);
+        font-size: 0.71rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .churchmeet-analytics .focus-mini strong,
+    .churchmeet-analytics .mini strong,
+    .churchmeet-analytics .dept-box strong,
+    .churchmeet-analytics .metric strong {
+        display: block;
+        margin-top: 0.42rem;
+        line-height: 1.08;
+        color: var(--deep);
+        font-weight: 800;
+    }
+
+    .churchmeet-analytics .focus-mini strong {
+        font-size: 1.05rem;
+    }
+
+    .churchmeet-analytics .focus-mini span,
+    .churchmeet-analytics .dept-box span,
+    .churchmeet-analytics .note {
+        display: block;
+        margin-top: 0.42rem;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.58;
+    }
+
+    .churchmeet-analytics .focus-list {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 0.9rem;
+    }
+
+    .churchmeet-analytics .focus-item {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+        padding: 0.85rem 0.9rem;
+        border: var(--card-width) solid var(--line);
+        border-radius: var(--card-radius);
+        background: rgba(255, 255, 255, 0.88);
+    }
+
+    .churchmeet-analytics .focus-item i {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #edf4fb;
+        color: var(--primary);
+        font-size: 1rem;
+    }
+
+    .churchmeet-analytics .focus-item strong {
+        display: block;
+        color: var(--deep);
+        font-size: 0.92rem;
+        font-weight: 700;
+    }
+
+    .churchmeet-analytics .focus-item span {
+        display: block;
+        margin-top: 0.2rem;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .churchmeet-analytics .metric .card-body,
+    .churchmeet-analytics .insight .card-body,
+    .churchmeet-analytics .ranking .card-body {
+        padding: 1.2rem 1.25rem;
+    }
+
+    .churchmeet-analytics .metric .card-body {
+        background:
+            linear-gradient(180deg, rgba(20, 83, 136, 0.03), rgba(255, 255, 255, 0)),
+            #fff;
+    }
+
+    .churchmeet-analytics .metric-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .churchmeet-analytics .metric-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef4fb;
+        color: var(--primary);
+        font-size: 1.08rem;
+        flex-shrink: 0;
+    }
+
+    .churchmeet-analytics .metric strong {
+        font-size: 1.85rem;
+        margin-top: 0.5rem;
+    }
+
+    .churchmeet-analytics .card-head h5 {
+        color: var(--deep);
+        font-size: 1.03rem;
+        font-weight: 700;
+    }
+
+    .churchmeet-analytics .card-head p {
+        max-width: 680px;
+        font-size: 0.9rem;
+        line-height: 1.65;
+    }
+
+    .churchmeet-analytics .quote {
+        padding: 1rem 1.05rem 1rem 1.15rem;
+        border-radius: var(--card-radius);
+        background:
+            linear-gradient(180deg, rgba(20, 83, 136, 0.05), rgba(20, 83, 136, 0.02)),
+            var(--soft);
+        border: var(--card-width) solid var(--line);
+        color: var(--deep);
+        font-size: 0.95rem;
+        line-height: 1.82;
+        margin-bottom: 1rem;
+        box-shadow: var(--card-shadow);
+    }
+
+    .churchmeet-analytics .actions {
+        display: grid;
+        gap: 0.75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .churchmeet-analytics .actions li {
+        display: flex;
+        gap: 0.7rem;
+        align-items: flex-start;
+        padding: 0.85rem 0.95rem;
+        border-radius: var(--card-radius);
+        background: #fff;
+        border: var(--card-width) solid var(--line);
+        box-shadow: var(--card-shadow);
+    }
+
+    .churchmeet-analytics .actions i {
+        color: var(--primary);
+        margin-top: 0.12rem;
+    }
+
+    .churchmeet-analytics .ring {
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        padding: 14px;
+        background: conic-gradient(var(--primary) 0deg, var(--primary) var(--ring), rgba(20, 83, 136, 0.1) var(--ring), rgba(20, 83, 136, 0.1) 360deg);
+        display: grid;
+        place-items: center;
+        margin: 0 auto;
+        box-shadow: inset 0 0 0 1px rgba(20, 83, 136, 0.06);
+    }
+
+    .churchmeet-analytics .ring > div {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        background: #fff;
+        padding: 1rem;
+    }
+
+    .churchmeet-analytics .ring > div strong {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--deep);
+    }
+
+    .churchmeet-analytics .ring > div span {
+        color: var(--muted);
+        font-size: 0.84rem;
+    }
+
+    .churchmeet-analytics .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+        margin-top: 1rem;
+    }
+
+    .churchmeet-analytics .mini strong,
+    .churchmeet-analytics .dept-box strong {
+        font-size: 1.2rem;
+    }
+
+    .churchmeet-analytics .chart-body {
+        padding: 1rem 1.1rem 1.2rem;
+        min-height: 320px;
+    }
+
+    .churchmeet-analytics .chart-wrap {
+        height: 300px;
+    }
+
+    .churchmeet-analytics .chart-wrap canvas {
+        width: 100% !important;
+        height: 300px !important;
+    }
+
+    .churchmeet-analytics .empty {
+        display: grid;
+        place-items: center;
+        min-height: 280px;
+        text-align: center;
+        color: var(--muted);
+        border: var(--card-width) dashed var(--line);
+        border-radius: var(--card-radius);
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(245, 247, 250, 0.95));
+        padding: 1rem;
+        box-shadow: var(--card-shadow);
+    }
+
+    .churchmeet-analytics .rank-list {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .churchmeet-analytics .rank {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 0.9rem;
+        align-items: center;
+        padding: 0.95rem 1rem;
+        border-radius: var(--card-radius);
+        background: #fff;
+        border: var(--card-width) solid var(--line);
+        box-shadow: var(--card-shadow);
+        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .churchmeet-analytics .rank:hover {
+        border-color: rgba(20, 83, 136, 0.22);
+        background: #fbfdff;
+        transform: translateY(-1px);
+    }
+
+    .churchmeet-analytics .rank-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        background: #edf2f7;
+        color: var(--deep);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .churchmeet-analytics .rank-title {
+        font-weight: 700;
+        color: var(--deep);
+        font-size: 0.96rem;
+    }
+
+    .churchmeet-analytics .rank-sub {
+        margin-top: 0.24rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .churchmeet-analytics .rank-rate {
+        font-size: 1.08rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .churchmeet-analytics .analytics-table thead th {
+        border-top: 0;
+        border-bottom-color: var(--line);
+        background: #f8fafc;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.71rem;
+        font-weight: 800;
+        padding: 0.95rem 1rem;
+    }
+
+    .churchmeet-analytics .analytics-table tbody td {
+        vertical-align: middle;
+        border-bottom-color: var(--line);
+        padding: 1rem;
+        font-size: 0.92rem;
+    }
+
+    .churchmeet-analytics .analytics-table tbody tr:hover {
+        background: rgba(20, 83, 136, 0.03);
+    }
+
+    .churchmeet-analytics .progress-shell {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(20, 83, 136, 0.08);
+        overflow: hidden;
+    }
+
+    .churchmeet-analytics .progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2f7cb8, var(--primary));
+    }
+
+    @media (max-width: 1399.98px) {
+        .churchmeet-analytics .hero-layout {
+            grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.95fr);
+        }
+    }
+
+    @media (max-width: 1199.98px) {
+        .churchmeet-analytics .hero-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .churchmeet-analytics .hero-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .churchmeet-analytics .mini-grid,
+        .churchmeet-analytics .focus-grid,
+        .churchmeet-analytics .dept-top {
+            grid-template-columns: 1fr;
+        }
+
+        .churchmeet-analytics .ring {
+            width: 172px;
+            height: 172px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .churchmeet-analytics .hero-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .churchmeet-analytics .metric strong {
+            font-size: 1.6rem;
+        }
+
+        .churchmeet-analytics .rank {
+            grid-template-columns: 1fr;
+            justify-items: start;
+        }
+
+        .churchmeet-analytics .rank-rate {
+            padding-left: 2.8rem;
+        }
+    }
 
 /* packages/workdo/ChurchMeet/src/Resources/views/attendance/reports/dashboard.blade.php */
 .attendance-analytics-page {

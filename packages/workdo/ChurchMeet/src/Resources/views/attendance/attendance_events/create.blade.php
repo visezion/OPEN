@@ -17,6 +17,15 @@
 @endsection
 
 @section('content')
+@php
+    $selectedEventValue = old('event_id', $selectedEventId ?? null);
+    $upcomingEvents = $events->filter(function ($event) {
+        return empty($event->start_time) || \Illuminate\Support\Carbon::parse($event->start_time)->isFuture();
+    });
+    $pastEvents = $events->filter(function ($event) {
+        return !empty($event->start_time) && \Illuminate\Support\Carbon::parse($event->start_time)->isPast();
+    });
+@endphp
 <div class="row attendance-events-create">
     {{-- Left Column: Form --}}
     <div class="col-lg-9">
@@ -31,6 +40,11 @@
             </div>
 
             <div class="card-body p-4">
+                <div class="alert alert-info border-start border-4 border-info shadow-sm mb-4">
+                    <strong><i class="ti ti-info-circle"></i> {{ __('Attendance Flow') }}:</strong>
+                    {{ __('You can attach attendance to both upcoming and past events. If an attendance session already exists for the selected event, ChurchMeet will reopen that same session automatically so records stay in one place.') }}
+                </div>
+
                 <form method="POST" action="{{ route('churchmeet.attendance_events.store') }}">
                     @csrf
 
@@ -40,15 +54,36 @@
                             <i class="ti ti-calendar-event text-primary"></i> {{ __('Select Event') }}
                         </label>
                         <select name="event_id" class="form-select" required>
-                            <option value="" disabled selected>{{ __('-- Choose an Event --') }}</option>
-                            @foreach($events as $event)
-                                <option value="{{ $event->id }}">
-                                    {{ $event->title }} ({{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }})
-                                </option>
-                            @endforeach
+                            <option value="" disabled {{ empty($selectedEventValue) ? 'selected' : '' }}>{{ __('-- Choose an Event --') }}</option>
+                            @if($upcomingEvents->isNotEmpty())
+                                <optgroup label="{{ __('Upcoming Events') }}">
+                                    @foreach($upcomingEvents as $event)
+                                        <option value="{{ $event->id }}" {{ (string) $selectedEventValue === (string) $event->id ? 'selected' : '' }}>
+                                            {{ $event->title }}
+                                            @if(!empty($event->start_time))
+                                                ({{ \Illuminate\Support\Carbon::parse($event->start_time)->format('M d, Y h:i A') }})
+                                            @endif
+                                            {{ $event->attendance_events_count > 0 ? ' - ' . __('Attendance already linked') : '' }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                            @if($pastEvents->isNotEmpty())
+                                <optgroup label="{{ __('Past Events') }}">
+                                    @foreach($pastEvents as $event)
+                                        <option value="{{ $event->id }}" {{ (string) $selectedEventValue === (string) $event->id ? 'selected' : '' }}>
+                                            {{ $event->title }}
+                                            @if(!empty($event->start_time))
+                                                ({{ \Illuminate\Support\Carbon::parse($event->start_time)->format('M d, Y h:i A') }})
+                                            @endif
+                                            {{ $event->attendance_events_count > 0 ? ' - ' . __('Attendance already linked') : '' }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                         <small class="text-muted d-block mt-1">
-                            {{ __('The attendance event will be linked to this main event record.') }}
+                            {{ __('The attendance session will be linked to this event. Past events are allowed, and existing attendance sessions are reused automatically.') }}
                         </small>
                     </div>
 
