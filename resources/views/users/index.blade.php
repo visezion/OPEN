@@ -24,10 +24,8 @@
         .users-grid-wrap .user-card,
         .users-grid-wrap .btn-addnew-project {
             background: #ffffff;
-            border: 1px solid #d8e2ef;
-            box-shadow: none !important;
-            filter: none !important;
             border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
         }
 
         .users-grid-wrap .users-filter-card .card-body {
@@ -53,7 +51,6 @@
         .users-grid-wrap .user-card .card-header {
             background: #ffffff;
             border: 0 !important;
-            border-bottom: 1px solid #e2eaf5 !important;
             padding: 14px !important;
         }
 
@@ -100,13 +97,14 @@
         }
 
         .users-grid-wrap .bottom-icons .btn.btn-sm.border {
-            border: 1px solid #d3deed !important;
+            border: 0 !important;
             background: #ffffff !important;
             border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
         }
 
         .users-grid-wrap .bottom-icons .btn.btn-sm.border:hover {
-            border-color: var(--bs-primary) !important;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
         }
 
         .users-grid-wrap .btn-addnew-project {
@@ -243,7 +241,7 @@
         @foreach ($users as $user)
             <div class="col-xxl-3 col-xl-4 col-md-6">
                 <div class="card user-card">
-                    <div class="card-header p-3 border border-bottom h-100">
+                    <div class="card-header p-3 h-100">
                         @if (Auth::user()->type == 'super admin')
                             <div class="d-flex align-items-center">
                                 <span class="badge bg-primary p-2 px-3">{{ ucfirst($user->type) }}</span>

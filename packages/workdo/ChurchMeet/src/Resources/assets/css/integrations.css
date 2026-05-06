@@ -1,9 +1,60 @@
 /* packages/workdo/ChurchMeet/src/Resources/views/integrations/index.blade.php */
-.churchmeet-integrations .card { border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef) !important; border-radius: var(--app-card-radius, 12px) !important; box-shadow: var(--app-card-shadow, none) !important; }
-    .churchmeet-integrations .hero-card { border-top: 3px solid #245f86 !important; background: linear-gradient(180deg, rgba(36,95,134,.06), rgba(36,95,134,0)), #fff; }
-    .churchmeet-integrations .platform-card { border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, #d8e2ef); border-radius: var(--app-card-radius, 12px); padding: 1rem; background: #f7fafc; height: 100%; box-shadow: var(--app-card-shadow, none); }
-    .churchmeet-integrations .platform-card.is-active { border-color: #245f86; background: #eef4fa; }
-    .churchmeet-integrations .section-copy { color: #6b7d90; }
+.churchmeet-integrations .card {
+        border: 0 !important;
+        border-radius: var(--app-card-radius, 12px) !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
+        background: #fff;
+    }
+
+    .churchmeet-integrations .card-header {
+        border-bottom: 0 !important;
+        background: #fff !important;
+    }
+
+    .churchmeet-integrations .hero-card {
+        border-top: 3px solid #245f86 !important;
+        background: linear-gradient(180deg, rgba(36,95,134,.06), rgba(36,95,134,0)), #fff;
+    }
+
+    .churchmeet-integrations .hero-card .badge.border {
+        border: 0 !important;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .churchmeet-integrations .platform-card {
+        border: 0;
+        border-radius: var(--app-card-radius, 12px);
+        padding: 1rem;
+        background: #f7fafc;
+        height: 100%;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        transition: box-shadow 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .churchmeet-integrations .platform-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+    }
+
+    .churchmeet-integrations .platform-card.is-active {
+        background: #eef4fa;
+        box-shadow: inset 0 0 0 2px rgba(36, 95, 134, 0.18), 0 12px 24px rgba(36, 95, 134, 0.12);
+    }
+
+    .churchmeet-integrations .section-copy {
+        color: #6b7d90;
+    }
+
+    .churchmeet-integrations .list-group-item {
+        border: 0 !important;
+        background: transparent !important;
+        padding-top: 0.9rem;
+        padding-bottom: 0.9rem;
+    }
+
+    .churchmeet-integrations .list-group-item + .list-group-item {
+        margin-top: 0.35rem;
+    }
 
 /* packages/workdo/ChurchMeet/src/Resources/views/integrations/jitsi_join.blade.php */
 .jitsi-join-page {

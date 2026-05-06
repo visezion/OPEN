@@ -68,12 +68,35 @@
                 </thead>
                 <tbody>
                     @forelse($feedbacks as $item)
+                        @php
+                            $canReviewItem = auth()->user()->isAbleTo('feedback review')
+                                && (
+                                    auth()->user()->isAbleTo('feedback view all')
+                                    || (!$item->recipient_user_id)
+                                    || ((int) $item->recipient_user_id === (int) auth()->id())
+                                );
+                            $canEditItem = auth()->user()->isAbleTo('feedback edit')
+                                && (
+                                    auth()->user()->isAbleTo('feedback view all')
+                                    || ((int) $item->submitted_by === (int) auth()->id())
+                                );
+                            $canDeleteItem = auth()->user()->isAbleTo('feedback delete')
+                                && (
+                                    auth()->user()->isAbleTo('feedback view all')
+                                    || ((int) $item->submitted_by === (int) auth()->id())
+                                );
+                        @endphp
                         <tr>
                             <td>{{ $item->department->name ?? __('No Department') }}</td>
                             <td>{{ $item->week_ending_formatted }}</td>
                             <td>
                                 <div class="fw-semibold">{{ $item->title ?? __('Untitled Report') }}</div>
                                 <div class="small text-muted">{{ \Illuminate\Support\Str::limit(strip_tags($item->message ?? ''), 80) }}</div>
+                                @if($item->recipient)
+                                    <div class="small text-primary mt-1">
+                                        <i class="ti ti-lock"></i> {{ __('Direct to') }}: {{ $item->recipient->name }}
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 @if($item->attendance_rate !== null)
@@ -89,20 +112,20 @@
                                 </span>
                             </td>
                             <td>
-                                @permission('feedback review')
+                                @if($canReviewItem)
                                     <a href="{{ route('feedback.review', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Review') }}"><i class="ti ti-file"></i></a>
-                                @endpermission
+                                @endif
                                 <a href="{{ route('feedback.show', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-info" title="{{ __('View') }}"><i class="ti ti-eye"></i></a>
-                                @permission('feedback edit')
+                                @if($canEditItem)
                                     <a href="{{ route('feedback.edit', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}"><i class="ti ti-edit"></i></a>
-                                @endpermission
-                                @permission('feedback delete')
+                                @endif
+                                @if($canDeleteItem)
                                     {!! Form::open(['method' => 'DELETE', 'route' => ['feedback.destroy', Crypt::encrypt($item->id)], 'class' => 'd-inline']) !!}
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}">
                                             <i class="ti ti-trash"></i>
                                         </button>
                                     {!! Form::close() !!}
-                                @endpermission
+                                @endif
                             </td>
                         </tr>
                     @empty

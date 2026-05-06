@@ -26,10 +26,8 @@
 
         .users-list-wrap .card {
             background: #ffffff;
-            border: 1px solid #d8e2ef;
             border-radius: 14px;
-            box-shadow: none !important;
-            filter: none !important;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
         }
 
         .users-list-wrap .users-filter-card .card-body {
@@ -58,7 +56,6 @@
         }
 
         .users-list-wrap table.dataTable thead th {
-            border-bottom: 1px solid #dfe8f3 !important;
             color: #60789a;
             font-size: 12px;
             font-weight: 600;
@@ -68,13 +65,12 @@
         }
 
         .users-list-wrap table.dataTable tbody td {
-            border-bottom: 1px solid #edf2f9 !important;
             color: #1f3a62;
             vertical-align: middle;
         }
 
-        .users-list-wrap table.dataTable tbody tr:last-child td {
-            border-bottom: 0 !important;
+        .users-list-wrap table.dataTable tbody tr:hover td {
+            background: #fbfdff;
         }
     </style>
 @endpush

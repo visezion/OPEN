@@ -17,7 +17,6 @@ Route::prefix('churchmeet')->name('churchmeet.')->group(function () {
 
     Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('events/analytics', [EventController::class, 'analytics'])->name('events.analytics');
-        Route::get('events/analytics/overall', [EventController::class, 'analytics'])->name('events.analytics.overall');
         Route::resource('events', EventController::class);
         Route::get('events/{id}/export-pdf', [EventController::class, 'exportPdf'])->name('events.export.pdf');
         Route::get('events/{id}/review', [EventController::class, 'review'])->name('events.review');

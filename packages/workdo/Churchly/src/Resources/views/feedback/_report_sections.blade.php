@@ -33,6 +33,12 @@
                         <div class="fw-semibold">{{ $feedback->is_anonymous ? __('Anonymous') : ($feedback->name ?? __('Unknown')) }}</div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="border rounded-3 p-3 bg-light">
+                        <div class="text-muted small">{{ __('Recipient') }}</div>
+                        <div class="fw-semibold">{{ $feedback->recipient?->name ?? __('Department / standard inbox') }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

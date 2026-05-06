@@ -17,8 +17,14 @@
 @push('css')
 <style>
     .asset-inventory-page .card {
-        border: 1px solid var(--bs-border-color, #d8e2ef) !important;
-        box-shadow: none !important;
+        border: 0 !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .asset-inventory-page .card-header,
+    .asset-inventory-page .card-footer {
+        border: 0 !important;
+        background: transparent !important;
     }
 
     .asset-inventory-page .section-label {
@@ -56,12 +62,12 @@
         color: var(--bs-secondary-color);
         background: var(--bs-tertiary-bg);
         border-top: 0;
-        border-bottom-color: var(--bs-border-color, #d8e2ef);
+        border-bottom-color: transparent;
         white-space: nowrap;
     }
 
     .asset-inventory-page .asset-table tbody td {
-        border-bottom-color: var(--bs-border-color, #d8e2ef);
+        border-bottom-color: transparent;
         vertical-align: middle;
     }
 
@@ -86,16 +92,29 @@
     .asset-inventory-page .status-pill {
         display: inline-flex;
         align-items: center;
-        border: 1px solid var(--bs-border-color, #d8e2ef);
+        border: 0;
         border-radius: 999px;
         padding: 0.2rem 0.65rem;
         font-size: 0.75rem;
         font-weight: 600;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        background: #f8fbff;
     }
 
-    .asset-inventory-page .status-operational { color: #0f7a45; }
-    .asset-inventory-page .status-in_maintenance { color: #8a6d1e; }
-    .asset-inventory-page .status-retired { color: #6c757d; }
+    .asset-inventory-page .status-operational {
+        color: #0f7a45;
+        background: #edf8f2;
+    }
+
+    .asset-inventory-page .status-in_maintenance {
+        color: #8a6d1e;
+        background: #fff7e8;
+    }
+
+    .asset-inventory-page .status-retired {
+        color: #6c757d;
+        background: #f3f5f7;
+    }
 </style>
 @endpush
 
@@ -347,4 +366,3 @@
         </div>
     </div>
 @endsection
-

@@ -2,6 +2,17 @@
     $isEditing = isset($feedback) && $feedback->exists;
     $reportPayload = $feedback->report_payload ?? [];
     $attendanceSummary = $attendancePreview ?? ($feedback->attendance_summary ?? []);
+    $attendanceOptions = $attendanceOptions ?? [];
+    $directRecipients = $directRecipients ?? collect();
+    $canSendDirect = $canSendDirect ?? false;
+    $selectedAttendanceEventId = old(
+        'attendance_event_id',
+        $selectedAttendanceEventId ?? ($attendanceSummary['attendance_event_id'] ?? ($feedback->attendance_event_id ?? null))
+    );
+    $selectedRecipientUserId = old(
+        'recipient_user_id',
+        $selectedRecipientUserId ?? ($feedback->recipient_user_id ?? null)
+    );
     $weekEndingValue = old(
     'week_ending_date',
     optional($feedback)->week_ending_date?->toDateString()
@@ -295,6 +306,26 @@
                                 <div class="text-danger small mt-2">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        @if ($canSendDirect)
+                            <div class="form-group mt-4">
+                                {{ Form::label('recipient_user_id', __('Send Report To'), ['class' => 'report-label']) }}
+                                <select name="recipient_user_id" id="recipient_user_id" class="form-select">
+                                    <option value="">{{ __('Department / standard inbox') }}</option>
+                                    @foreach ($directRecipients as $recipientOption)
+                                        <option value="{{ $recipientOption['id'] }}" {{ (string) $selectedRecipientUserId === (string) $recipientOption['id'] ? 'selected' : '' }}>
+                                            {{ $recipientOption['label'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="small text-muted mt-2">
+                                    {{ __('Choose a person here to make this a private direct report. Only you, that recipient, and full-access admins will see it.') }}
+                                </div>
+                                @error('recipient_user_id')
+                                    <div class="text-danger small mt-2">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -312,7 +343,22 @@
                 </div>
             </div>
 
-            <div class="report-pane" data-step="3" data-title="{{ __('Attendance') }}" data-subtitle="{{ __('Attendance is calculated automatically from the latest matching attendance event or meeting in the chosen week.') }}">
+            <div class="report-pane" data-step="3" data-title="{{ __('Attendance') }}" data-subtitle="{{ __('Choose the attendance session for this report week from records you created or sessions linked to your department.') }}">
+                <div class="mb-3">
+                    <label class="report-label" for="attendance_event_id">{{ __('Attendance Record') }}</label>
+                    <select name="attendance_event_id" id="attendance_event_id" class="form-select">
+                        <option value="">{{ __('No attendance selected') }}</option>
+                        @foreach ($attendanceOptions as $attendanceOption)
+                            <option value="{{ $attendanceOption['id'] }}" {{ (string) $selectedAttendanceEventId === (string) $attendanceOption['id'] ? 'selected' : '' }}>
+                                {{ $attendanceOption['label'] }} ({{ $attendanceOption['mode'] }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="small text-muted mt-2">
+                        {{ __('Admins can select from attendance records in the same report week that were created by them or belong to the same department.') }}
+                    </div>
+                </div>
+
                 <div class="report-source mb-3" id="attendance-source-box">
                     <div class="fw-semibold mb-1">{{ __('Attendance Source') }}</div>
                     <div id="attendance-source-label">{{ $attendanceSummary['source_label'] ?? __('Waiting for a week selection.') }}</div>
@@ -342,7 +388,7 @@
                 </div>
 
                 <div class="report-note" id="attendance-note">
-                    {{ __('The attendance panel updates automatically when the week ending date changes. If no attendance event or meeting exists for that week yet, the report will stay unlinked until one is created.') }}
+                    {{ __('The attendance panel updates when the week or selected attendance record changes. If no record exists for that report week yet, the report stays unlinked until one is created.') }}
                 </div>
             </div>
 
@@ -438,6 +484,7 @@
             const nextButton = document.getElementById('report-next');
             const submitButton = document.getElementById('report-submit');
             const weekInput = document.getElementById('week_ending_date');
+            const attendanceSelect = document.getElementById('attendance_event_id');
             const reviewGrid = document.getElementById('report-review-grid');
             let currentStep = 1;
 
@@ -457,7 +504,26 @@
                 return div.innerHTML;
             };
 
+            const renderAttendanceOptions = function (options, selectedId) {
+                const normalizedSelectedId = selectedId ? String(selectedId) : '';
+                const currentValue = attendanceSelect.value;
+                const optionsMarkup = ['<option value="">{{ __('No attendance selected') }}</option>']
+                    .concat((options || []).map(function (option) {
+                        const isSelected = normalizedSelectedId
+                            ? String(option.id) === normalizedSelectedId
+                            : currentValue && String(option.id) === String(currentValue);
+
+                        return `<option value="${escapeHtml(String(option.id))}" ${isSelected ? 'selected' : ''}>${escapeHtml(option.label)} (${escapeHtml(option.mode)})</option>`;
+                    }));
+
+                attendanceSelect.innerHTML = optionsMarkup.join('');
+            };
+
             const renderAttendanceSummary = function (summary) {
+                if (Object.prototype.hasOwnProperty.call(summary, 'options')) {
+                    renderAttendanceOptions(summary.options, summary.selected_attendance_event_id);
+                }
+
                 document.getElementById('attendance-source-label').textContent = summary.source_label || '{{ __('Waiting for a week selection.') }}';
                 document.getElementById('attendance-source-mode').textContent = summary.source_mode || '{{ __('Not linked') }}';
                 document.getElementById('attendance-rate').textContent = `${summary.attendance_rate ?? 0}%`;
@@ -466,8 +532,8 @@
                 document.getElementById('attendance-absent').textContent = summary.absent_count ?? 0;
 
                 document.getElementById('attendance-note').textContent = summary.is_auto_synced
-                    ? '{{ __('Attendance is linked automatically from an existing attendance event or meeting in this week.') }}'
-                    : '{{ __('No attendance event or meeting is linked to this week yet. Create or complete one first, then reopen the report to sync attendance.') }}';
+                    ? '{{ __('Attendance is linked from the selected record for this report week.') }}'
+                    : '{{ __('No attendance record is linked to this report week yet. Create or complete one first, then return and select it here.') }}';
             };
 
             const readFieldHtml = function (name) {
@@ -486,6 +552,7 @@
             const renderReview = function () {
                 const sections = [
                     { title: '{{ __('Week Selection') }}', content: escapeHtml(weekInput.value || '') || '<span class="report-empty">{{ __('Not selected') }}</span>' },
+                    { title: '{{ __('Recipient') }}', content: escapeHtml(document.getElementById('recipient_user_id')?.selectedOptions?.[0]?.text || '{{ __('Department / standard inbox') }}') },
                     { title: '{{ __('Activities & Achievements') }}', content: readFieldHtml('activities') + readFieldHtml('achievements') },
                     { title: '{{ __('Attendance') }}', content: `
                         <p><strong>{{ __('Source') }}:</strong> ${escapeHtml(document.getElementById('attendance-source-label').textContent)}</p>
@@ -542,7 +609,15 @@
                     return;
                 }
 
-                fetch(`{{ route('feedback.attendanceSummary') }}?week_ending_date=${encodeURIComponent(weekInput.value)}`, {
+                const params = new URLSearchParams({
+                    week_ending_date: weekInput.value
+                });
+
+                if (attendanceSelect.value) {
+                    params.set('attendance_event_id', attendanceSelect.value);
+                }
+
+                fetch(`{{ route('feedback.attendanceSummary') }}?${params.toString()}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
@@ -583,6 +658,7 @@
             });
 
             weekInput.addEventListener('change', fetchAttendanceSummary);
+            attendanceSelect.addEventListener('change', fetchAttendanceSummary);
             fetchAttendanceSummary();
             updateStepState();
         });

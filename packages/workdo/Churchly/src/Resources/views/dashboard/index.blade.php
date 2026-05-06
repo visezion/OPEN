@@ -10,25 +10,15 @@
     .church-dashboard .dashboard-project-card,
     .church-dashboard .card,
     .church-dashboard .dashboard-wrp > a.card {
-        border: 1px solid #d8e2ef !important;
         box-shadow: none !important;
     }
 
     .church-dashboard .card-header {
-        border-bottom: 1px solid #d8e2ef !important;
         background: #ffffff;
     }
 
     .church-dashboard .card-footer {
-        border-top: 1px solid #d8e2ef !important;
         background: #ffffff;
-    }
-
-    .church-dashboard .input-group .form-control,
-    .church-dashboard .input-group .btn,
-    .church-dashboard .theme-avtar,
-    .church-dashboard .badge {
-        border: 1px solid #d8e2ef !important;
     }
 
     .church-dashboard .qr-card img {
@@ -163,7 +153,7 @@ document.addEventListener('click', function (event) {
         <div class="col-xl-3 col-12">
         
             <div class="dashboard-wrp mb-4">                
-                <a id="trial-getting-started" target="_blank" href="#" class="text-primary card mb-3 px-3 py-2 d-flex flex-row align-items-center no-underline shadow-sm">
+                <a id="churchly-getting-started" href="{{ route('timer.doc') }}" class="text-primary card mb-3 px-3 py-2 d-flex flex-row align-items-center no-underline shadow-sm">
 					<div class="rounded bg-dark-primary mr-3 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
 						<i class="fas fa-star white fa-lg"></i>		
 					</div>
@@ -174,7 +164,7 @@ document.addEventListener('click', function (event) {
 					<i class="fas fa-arrow-right float-right pt-1"></i>
 				</a>
             
-                <a id="trial-getting-started" target="_blank" href="#" class="text-primary card mb-3 px-3 py-2 d-flex flex-row align-items-center no-underline shadow-sm">
+                <a id="churchly-members-import" href="{{ route('members.index') }}" class="text-primary card mb-3 px-3 py-2 d-flex flex-row align-items-center no-underline shadow-sm">
 					<div class="rounded bg-dark-primary mr-3 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
 						<i class="fas fa-users white fa-lg"></i>		
 					</div>
@@ -186,7 +176,7 @@ document.addEventListener('click', function (event) {
 				</a>
                 
 
-                <a id="trial-getting-started" target="_blank" href="#" class="text-primary card mb-3 px-3 py-2 d-flex flex-row align-items-center no-underline shadow-sm">
+                <a id="churchly-admin-settings" href="{{ route('settings.index') }}" class="text-primary card mb-3 px-3 py-2 d-flex flex-row align-items-center no-underline shadow-sm">
 					<div class="rounded bg-dark-primary mr-3 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
 						<i class="ti ti-settings white fa-lg"></i>		
 					</div>

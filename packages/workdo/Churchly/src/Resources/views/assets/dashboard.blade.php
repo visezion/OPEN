@@ -13,8 +13,14 @@
 @push('css')
 <style>
     .asset-dashboard-page .card {
-        border: 1px solid var(--bs-border-color, #d8e2ef) !important;
-        box-shadow: none !important;
+        border: 0 !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .asset-dashboard-page .card-header,
+    .asset-dashboard-page .card-footer {
+        border: 0 !important;
+        background: transparent !important;
     }
 
     .asset-dashboard-page .section-label {
@@ -51,9 +57,11 @@
     }
 
     .asset-dashboard-page .activity-item {
-        border: 1px solid var(--bs-border-color, #d8e2ef);
+        border: 0;
         border-radius: 10px;
         padding: 0.8rem 0.9rem;
+        background: #f8fbff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
     }
 
     .asset-dashboard-page .activity-meta {
@@ -64,19 +72,31 @@
     .asset-dashboard-page .status-chip {
         display: inline-flex;
         align-items: center;
-        border: 1px solid var(--bs-border-color, #d8e2ef);
+        border: 0;
         border-radius: 999px;
         padding: 0.18rem 0.6rem;
         font-size: 0.74rem;
         font-weight: 600;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     }
 
-    .asset-dashboard-page .status-ok { color: #0f7a45; }
-    .asset-dashboard-page .status-attention { color: #8a6d1e; }
-    .asset-dashboard-page .status-critical { color: #b02a37; }
+    .asset-dashboard-page .status-ok {
+        color: #0f7a45;
+        background: #edf8f2;
+    }
+
+    .asset-dashboard-page .status-attention {
+        color: #8a6d1e;
+        background: #fff7e8;
+    }
+
+    .asset-dashboard-page .status-critical {
+        color: #b02a37;
+        background: #fdecee;
+    }
 
     .asset-dashboard-page .settings-list .list-group-item {
-        border-color: var(--bs-border-color, #d8e2ef);
+        border-color: transparent;
         padding-top: 0.9rem;
         padding-bottom: 0.9rem;
     }
@@ -229,4 +249,3 @@
         </div>
     </div>
 @endsection
-

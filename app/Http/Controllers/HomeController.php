@@ -50,9 +50,14 @@ class HomeController extends Controller
             else
             {
                 $migrationPath = '/database/migrations/2024_07_17_120445_add_image_to_add_ons_table.php';
-                Artisan::call('migrate', [
-                    '--path' => $migrationPath,
-                ]);
+                $migrationName = pathinfo($migrationPath, PATHINFO_FILENAME);
+
+                if (!DB::table('migrations')->where('migration', $migrationName)->exists()) {
+                    Artisan::call('migrate', [
+                        '--path' => $migrationPath,
+                        '--force' => true,
+                    ]);
+                }
                 if(admin_setting('landing_page') == 'on')
                 {
                     if(module_is_active('LandingPage'))

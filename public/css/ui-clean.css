@@ -1,10 +1,6 @@
 .ui-border-clean .dash-header,
 .ui-border-clean .dash-sidebar,
 .ui-border-clean .page-header,
-.ui-border-clean .card,
-.ui-border-clean .dropdown-menu,
-.ui-border-clean .modal-content,
-.ui-border-clean .table-responsive,
 .ui-border-clean .accordion-item,
 .ui-border-clean .list-group-item,
 .ui-border-clean .form-control,
@@ -22,12 +18,7 @@ body.ui-border-clean,
     background: #ffffff !important;
 }
 
-.ui-border-clean .dash-header {
-    border-bottom: 1px solid #d8e2ef !important;
-}
-
 .ui-border-clean .dash-sidebar {
-    border-right: 1px solid #d8e2ef !important;
     background: #ffffff !important;
 }
 
@@ -38,13 +29,7 @@ body.ui-border-clean,
     background: #ffffff !important;
 }
 
-[dir="rtl"] .ui-border-clean .dash-sidebar {
-    border-right: 0 !important;
-    border-left: 1px solid #d8e2ef !important;
-}
-
 .ui-border-clean .dash-content .page-header {
-    border-bottom: 1px solid #d8e2ef !important;
     padding-bottom: 14px;
     margin-bottom: 18px;
 }
@@ -52,34 +37,11 @@ body.ui-border-clean,
 .ui-border-clean .card,
 .ui-border-clean .dropdown-menu,
 .ui-border-clean .modal-content,
-.ui-border-clean .table-responsive,
-.ui-border-clean .accordion-item,
-.ui-border-clean .list-group-item,
-.ui-border-clean .form-control,
-.ui-border-clean .form-select,
-.ui-border-clean .select2-container--default .select2-selection--single,
-.ui-border-clean .select2-container--default .select2-selection--multiple {
-    border-color: #d8e2ef !important;
-}
-
-.ui-border-clean .card-header {
-    border-bottom: 1px solid #d8e2ef !important;
-    background: #ffffff !important;
-}
-
-.ui-border-clean .card-footer {
-    border-top: 1px solid #d8e2ef !important;
-    background: #ffffff !important;
-}
-
-.ui-border-clean .dropdown-divider,
-.ui-border-clean .list-group-item + .list-group-item,
-.ui-border-clean .accordion-button {
-    border-color: #d8e2ef !important;
+.ui-border-clean .table-responsive {
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
 }
 
 .ui-border-clean .table-responsive {
-    border: 1px solid #d8e2ef !important;
     border-radius: 12px;
     background: #ffffff !important;
 }
@@ -89,17 +51,8 @@ body.ui-border-clean,
     background: #ffffff !important;
 }
 
-.ui-border-clean .table > :not(caption) > * > * {
-    border-color: #d8e2ef !important;
-}
-
 .ui-border-clean .table > thead > tr > * {
     background: #f8fbff !important;
-    border-bottom: 1px solid #d8e2ef !important;
-}
-
-.ui-border-clean.churchly-module-page .card {
-    border: 1px solid #d8e2ef !important;
 }
 
 .ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item > .dash-link {
@@ -118,7 +71,6 @@ body.ui-border-clean,
     width: 34px !important;
     height: 34px !important;
     box-shadow: none !important;
-    border: 1px solid #d8e2ef !important;
     background: #ffffff !important;
 }
 
@@ -132,7 +84,6 @@ body.ui-border-clean,
 
 .ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link,
 .ui-border-clean:not(.minimenu) .dash-sidebar.light-sidebar .dash-navbar > .dash-item:hover > .dash-link {
-    border: 1px solid #d8e2ef !important;
     background: #ffffff !important;
     box-shadow: none !important;
 }

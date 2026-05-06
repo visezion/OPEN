@@ -21,6 +21,7 @@ return new class extends Migration
             // Call the seeder
             Artisan::call('db:seed', [
                 '--class' => 'PackagesName',
+                '--force' => true,
             ]);
         }
     }

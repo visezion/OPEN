@@ -736,14 +736,14 @@
     }
 
     .attendance-analytics-page .card {
-        border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, var(--bs-border-color, #dee2e6)) !important;
+        border: 0 !important;
         border-radius: var(--app-card-radius, 12px);
-        box-shadow: var(--app-card-shadow, none) !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
         background: #fff;
     }
 
     .attendance-analytics-page .card-header {
-        border-bottom: var(--app-card-border-width, 1px) solid var(--app-card-border-color, var(--bs-border-color, #dee2e6)) !important;
+        border-bottom: 0 !important;
         background: #fff;
         padding: 1rem 1.25rem;
     }
@@ -777,10 +777,11 @@
     }
 
     .attendance-analytics-page .insight-pill {
-        border: var(--app-card-border-width, 1px) solid var(--app-card-border-color, var(--bs-border-color, #dee2e6));
+        border: 0;
         border-radius: var(--app-card-radius, 10px);
         padding: 0.75rem;
-        box-shadow: var(--app-card-shadow, none);
+        background: #f8fbff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
     }
 
     .attendance-analytics-page .insight-pill .value {
@@ -794,13 +795,13 @@
         letter-spacing: 0.08em;
         color: var(--bs-secondary-color);
         background: var(--bs-tertiary-bg);
-        border-bottom-color: var(--app-card-border-color, var(--bs-border-color, #dee2e6));
+        border-bottom-color: transparent;
         border-top: 0;
     }
 
     .attendance-analytics-page .analytics-table tbody td {
         vertical-align: middle;
-        border-bottom-color: var(--app-card-border-color, var(--bs-border-color, #dee2e6));
+        border-bottom-color: transparent;
         padding-top: 0.85rem;
         padding-bottom: 0.85rem;
     }

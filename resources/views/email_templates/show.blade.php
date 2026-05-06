@@ -9,9 +9,8 @@
     <link href="{{  asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.css')  }}" rel="stylesheet">
     <style>
         .email-template-show .card {
-            border: 1px solid #d8e2ef;
             border-radius: 14px;
-            box-shadow: none !important;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
             background: #ffffff;
         }
 
@@ -42,34 +41,26 @@
 
         .email-template-show .form-control,
         .email-template-show .note-editor.note-frame {
-            border: 1px solid #d8e2ef !important;
             border-radius: 10px;
             box-shadow: none !important;
         }
 
         .email-template-show .variable-item {
             padding: 8px 10px;
-            border: 1px solid #e3ebf7;
             border-radius: 10px;
             margin-bottom: 8px;
             background: #fbfdff;
         }
 
         .email-template-show .language-sidebar {
-            border: 1px solid #d8e2ef !important;
             border-radius: 12px;
             box-shadow: none !important;
             top: 16px;
         }
 
-        .email-template-show .language-sidebar .list-group-item {
-            border-color: #e3ebf7 !important;
-        }
-
         .email-template-show .language-sidebar .list-group-item.active {
             background: #ffffff !important;
             color: var(--bs-primary) !important;
-            border-color: #d8e2ef !important;
             font-weight: 600;
         }
     </style>

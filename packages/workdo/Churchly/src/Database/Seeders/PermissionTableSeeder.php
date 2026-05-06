@@ -154,6 +154,7 @@ class PermissionTableSeeder extends Seeder
             'feedback delete',
             'feedback edit',
             'feedback review',
+            'feedback send direct',
 
             'church_settings manage',
 

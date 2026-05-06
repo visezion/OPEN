@@ -3,8 +3,10 @@
 namespace Workdo\Churchly\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\WorkSpace;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +14,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Workdo\Churchly\Entities\AttendanceEvent;
 use Workdo\Churchly\Entities\ChurchBranch;
 use Workdo\Churchly\Entities\ChurchDepartment;
@@ -97,23 +100,45 @@ class ChurchFeedbackController extends Controller
     {
         $member = $this->resolveChurchMember(Auth::user());
         $defaultWeekEnding = now()->endOfWeek(Carbon::SUNDAY)->toDateString();
-        $attendancePreview = $this->buildAttendanceSummary($defaultWeekEnding, $member);
+        $attendanceSelection = $this->buildAttendanceSelectionData($defaultWeekEnding, $member);
+        $attendancePreview = $attendanceSelection['summary'];
+        $attendanceOptions = $attendanceSelection['options'];
+        $selectedAttendanceEventId = $attendanceSelection['selected_attendance_event_id'];
+        $directRecipients = $this->directRecipientOptions(Auth::user());
+        $canSendDirect = $this->canUserSendDirectReports(Auth::user()) && $directRecipients->isNotEmpty();
+        $selectedRecipientUserId = old('recipient_user_id');
 
-        return view('churchly::feedback.create', compact('attendancePreview', 'defaultWeekEnding'));
+        return view('churchly::feedback.create', compact(
+            'attendancePreview',
+            'attendanceOptions',
+            'selectedAttendanceEventId',
+            'defaultWeekEnding',
+            'directRecipients',
+            'canSendDirect',
+            'selectedRecipientUserId'
+        ));
     }
 
     public function store(Request $request)
     {
         $member = $this->resolveChurchMember(Auth::user());
+        $validated = $this->validateReportRequest($request);
+        $recipientUserId = $this->resolveRecipientUserId($request, $validated);
+        $attendanceSelection = $this->buildAttendanceSelectionData(
+            $validated['week_ending_date'],
+            $member,
+            isset($validated['attendance_event_id']) ? (int) $validated['attendance_event_id'] : null
+        );
 
-        if (!$member) {
-            return redirect()->back()->with('error', __('You are not linked to a church member profile.'));
+        if (!$attendanceSelection['requested_attendance_event_id_valid']) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('The selected attendance record is not available for this report week.'));
         }
 
-        $validated = $this->validateReportRequest($request);
-        $attendanceSummary = $this->buildAttendanceSummary($validated['week_ending_date'], $member);
+        $attendanceSummary = $attendanceSelection['summary'];
 
-        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary);
+        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary, null, $recipientUserId);
 
         if ($request->hasFile('attachment')) {
             $data['attachment'] = $request->file('attachment')->store('feedback_attachments', 'public');
@@ -128,41 +153,70 @@ class ChurchFeedbackController extends Controller
 
     public function edit($id)
     {
-        if (!Auth::user()->isAbleTo('feedback edit')) {
-            return redirect()->back()->with('error', __('Permission denied.'));
-        }
-
         $feedback = $this->findFeedbackFromEncryptedId($id);
         if (!$feedback) {
             return redirect()->back()->with('error', __('Invalid report ID.'));
+        }
+        if (!$this->canEditFeedback($feedback)) {
+            return redirect()->back()->with('error', __('Permission denied.'));
         }
 
         $member = $this->resolveChurchMember(Auth::user());
         $defaultWeekEnding = optional($feedback->week_ending_date)->toDateString() ?? now()->endOfWeek(Carbon::SUNDAY)->toDateString();
-        $attendancePreview = $feedback->attendance_summary ?: $this->buildAttendanceSummary($defaultWeekEnding, $member);
+        $attendanceSelection = $this->buildAttendanceSelectionData(
+            $defaultWeekEnding,
+            $member,
+            old('attendance_event_id', $feedback->attendance_event_id)
+        );
+        $attendancePreview = $feedback->attendance_summary ?: $attendanceSelection['summary'];
+        $attendanceOptions = $attendanceSelection['options'];
+        $selectedAttendanceEventId = old(
+            'attendance_event_id',
+            $feedback->attendance_event_id ?? $attendanceSelection['selected_attendance_event_id']
+        );
+        $directRecipients = $this->directRecipientOptions(Auth::user());
+        $canSendDirect = $this->canUserSendDirectReports(Auth::user()) && $directRecipients->isNotEmpty();
+        $selectedRecipientUserId = old('recipient_user_id', $feedback->recipient_user_id);
 
-        return view('churchly::feedback.edit', compact('feedback', 'attendancePreview', 'defaultWeekEnding'));
+        return view('churchly::feedback.edit', compact(
+            'feedback',
+            'attendancePreview',
+            'attendanceOptions',
+            'selectedAttendanceEventId',
+            'defaultWeekEnding',
+            'directRecipients',
+            'canSendDirect',
+            'selectedRecipientUserId'
+        ));
     }
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->isAbleTo('feedback edit')) {
-            return redirect()->back()->with('error', __('Permission denied.'));
-        }
-
         $feedback = $this->findFeedbackFromEncryptedId($id);
         if (!$feedback) {
             return redirect()->back()->with('error', __('Invalid report ID.'));
         }
-
-        $member = $this->resolveChurchMember(Auth::user());
-        if (!$member) {
-            return redirect()->back()->with('error', __('You are not linked to a church member profile.'));
+        if (!$this->canEditFeedback($feedback)) {
+            return redirect()->back()->with('error', __('Permission denied.'));
         }
 
+        $member = $this->resolveChurchMember(Auth::user());
         $validated = $this->validateReportRequest($request);
-        $attendanceSummary = $this->buildAttendanceSummary($validated['week_ending_date'], $member);
-        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary, $feedback);
+        $recipientUserId = $this->resolveRecipientUserId($request, $validated, $feedback);
+        $attendanceSelection = $this->buildAttendanceSelectionData(
+            $validated['week_ending_date'],
+            $member,
+            isset($validated['attendance_event_id']) ? (int) $validated['attendance_event_id'] : null
+        );
+
+        if (!$attendanceSelection['requested_attendance_event_id_valid']) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('The selected attendance record is not available for this report week.'));
+        }
+
+        $attendanceSummary = $attendanceSelection['summary'];
+        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary, $feedback, $recipientUserId);
 
         if ($request->hasFile('attachment')) {
             if ($feedback->attachment && Storage::disk('public')->exists($feedback->attachment)) {
@@ -183,6 +237,9 @@ class ChurchFeedbackController extends Controller
         if (!$feedback) {
             return redirect()->back()->with('error', __('Report not found.'));
         }
+        if (!$this->canViewFeedback($feedback)) {
+            return redirect()->back()->with('error', __('Permission denied.'));
+        }
 
         $attendanceSummary = $feedback->attendance_summary ?: $this->buildAttendanceSummary(
             optional($feedback->week_ending_date)->toDateString(),
@@ -194,13 +251,12 @@ class ChurchFeedbackController extends Controller
 
     public function destroy($id)
     {
-        if (!Auth::user()->isAbleTo('feedback delete')) {
-            return redirect()->back()->with('error', __('Permission denied.'));
-        }
-
         $feedback = $this->findFeedbackFromEncryptedId($id);
         if (!$feedback) {
             return redirect()->back()->with('error', __('Invalid report ID.'));
+        }
+        if (!$this->canDeleteFeedback($feedback)) {
+            return redirect()->back()->with('error', __('Permission denied.'));
         }
 
         if ($feedback->attachment && Storage::disk('public')->exists($feedback->attachment)) {
@@ -259,13 +315,12 @@ class ChurchFeedbackController extends Controller
 
     public function review($id)
     {
-        if (!Auth::user()->isAbleTo('feedback review')) {
-            return redirect()->back()->with('error', __('Permission denied.'));
-        }
-
         $feedback = $this->findFeedbackFromEncryptedId($id, true);
         if (!$feedback) {
             return redirect()->back()->with('error', __('Invalid report ID.'));
+        }
+        if (!$this->canReviewFeedback($feedback)) {
+            return redirect()->back()->with('error', __('Permission denied.'));
         }
 
         $attendanceSummary = $feedback->attendance_summary ?: $this->buildAttendanceSummary(
@@ -278,16 +333,15 @@ class ChurchFeedbackController extends Controller
 
     public function updateResponse(Request $request, $id)
     {
-        if (!Auth::user()->isAbleTo('feedback review')) {
-            return redirect()->back()->with('error', __('Permission denied.'));
-        }
-
         $request->validate([
             'admin_response' => 'required|string',
             'status' => 'required|in:pending,reviewed,resolved',
         ]);
 
         $feedback = ChurchFeedback::findOrFail($id);
+        if (!$this->canReviewFeedback($feedback)) {
+            return redirect()->back()->with('error', __('Permission denied.'));
+        }
         $feedback->admin_response = $request->admin_response;
         $feedback->status = $request->status;
         $feedback->reviewed_by = auth()->id();
@@ -301,12 +355,21 @@ class ChurchFeedbackController extends Controller
     {
         $request->validate([
             'week_ending_date' => 'required|date',
+            'attendance_event_id' => 'nullable|integer',
         ]);
 
         $member = $this->resolveChurchMember(Auth::user());
+        $attendanceSelection = $this->buildAttendanceSelectionData(
+            $request->string('week_ending_date')->toString(),
+            $member,
+            $request->filled('attendance_event_id') ? (int) $request->input('attendance_event_id') : null
+        );
 
         return response()->json(
-            $this->buildAttendanceSummary($request->string('week_ending_date')->toString(), $member)
+            $attendanceSelection['summary'] + [
+                'options' => $attendanceSelection['options'],
+                'selected_attendance_event_id' => $attendanceSelection['selected_attendance_event_id'],
+            ]
         );
     }
 
@@ -315,37 +378,60 @@ class ChurchFeedbackController extends Controller
         abort(501, 'Export functionality coming soon.');
     }
 
-    protected function visibleFeedbackQuery()
+    protected function visibleFeedbackQuery(): Builder
     {
         $user = Auth::user();
         $member = $this->resolveChurchMember($user);
-        $query = ChurchFeedback::with(['department', 'submitter', 'attendanceEvent.event'])
+        $query = ChurchFeedback::with(['department', 'submitter', 'recipient', 'attendanceEvent.event'])
             ->where('workspace_id', getActiveWorkSpace());
 
         if ($user->isAbleTo('feedback view all')) {
             return $query;
         }
 
-        if ($user->isAbleTo('feedback view branch')) {
-            return $query->where('branch_id', $member?->branch_id ?? $user->branch_id);
-        }
+        $branchId = $member?->branch_id ?? $user->branch_id ?? null;
+        $departmentId = $this->resolveDepartmentId($member) ?? $user->department_id ?? null;
 
-        if ($user->isAbleTo('feedback view department')) {
-            return $query->where('branch_id', $member?->branch_id ?? $user->branch_id)
-                ->where('department_id', $this->resolveDepartmentId($member) ?? $user->department_id);
-        }
+        return $query->where(function (Builder $visibleQuery) use ($user, $branchId, $departmentId) {
+            $visibleQuery->where('submitted_by', $user->id)
+                ->orWhere('recipient_user_id', $user->id)
+                ->orWhere(function (Builder $standardScopeQuery) use ($user, $branchId, $departmentId) {
+                    $standardScopeQuery->whereNull('recipient_user_id')
+                        ->where(function (Builder $permissionScopeQuery) use ($user, $branchId, $departmentId) {
+                            $hasScope = false;
 
-        if ($user->isAbleTo('feedback view own')) {
-            return $query->where('submitted_by', $user->id);
-        }
+                            if ($user->isAbleTo('feedback view own')) {
+                                $permissionScopeQuery->orWhere('submitted_by', $user->id);
+                                $hasScope = true;
+                            }
 
-        abort(403, 'Unauthorized');
+                            if ($user->isAbleTo('feedback view branch') && $branchId) {
+                                $permissionScopeQuery->orWhere('branch_id', $branchId);
+                                $hasScope = true;
+                            }
+
+                            if ($user->isAbleTo('feedback view department') && $branchId && $departmentId) {
+                                $permissionScopeQuery->orWhere(function (Builder $departmentScopeQuery) use ($branchId, $departmentId) {
+                                    $departmentScopeQuery->where('branch_id', $branchId)
+                                        ->where('department_id', $departmentId);
+                                });
+                                $hasScope = true;
+                            }
+
+                            if (!$hasScope) {
+                                $permissionScopeQuery->whereRaw('1 = 0');
+                            }
+                        });
+                });
+        });
     }
 
     protected function validateReportRequest(Request $request): array
     {
         return $request->validate([
             'week_ending_date' => 'required|date',
+            'attendance_event_id' => 'nullable|integer',
+            'recipient_user_id' => 'nullable|integer',
             'activities' => 'nullable|string',
             'achievements' => 'nullable|string',
             'service_tasks' => 'nullable|string',
@@ -361,11 +447,20 @@ class ChurchFeedbackController extends Controller
 
     protected function buildReportRecordData(
         array $validated,
-        ChurchMember $member,
+        ?ChurchMember $member,
         array $attendanceSummary,
-        ?ChurchFeedback $feedback = null
+        ?ChurchFeedback $feedback = null,
+        ?int $recipientUserId = null
     ): array {
-        $departmentId = $this->resolveDepartmentId($member);
+        $attendanceEvent = null;
+        if (!empty($attendanceSummary['attendance_event_id'])) {
+            $attendanceEvent = AttendanceEvent::query()
+                ->where('workspace_id', getActiveWorkSpace())
+                ->find($attendanceSummary['attendance_event_id']);
+        }
+
+        $departmentId = $this->resolveDepartmentId($member) ?? $attendanceEvent?->department_id;
+        $branchId = $member?->branch_id ?? $attendanceEvent?->branch_id;
         $department = $departmentId ? ChurchDepartment::find($departmentId) : null;
         $title = $this->buildReportTitle($department, $validated['week_ending_date']);
         $payload = [
@@ -392,8 +487,9 @@ class ChurchFeedbackController extends Controller
             'submitted_by' => $feedback?->submitted_by ?? Auth::id(),
             'name' => Auth::user()?->name,
             'email' => Auth::user()?->email,
-            'branch_id' => $member->branch_id,
+            'branch_id' => $branchId,
             'department_id' => $departmentId,
+            'recipient_user_id' => $recipientUserId,
             'workspace_id' => Auth::user()?->workspace_id ?? getActiveWorkSpace(),
             'is_anonymous' => (bool) ($validated['is_anonymous'] ?? false),
         ];
@@ -432,6 +528,8 @@ class ChurchFeedbackController extends Controller
 
     protected function buildAttendanceSummary(?string $weekEndingDate, ?ChurchMember $member): array
     {
+        return $this->buildAttendanceSelectionData($weekEndingDate, $member)['summary'];
+
         $weekEnding = $weekEndingDate ? Carbon::parse($weekEndingDate)->endOfDay() : now()->endOfWeek(Carbon::SUNDAY)->endOfDay();
         $weekStart = $weekEnding->copy()->subDays(6)->startOfDay();
         $departmentId = $this->resolveDepartmentId($member);
@@ -555,6 +653,135 @@ class ChurchFeedbackController extends Controller
         return (int) $query->count();
     }
 
+    protected function buildAttendanceSelectionData(
+        ?string $weekEndingDate,
+        ?ChurchMember $member,
+        ?int $selectedAttendanceEventId = null
+    ): array {
+        $weekEnding = $weekEndingDate ? Carbon::parse($weekEndingDate)->endOfDay() : now()->endOfWeek(Carbon::SUNDAY)->endOfDay();
+        $weekStart = $weekEnding->copy()->subDays(6)->startOfDay();
+        $attendanceEvents = $this->attendanceEventsForWeek($weekStart, $weekEnding, $member);
+        $matchedAttendanceEvent = $selectedAttendanceEventId
+            ? $attendanceEvents->firstWhere('id', $selectedAttendanceEventId)
+            : null;
+        $attendanceEvent = $matchedAttendanceEvent ?: $attendanceEvents->first();
+        $requestedAttendanceEventIdValid = !$selectedAttendanceEventId || (bool) $matchedAttendanceEvent;
+        $branchId = $member?->branch_id ?? $attendanceEvent?->branch_id;
+        $departmentId = $this->resolveDepartmentId($member) ?? $attendanceEvent?->department_id;
+        $totalMembers = ($branchId || $departmentId)
+            ? $this->departmentMemberCount($branchId, $departmentId)
+            : 0;
+
+        if (!$attendanceEvent) {
+            return [
+                'summary' => [
+                    'week_start' => $weekStart->toDateString(),
+                    'week_end' => $weekEnding->toDateString(),
+                    'attendance_event_id' => null,
+                    'source_label' => __('No attendance record is available for this report week.'),
+                    'source_mode' => __('Not linked'),
+                    'total_members' => $totalMembers,
+                    'present_count' => 0,
+                    'absent_count' => 0,
+                    'attendance_rate' => 0,
+                    'is_auto_synced' => false,
+                ],
+                'options' => [],
+                'selected_attendance_event_id' => null,
+                'requested_attendance_event_id_valid' => $requestedAttendanceEventIdValid,
+            ];
+        }
+
+        $latestMemberStates = $attendanceEvent->records
+            ->sortByDesc(function ($record) {
+                return optional($record->check_in_time ?? $record->created_at)->timestamp;
+            })
+            ->groupBy('member_id')
+            ->map(fn ($records) => $records->first());
+
+        $presentCount = $latestMemberStates->filter(function ($record) {
+            return in_array($record->status, ['present', 'late'], true);
+        })->count();
+
+        $explicitAbsentCount = $latestMemberStates->filter(function ($record) {
+            return in_array($record->status, ['absent', 'excused'], true);
+        })->count();
+
+        $absentCount = $totalMembers > 0
+            ? max($totalMembers - $presentCount, 0)
+            : $explicitAbsentCount;
+
+        $attendanceRate = $totalMembers > 0 ? round(($presentCount / $totalMembers) * 100, 1) : 0;
+        $sourceDate = $attendanceEvent->event?->start_time ?? $attendanceEvent->checkin_start_at ?? $attendanceEvent->created_at;
+        $sourceName = $attendanceEvent->event?->title ?? __('Attendance Session');
+        $sourceMode = $attendanceEvent->online_platform
+            ? strtoupper((string) $attendanceEvent->online_platform)
+            : ucfirst((string) ($attendanceEvent->mode ?? 'onsite'));
+
+        return [
+            'summary' => [
+                'week_start' => $weekStart->toDateString(),
+                'week_end' => $weekEnding->toDateString(),
+                'attendance_event_id' => $attendanceEvent->id,
+                'source_label' => $sourceName . ' - ' . optional($sourceDate)->format('d M Y'),
+                'source_mode' => $sourceMode,
+                'total_members' => $totalMembers,
+                'present_count' => $presentCount,
+                'absent_count' => $absentCount,
+                'attendance_rate' => $attendanceRate,
+                'is_auto_synced' => true,
+            ],
+            'options' => $attendanceEvents->map(function (AttendanceEvent $attendanceEvent) {
+                $sourceDate = $attendanceEvent->event?->start_time ?? $attendanceEvent->checkin_start_at ?? $attendanceEvent->created_at;
+                $sourceName = $attendanceEvent->event?->title ?? __('Attendance Session');
+                $sourceMode = $attendanceEvent->online_platform
+                    ? strtoupper((string) $attendanceEvent->online_platform)
+                    : ucfirst((string) ($attendanceEvent->mode ?? 'onsite'));
+
+                return [
+                    'id' => $attendanceEvent->id,
+                    'label' => $sourceName . ' - ' . optional($sourceDate)->format('d M Y'),
+                    'mode' => $sourceMode,
+                ];
+            })->values()->all(),
+            'selected_attendance_event_id' => $attendanceEvent->id,
+            'requested_attendance_event_id_valid' => $requestedAttendanceEventIdValid,
+        ];
+    }
+
+    protected function attendanceEventsForWeek(Carbon $weekStart, Carbon $weekEnding, ?ChurchMember $member)
+    {
+        $departmentId = $this->resolveDepartmentId($member);
+        $branchId = $member?->branch_id;
+        $userId = Auth::id();
+
+        return AttendanceEvent::with(['event', 'records'])
+            ->where('workspace_id', getActiveWorkSpace())
+            ->where(function ($query) use ($userId, $departmentId, $branchId) {
+                $query->where('created_by', $userId);
+
+                if ($departmentId) {
+                    $query->orWhere('department_id', $departmentId);
+                } elseif ($branchId) {
+                    $query->orWhere(function ($branchQuery) use ($branchId) {
+                        $branchQuery->whereNull('department_id')
+                            ->where('branch_id', $branchId);
+                    });
+                }
+            })
+            ->where(function ($query) use ($weekStart, $weekEnding) {
+                $query->whereBetween('checkin_start_at', [$weekStart, $weekEnding])
+                    ->orWhereHas('event', function ($eventQuery) use ($weekStart, $weekEnding) {
+                        $eventQuery->whereBetween('start_time', [$weekStart, $weekEnding]);
+                    });
+            })
+            ->whereHas('records')
+            ->orderByRaw('CASE WHEN created_by = ? THEN 0 ELSE 1 END', [$userId])
+            ->orderByDesc('checkin_start_at')
+            ->orderByDesc('id')
+            ->get();
+    }
+
     protected function resolveChurchMember($user): ?ChurchMember
     {
         if (!$user) {
@@ -587,14 +814,147 @@ class ChurchFeedbackController extends Controller
 
         $query = ChurchFeedback::query();
         if ($withRelations) {
-            $query->with(['submitter', 'reviewer', 'branch', 'department', 'workspace', 'attendanceEvent.event']);
+            $query->with(['submitter', 'reviewer', 'recipient', 'branch', 'department', 'workspace', 'attendanceEvent.event']);
         }
 
         return $query->find($id);
     }
 
+    protected function canUserSendDirectReports(?User $user): bool
+    {
+        return (bool) $user?->isAbleTo('feedback send direct');
+    }
+
+    protected function directRecipientOptions(?User $sender)
+    {
+        if (!$sender || !$this->canUserSendDirectReports($sender)) {
+            return collect();
+        }
+
+        $workspaceId = getActiveWorkSpace();
+
+        return User::query()
+            ->where('id', '!=', $sender->id)
+            ->where(function (Builder $query) use ($workspaceId) {
+                $query->where('workspace_id', $workspaceId)
+                    ->orWhere('active_workspace', $workspaceId);
+            })
+            ->orderBy('name')
+            ->get()
+            ->filter(function (User $user) {
+                return $user->isAbleTo('feedback review') || $user->isAbleTo('feedback view all');
+            })
+            ->values()
+            ->map(function (User $user) {
+                $label = $user->name;
+                if (!empty($user->email)) {
+                    $label .= ' (' . $user->email . ')';
+                }
+
+                return [
+                    'id' => $user->id,
+                    'label' => $label,
+                ];
+            });
+    }
+
+    protected function resolveRecipientUserId(Request $request, array $validated, ?ChurchFeedback $feedback = null): ?int
+    {
+        if (!$request->has('recipient_user_id')) {
+            return $feedback?->recipient_user_id;
+        }
+
+        if (!$request->filled('recipient_user_id')) {
+            return null;
+        }
+
+        if (!$this->canUserSendDirectReports(Auth::user())) {
+            abort(403, 'Unauthorized recipient selection.');
+        }
+
+        $selectedRecipientUserId = (int) ($validated['recipient_user_id'] ?? 0);
+
+        if ($selectedRecipientUserId === (int) Auth::id()) {
+            throw ValidationException::withMessages([
+                'recipient_user_id' => __('You cannot send a direct report to yourself.'),
+            ]);
+        }
+
+        $allowedRecipientIds = $this->directRecipientOptions(Auth::user())
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id);
+
+        if (!$allowedRecipientIds->contains($selectedRecipientUserId)) {
+            throw ValidationException::withMessages([
+                'recipient_user_id' => __('The selected direct recipient is not allowed for this report.'),
+            ]);
+        }
+
+        return $selectedRecipientUserId;
+    }
+
+    protected function canViewFeedback(ChurchFeedback $feedback): bool
+    {
+        return $this->visibleFeedbackQuery()
+            ->whereKey($feedback->id)
+            ->exists();
+    }
+
+    protected function canEditFeedback(ChurchFeedback $feedback): bool
+    {
+        $user = Auth::user();
+
+        if (!$user || !$user->isAbleTo('feedback edit')) {
+            return false;
+        }
+
+        if ($user->isAbleTo('feedback view all')) {
+            return true;
+        }
+
+        return (int) $feedback->submitted_by === (int) $user->id;
+    }
+
+    protected function canDeleteFeedback(ChurchFeedback $feedback): bool
+    {
+        $user = Auth::user();
+
+        if (!$user || !$user->isAbleTo('feedback delete')) {
+            return false;
+        }
+
+        if ($user->isAbleTo('feedback view all')) {
+            return true;
+        }
+
+        return (int) $feedback->submitted_by === (int) $user->id;
+    }
+
+    protected function canReviewFeedback(ChurchFeedback $feedback): bool
+    {
+        $user = Auth::user();
+
+        if (!$user || !$user->isAbleTo('feedback review')) {
+            return false;
+        }
+
+        if ($user->isAbleTo('feedback view all')) {
+            return true;
+        }
+
+        if ($feedback->recipient_user_id) {
+            return (int) $feedback->recipient_user_id === (int) $user->id;
+        }
+
+        return $this->canViewFeedback($feedback);
+    }
+
     protected function notifyDepartmentWhatsapp(ChurchFeedback $feedback): void
     {
+        if ($feedback->recipient_user_id) {
+            return;
+        }
+
         $dashboardUrl = route('feedback.index');
         $submitter = $feedback->is_anonymous ? __('Anonymous') : ($feedback->name ?: __('Unknown'));
         $summary = data_get($feedback->attendance_summary, 'present_count', 0) . '/' . data_get($feedback->attendance_summary, 'total_members', 0);
