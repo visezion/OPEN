@@ -1,48 +1,53 @@
-@extends('layouts.main')
 
-@section('page-title')
-    {{ __('Weekly Reports Dashboard') }}
-@endsection
 
-@section('page-breadcrumb')
-    {{ __('Weekly Reports') }}
-@endsection
-@push('css')
-    {{-- Chart.js --}}
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Weekly Reports Dashboard')); ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('page-breadcrumb'); ?>
+    <?php echo e(__('Weekly Reports')); ?>
+
+<?php $__env->stopSection(); ?>
+<?php $__env->startPush('css'); ?>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css">
-@endpush
+<?php $__env->stopPush(); ?>
 
 
-@section('page-action')
-    <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-primary">
-        <i class="ti ti-eye"></i> {{ __('View All Weekly Reports') }}
+<?php $__env->startSection('page-action'); ?>
+    <a href="<?php echo e(route('feedback.index')); ?>" class="btn btn-sm btn-primary">
+        <i class="ti ti-eye"></i> <?php echo e(__('View All Weekly Reports')); ?>
+
     </a>
-    <a href="{{ route('feedback.create') }}" class="btn btn-sm btn-primary">
-            <i class="ti ti-plus"></i> {{ __('New Weekly Report') }}
+    <a href="<?php echo e(route('feedback.create')); ?>" class="btn btn-sm btn-primary">
+            <i class="ti ti-plus"></i> <?php echo e(__('New Weekly Report')); ?>
+
         </a>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-    @if (session('status'))
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
         <div class="alert alert-success" role="alert">
-            {{ session('status') }}
+            <?php echo e(session('status')); ?>
+
         </div>
-    @endif
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <div class="row row-gap mb-4">
             <!-- Church Overview Card -->
             <div class="col-xl-6 col-12">
                 <div class="dashboard-card">
-                    <img src="{{ asset('assets/images/layer.png') }}" class="dashboard-card-layer" alt="layer">
+                    <img src="<?php echo e(asset('assets/images/layer.png')); ?>" class="dashboard-card-layer" alt="layer">
                     <div class="card-inner">
                         <div class="card-content">
-                            <h2>{{ Auth::user()->ActiveWorkspaceName() }}</h2>
-                                <p>{{ __('Track weekly departmental reports, attendance snapshots, service notes, and leadership follow-up from one dashboard.') }}</p>
+                            <h2><?php echo e(Auth::user()->ActiveWorkspaceName()); ?></h2>
+                                <p><?php echo e(__('Track weekly departmental reports, attendance snapshots, service notes, and leadership follow-up from one dashboard.')); ?></p>
                             <div class="btn-wrp d-flex gap-3">
-                                <a href="{{ route('feedback.create') }}" class="btn btn-primary d-flex align-items-center gap-1 cp_link" tabindex="0" data-link="{{ route('feedback.create') }}" data-bs-whatever="Copy Link" data-bs-toggle="tooltip" data-bs-original-title="" title="">
+                                <a href="<?php echo e(route('feedback.create')); ?>" class="btn btn-primary d-flex align-items-center gap-1 cp_link" tabindex="0" data-link="<?php echo e(route('feedback.create')); ?>" data-bs-whatever="Copy Link" data-bs-toggle="tooltip" data-bs-original-title="" title="">
                                     <i class="ti ti-link text-white"></i>
-                                <span>{{ __('Create Weekly Report') }}</span></a>
+                                <span><?php echo e(__('Create Weekly Report')); ?></span></a>
                                 <!-- <a href="javascript:" class="btn btn-primary" tabindex="0">
                                     <i class="ti ti-share text-white"></i>
                                 </a> -->
@@ -64,7 +69,7 @@
         <div class="col-xl-6 col-12">
             <div class="row dashboard-wrp">
      
-                @php
+                <?php
                 
                     $feedbackStats = [
                       
@@ -74,25 +79,25 @@
                         ['label' => 'Total Weekly Reports', 'icon' => 'ti ti-clipboard-list', 'count' => $statswithcount['total'] ?? 0, 'color' => 'text-primary'],
                         
                     ];
-                @endphp
+                ?>
 
-                @foreach ($feedbackStats as $stat)
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $feedbackStats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="col-sm-6 col-12 mb-3">
                         <div class="dashboard-project-card">
                             <div class="card-inner  d-flex justify-content-between">
                                 <div class="card-content">
                                     <div class="theme-avtar bg-white">
-                                        <i class="{{ $stat['icon'] }} {{ $stat['color'] }}"></i>
+                                        <i class="<?php echo e($stat['icon']); ?> <?php echo e($stat['color']); ?>"></i>
                                     </div>
                                     <a href="#">
-                                        <h6 class="mt-3 mb-0 {{ $stat['color'] }}">{{ __($stat['label']) }}</h6>
+                                        <h6 class="mt-3 mb-0 <?php echo e($stat['color']); ?>"><?php echo e(__($stat['label'])); ?></h6>
                                     </a>
                                 </div>
-                                <h3 class="mb-0">{{ $stat['count'] }}</h3>
+                                <h3 class="mb-0"><?php echo e($stat['count']); ?></h3>
                             </div>
                         </div>
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                
             </div>
             </div>
@@ -103,33 +108,33 @@
             <div class="col-xxl-6 col-12">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>{{ __('Recent Weekly Reports') }}</h5>
+                        <h5><?php echo e(__('Recent Weekly Reports')); ?></h5>
                     </div>
                     <div class="card-body table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>{{ __('Title') }}</th>
-                                    <th>{{ __('Type') }}</th>
-                                    <th>{{ __('Category') }}</th>
-                                    <th>{{ __('Status') }}</th>
-                                    <th>{{ __('Submitted') }}</th>
-                                    <th>{{ __('Action') }}</th>
+                                    <th><?php echo e(__('Title')); ?></th>
+                                    <th><?php echo e(__('Type')); ?></th>
+                                    <th><?php echo e(__('Category')); ?></th>
+                                    <th><?php echo e(__('Status')); ?></th>
+                                    <th><?php echo e(__('Submitted')); ?></th>
+                                    <th><?php echo e(__('Action')); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($recentFeedbacks as $feedback)
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $recentFeedbacks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feedback): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td>{{ $feedback->title }}</td>
-                                    <td>{{ ucfirst($feedback->type) }}</td>
-                                    <td>{{ ucfirst($feedback->category) }}</td>
-                                    <td><span class="badge bg-{{ $feedback->status == 'resolved' ? 'success' : ($feedback->status == 'reviewed' ? 'warning' : 'secondary') }}">{{ ucfirst($feedback->status) }}</span></td>
-                                    <td>{{ $feedback->created_at->diffForHumans() }} </td>
+                                    <td><?php echo e($feedback->title); ?></td>
+                                    <td><?php echo e(ucfirst($feedback->type)); ?></td>
+                                    <td><?php echo e(ucfirst($feedback->category)); ?></td>
+                                    <td><span class="badge bg-<?php echo e($feedback->status == 'resolved' ? 'success' : ($feedback->status == 'reviewed' ? 'warning' : 'secondary')); ?>"><?php echo e(ucfirst($feedback->status)); ?></span></td>
+                                    <td><?php echo e($feedback->created_at->diffForHumans()); ?> </td>
                                     <td>
-                                        <a href="{{ route('feedback.show', \Illuminate\Support\Facades\Crypt::encrypt( $feedback->id)) }}" class="btn btn-sm btn-info">{{ __('View') }}</a>
+                                        <a href="<?php echo e(route('feedback.show', \Illuminate\Support\Facades\Crypt::encrypt( $feedback->id))); ?>" class="btn btn-sm btn-info"><?php echo e(__('View')); ?></a>
                                     </td>
                                 </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -139,7 +144,7 @@
             <div class="col-xxl-3 col-12">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5>{{ __('Weekly Report Category Chart') }}</h5>
+                        <h5><?php echo e(__('Weekly Report Category Chart')); ?></h5>
                     </div>
                     <div class="card-body">
                         <canvas id="feedbackCategoryChart" height="300"></canvas>
@@ -149,7 +154,7 @@
             <div class="col-xxl-3 col-12">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5>{{ __('Weekly Report Status Chart') }}</h5>
+                        <h5><?php echo e(__('Weekly Report Status Chart')); ?></h5>
                     </div>
                     <div class="card-body">
                         <canvas id="feedbackTypeChart" height="10"></canvas>
@@ -157,11 +162,11 @@
                 </div>
             </div>
         </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
 
-@push('scripts')
-    {{-- Clipboard helper --}}
+<?php $__env->startPush('scripts'); ?>
+    
     <script>
         document.addEventListener('click', function (event) {
             const target = event.target.closest('.copy-link');
@@ -189,7 +194,7 @@
             });
         });
     </script>
-    {{-- Chart.js --}}
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
       <script>
@@ -204,7 +209,7 @@
                         center: 'title',
                         right: 'dayGridMonth,timeGridWeek,timeGridDay'
                     },
-                    events: {!! json_encode($feedbackEvents) !!}, // from controller
+                    events: <?php echo json_encode($feedbackEvents); ?>, // from controller
                     eventClick: function (info) {
                         if (info.event.url) {
                             window.open(info.event.url, '_blank');
@@ -224,10 +229,10 @@
             new Chart(ctxType, {
                 type: 'doughnut',
                 data: {
-                    labels: {!! json_encode(array_keys($stats)) !!},
+                    labels: <?php echo json_encode(array_keys($stats)); ?>,
                     datasets: [{
                         label: 'Report Status',
-                        data: {!! json_encode(array_values($stats)) !!},
+                        data: <?php echo json_encode(array_values($stats)); ?>,
                         backgroundColor: ['#dc3545', '#ffc107', '#198754', '#0d6efd']
                     }]
                 }
@@ -240,10 +245,10 @@
             new Chart(ctxCat, {
                 type: 'bar',
                 data: {
-                    labels: {!! json_encode(array_keys($categoryCounts)) !!},
+                    labels: <?php echo json_encode(array_keys($categoryCounts)); ?>,
                     datasets: [{
                         label: 'Category',
-                        data: {!! json_encode(array_values($categoryCounts)) !!},
+                        data: <?php echo json_encode(array_values($categoryCounts)); ?>,
                         backgroundColor: '#0d6efd'
                     }]
                 },
@@ -254,4 +259,6 @@
         }
 
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\Churchly\src\Providers/../Resources/views/feedback/dashboard.blade.php ENDPATH**/ ?>

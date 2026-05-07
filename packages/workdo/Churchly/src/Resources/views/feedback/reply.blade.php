@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
-@section('page-title', __('Reply to Feedback'))
-@section('page-breadcrumb', __('Feedback'))
+@section('page-title', __('Reply to Weekly Report'))
+@section('page-breadcrumb', __('Weekly Reports'))
 
 @section('content')
 <div class="row">
@@ -9,7 +9,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">{{ __('Feedback Details') }}</h5>
+                <h5 class="mb-0">{{ __('Weekly Report Details') }}</h5>
             </div>
 
             <div class="card-body">

@@ -1,17 +1,17 @@
 @extends('layouts.main')
 
 @section('page-title', __('Review Report'))
-@section('page-breadcrumb', __('Reports'))
+@section('page-breadcrumb', __('Weekly Reports'))
 
 @push('css')
     <link href="{{ asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.css') }}" rel="stylesheet">
 @endpush
 
 @section('page-action')
-    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Reports Dashboard') }}">
+    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Weekly Reports Dashboard') }}">
         <i class="ti ti-layout-grid text-white"></i>
     </a>
-    <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="{{ __('Go Back') }}">
+    <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="{{ __('Back to Weekly Reports') }}">
         <i class="ti ti-arrow-back-up"></i>
     </a>
 @endsection
@@ -36,7 +36,7 @@
         <div class="col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <h5 class="mb-0">{{ __('Response to Report') }}</h5>
+                    <h5 class="mb-0">{{ __('Response to Weekly Report') }}</h5>
                 </div>
                 <div class="card-body">
                     @if($feedback->admin_response)

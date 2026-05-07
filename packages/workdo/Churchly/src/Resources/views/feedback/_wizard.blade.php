@@ -309,7 +309,7 @@
 
                         @if ($canSendDirect)
                             <div class="form-group mt-4">
-                                {{ Form::label('recipient_user_id', __('Send Report To'), ['class' => 'report-label']) }}
+                                {{ Form::label('recipient_user_id', __('Send Weekly Report To'), ['class' => 'report-label']) }}
                                 <select name="recipient_user_id" id="recipient_user_id" class="form-select">
                                     <option value="">{{ __('Department / standard inbox') }}</option>
                                     @foreach ($directRecipients as $recipientOption)
@@ -319,7 +319,7 @@
                                     @endforeach
                                 </select>
                                 <div class="small text-muted mt-2">
-                                    {{ __('Choose a person here to make this a private direct report. Only you, that recipient, and full-access admins will see it.') }}
+                                    {{ __('Choose a person here to make this a private direct weekly report. Only you, that recipient, and full-access admins will see it.') }}
                                 </div>
                                 @error('recipient_user_id')
                                     <div class="text-danger small mt-2">{{ $message }}</div>
@@ -552,7 +552,7 @@
             const renderReview = function () {
                 const sections = [
                     { title: '{{ __('Week Selection') }}', content: escapeHtml(weekInput.value || '') || '<span class="report-empty">{{ __('Not selected') }}</span>' },
-                    { title: '{{ __('Recipient') }}', content: escapeHtml(document.getElementById('recipient_user_id')?.selectedOptions?.[0]?.text || '{{ __('Department / standard inbox') }}') },
+                    { title: '{{ __('Report Recipient') }}', content: escapeHtml(document.getElementById('recipient_user_id')?.selectedOptions?.[0]?.text || '{{ __('Department / standard inbox') }}') },
                     { title: '{{ __('Activities & Achievements') }}', content: readFieldHtml('activities') + readFieldHtml('achievements') },
                     { title: '{{ __('Attendance') }}', content: `
                         <p><strong>{{ __('Source') }}:</strong> ${escapeHtml(document.getElementById('attendance-source-label').textContent)}</p>

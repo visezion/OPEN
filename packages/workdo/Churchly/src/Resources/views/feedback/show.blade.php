@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('page-title', __('Report Details'))
-@section('page-breadcrumb', __('Reports'))
+@section('page-breadcrumb', __('Weekly Reports'))
 
 @section('page-action')
     @php
@@ -11,17 +11,17 @@
                 || ((int) $feedback->submitted_by === (int) auth()->id())
             );
     @endphp
-    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Reports Dashboard') }}">
+    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Weekly Reports Dashboard') }}">
         <i class="ti ti-layout-grid text-white"></i>
     </a>
-    <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-danger me-1" data-bs-toggle="tooltip" title="{{ __('Go Back') }}">
+    <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-danger me-1" data-bs-toggle="tooltip" title="{{ __('Back to Weekly Reports') }}">
         <i class="ti ti-arrow-back-up"></i>
     </a>
-    <a href="{{ route('feedback.create') }}" class="btn btn-sm btn-primary me-1" data-bs-toggle="tooltip" title="{{ __('Create Report') }}">
+    <a href="{{ route('feedback.create') }}" class="btn btn-sm btn-primary me-1" data-bs-toggle="tooltip" title="{{ __('Create Weekly Report') }}">
         <i class="ti ti-plus"></i>
     </a>
     @if($canEditFeedback)
-        <a href="{{ route('feedback.edit', \Illuminate\Support\Facades\Crypt::encrypt($feedback->id)) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="{{ __('Edit Report') }}">
+        <a href="{{ route('feedback.edit', \Illuminate\Support\Facades\Crypt::encrypt($feedback->id)) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="{{ __('Edit Weekly Report') }}">
             <i class="ti ti-pencil"></i>
         </a>
     @endif
@@ -33,7 +33,7 @@
     @else
         <div class="card shadow-sm">
             <div class="card-header">
-                <h5 class="mb-0">{{ $feedback->title ?? __('Untitled Feedback') }}</h5>
+                <h5 class="mb-0">{{ $feedback->title ?? __('Untitled Weekly Report') }}</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3"><strong>{{ __('Submitted By') }}:</strong> {{ $feedback->is_anonymous ? __('Anonymous') : ($feedback->name ?? 'N/A') }}</div>

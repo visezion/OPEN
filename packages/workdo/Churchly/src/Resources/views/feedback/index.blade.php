@@ -1,14 +1,14 @@
 @extends('layouts.main')
 
-@section('page-title', __('Reports Management'))
-@section('page-breadcrumb', __('Reports Dashboard'))
+@section('page-title', __('Weekly Reports'))
+@section('page-breadcrumb', __('Weekly Reports'))
 
 @section('page-action')
-    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Reports Dashboard') }}">
+    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Weekly Reports Dashboard') }}">
         <i class="ti ti-layout-grid text-white"></i>
     </a>
     <a href="{{ route('feedback.create') }}" class="btn btn-sm btn-primary">
-        <i class="ti ti-plus me-1"></i>{{ __('New Report') }}
+        <i class="ti ti-plus me-1"></i>{{ __('New Weekly Report') }}
     </a>
 @endsection
 
@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <input type="text" name="search" class="form-control form-control-sm" placeholder="{{ __('Search title or summary') }}" value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="{{ __('Search weekly report title or summary') }}" value="{{ request('search') }}">
                 </div>
 
                 <div class="col-md-1">
@@ -59,7 +59,7 @@
                     <tr>
                         <th>{{ __('Department') }}</th>
                         <th>{{ __('Week Ending') }}</th>
-                        <th>{{ __('Report') }}</th>
+                        <th>{{ __('Weekly Report') }}</th>
                         <th>{{ __('Attendance') }}</th>
                         <th>{{ __('Submitted By') }}</th>
                         <th>{{ __('Status') }}</th>
@@ -90,11 +90,11 @@
                             <td>{{ $item->department->name ?? __('No Department') }}</td>
                             <td>{{ $item->week_ending_formatted }}</td>
                             <td>
-                                <div class="fw-semibold">{{ $item->title ?? __('Untitled Report') }}</div>
+                                <div class="fw-semibold">{{ $item->title ?? __('Untitled Weekly Report') }}</div>
                                 <div class="small text-muted">{{ \Illuminate\Support\Str::limit(strip_tags($item->message ?? ''), 80) }}</div>
                                 @if($item->recipient)
                                     <div class="small text-primary mt-1">
-                                        <i class="ti ti-lock"></i> {{ __('Direct to') }}: {{ $item->recipient->name }}
+                                        <i class="ti ti-lock"></i> {{ __('Private direct report to') }}: {{ $item->recipient->name }}
                                     </div>
                                 @endif
                             </td>
@@ -113,11 +113,11 @@
                             </td>
                             <td>
                                 @if($canReviewItem)
-                                    <a href="{{ route('feedback.review', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Review') }}"><i class="ti ti-file"></i></a>
+                                    <a href="{{ route('feedback.review', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Review Weekly Report') }}"><i class="ti ti-file"></i></a>
                                 @endif
-                                <a href="{{ route('feedback.show', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-info" title="{{ __('View') }}"><i class="ti ti-eye"></i></a>
+                                <a href="{{ route('feedback.show', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-info" title="{{ __('View Weekly Report') }}"><i class="ti ti-eye"></i></a>
                                 @if($canEditItem)
-                                    <a href="{{ route('feedback.edit', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}"><i class="ti ti-edit"></i></a>
+                                    <a href="{{ route('feedback.edit', Crypt::encrypt($item->id)) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit Weekly Report') }}"><i class="ti ti-edit"></i></a>
                                 @endif
                                 @if($canDeleteItem)
                                     {!! Form::open(['method' => 'DELETE', 'route' => ['feedback.destroy', Crypt::encrypt($item->id)], 'class' => 'd-inline']) !!}
@@ -130,7 +130,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">{{ __('No reports found.') }}</td>
+                            <td colspan="7" class="text-center text-muted py-4">{{ __('No weekly reports found.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

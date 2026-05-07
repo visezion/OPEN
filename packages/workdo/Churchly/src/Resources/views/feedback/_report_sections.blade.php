@@ -11,7 +11,7 @@
 <div class="d-grid gap-3">
     <div class="card shadow-sm">
         <div class="card-header">
-            <h5 class="mb-0">{{ __('Report Overview') }}</h5>
+            <h5 class="mb-0">{{ __('Weekly Report Overview') }}</h5>
         </div>
         <div class="card-body">
             <div class="row g-3">
@@ -35,7 +35,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="border rounded-3 p-3 bg-light">
-                        <div class="text-muted small">{{ __('Recipient') }}</div>
+                        <div class="text-muted small">{{ __('Report Recipient') }}</div>
                         <div class="fw-semibold">{{ $feedback->recipient?->name ?? __('Department / standard inbox') }}</div>
                     </div>
                 </div>

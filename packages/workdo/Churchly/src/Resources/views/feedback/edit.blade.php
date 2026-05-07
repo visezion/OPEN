@@ -1,13 +1,13 @@
 @extends('layouts.main')
 
 @section('page-title', __('Update Weekly Report'))
-@section('page-breadcrumb', __('Reports'))
+@section('page-breadcrumb', __('Weekly Reports'))
 
 @section('page-action')
-    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Reports Dashboard') }}">
+    <a href="{{ route('feedback.dashboard') }}" class="btn btn-sm btn-primary btn-icon me-2" data-bs-toggle="tooltip" title="{{ __('Weekly Reports Dashboard') }}">
         <i class="ti ti-layout-grid text-white"></i>
     </a>
-    <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-danger btn-icon me-1" data-bs-toggle="tooltip" title="{{ __('Go Back') }}">
+    <a href="{{ route('feedback.index') }}" class="btn btn-sm btn-danger btn-icon me-1" data-bs-toggle="tooltip" title="{{ __('Back to Weekly Reports') }}">
         <i class="ti ti-arrow-back-up"></i>
     </a>
 @endsection
