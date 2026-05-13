@@ -226,6 +226,9 @@ jobs:
           php artisan package:discover --ansi
           php artisan migrate --force --graceful
           php artisan db:seed --class=Database\\Seeders\\PermissionTableSeeder --force
+          if [ -f "packages/workdo/Churchly/src/Database/Seeders/ChurchlyDatabaseSeeder.php" ]; then
+            php artisan db:seed --class=Workdo\\Churchly\\Database\\Seeders\\ChurchlyDatabaseSeeder --force
+          fi
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache

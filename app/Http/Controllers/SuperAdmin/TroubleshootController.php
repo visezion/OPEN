@@ -163,7 +163,10 @@ class TroubleshootController extends Controller
         $preset = $request->input('preset', 'menu');
         $map = [
             'menu' => ['Database\\Seeders\\DefultSetting'],
-            'permissions' => ['Database\\Seeders\\PermissionTableSeeder'],
+            'permissions' => [
+                'Database\\Seeders\\PermissionTableSeeder',
+                'Workdo\\Churchly\\Database\\Seeders\\ChurchlyDatabaseSeeder',
+            ],
             'full' => ['Database\\Seeders\\DatabaseSeeder'],
         ];
         $classes = $map[$preset] ?? $map['menu'];
