@@ -26,7 +26,7 @@ class SupportDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
             ->editColumn('ticket_id', function (HelpdeskTicket $ticket) {
-                if (\Laratrust::hasPermission('product&service delete')) {
+                if (\Laratrust::hasPermission('helpdesk ticket show')) {
                     $url = route('helpdesk.edit', $ticket->id);
                 } else {
                     $url = route('helpdesk.view', [\Illuminate\Support\Facades\Crypt::encrypt($ticket->ticket_id)]);

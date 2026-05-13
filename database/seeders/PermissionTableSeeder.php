@@ -56,6 +56,7 @@ class PermissionTableSeeder extends Seeder
         }
 
         $adnin_permission = [
+            'permission manage',
             'user manage',
             'user create',
             'user edit',
@@ -149,6 +150,8 @@ class PermissionTableSeeder extends Seeder
                 'invoice product delete',
                 'invoice payment create',
                 'invoice payment delete',
+                'edit credit note',
+                'delete credit note',
                 'setting manage',
                 'helpdesk ticket manage',
                 'helpdesk ticket create',
@@ -176,6 +179,7 @@ class PermissionTableSeeder extends Seeder
                 'warehouse delete',
                 'warehouse show',
                 'warehouse import',
+                'pos manage',
                 'referral program manage',
             ];
 
