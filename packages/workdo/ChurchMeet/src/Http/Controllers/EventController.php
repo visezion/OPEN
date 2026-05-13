@@ -5,6 +5,7 @@ namespace Workdo\ChurchMeet\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Workdo\ChurchMeet\Entities\Event;
 use Workdo\ChurchMeet\Entities\ChurchMember;
 use Workdo\ChurchMeet\Entities\EventProgram;
@@ -26,11 +27,13 @@ class EventController extends Controller
 {
     public function index()
     {
-        $events = Event::where('workspace_id', getActiveWorkSpace())
+        $events = $this->visibleEventsQuery()
             ->latest()
             ->paginate(20);
 
-        $recentEvents = Event::where('workspace_id', getActiveWorkSpace())->orderBy('created_at', 'desc')->get();
+        $recentEvents = $this->visibleEventsQuery()
+            ->orderBy('created_at', 'desc')
+            ->get();
        
           
         return view('churchmeet::attendance.events.index', compact('events', 'recentEvents'));
@@ -209,14 +212,12 @@ class EventController extends Controller
 
     public function review($id)
     {
-        $event = Event::with([
+        $event = $this->visibleEventsQuery([
                 'programs.leader',
                 'lead',
                 'assistant',
                 'reviewerComments.user'
-            ])
-            ->inWorkspace()
-            ->findOrFail($id);
+            ])->findOrFail($id);
 
         if ($event->status === 'approved') {
             return redirect()
@@ -241,7 +242,7 @@ class EventController extends Controller
      */
     public function submitForReview(Request $request, $id)
     {
-        $event = Event::inWorkspace()->findOrFail($id);
+        $event = $this->visibleEventsQuery()->findOrFail($id);
 
         if (!in_array((string) $event->status, ['draft', 'review', 'revision_required'], true)) {
             return redirect()
@@ -336,15 +337,13 @@ class EventController extends Controller
      *****************************************************************************/
     public function approve($id)
     {
-        $event = Event::with([
+        $event = $this->visibleEventsQuery([
                 'lead',
                 'assistant',
                 'creator',
                 'programs.leader',
                 'reviewerComments.user'
-            ])
-            ->inWorkspace()
-            ->findOrFail($id);
+            ])->findOrFail($id);
 
         if ($event->status === 'published') {
             return redirect()
@@ -369,7 +368,7 @@ class EventController extends Controller
      */
     public function approveAction(Request $request, $id)
     {
-        $event = Event::inWorkspace()->findOrFail($id);
+        $event = $this->visibleEventsQuery()->findOrFail($id);
 
         if ($event->status !== 'approved') {
             return redirect()
@@ -455,8 +454,7 @@ class EventController extends Controller
     */
     public function publish($id)
     {
-        $event = Event::with(['programs.leader', 'lead', 'assistant', 'creator'])
-            ->inWorkspace()
+        $event = $this->visibleEventsQuery(['programs.leader', 'lead', 'assistant', 'creator'])
             ->findOrFail($id);
 
         if (!in_array((string) $event->status, ['approved', 'published'], true)) {
@@ -480,8 +478,7 @@ class EventController extends Controller
  */
 public function publishAction(Request $request, $id)
 {
-    $event = Event::with(['programs.leader', 'lead', 'assistant', 'creator'])
-        ->inWorkspace()
+    $event = $this->visibleEventsQuery(['programs.leader', 'lead', 'assistant', 'creator'])
         ->findOrFail($id);
 
     if ($event->status !== 'approved') {
@@ -618,15 +615,13 @@ public function publishAction(Request $request, $id)
         abort_if(!$resolvedId, 404, __('Event link is invalid.'));
 
         // Ã¢Å“â€¦ Load the event with all relations for a full detail view
-        $event = Event::with([
+        $event = $this->visibleEventsQuery([
                 'lead',
                 'assistant',
                 'creator',
                 'programs.leader',
                 'reviewerComments.user'
-            ])
-            ->inWorkspace()
-            ->findOrFail($resolvedId);
+            ])->findOrFail($resolvedId);
 
         // Ã¢Å“â€¦ Load attendance data if available
         $attendanceEvent = AttendanceEvent::with(['event', 'records.member'])
@@ -684,7 +679,7 @@ public function publishAction(Request $request, $id)
     
      public function exportPdf($id)
     {
-        $event = Event::with(['lead', 'assistant', 'programs.leader'])->findOrFail($id);
+        $event = $this->visibleEventsQuery(['lead', 'assistant', 'programs.leader'])->findOrFail($id);
 
         return view('churchmeet::attendance.events.pdf', compact('event'));
 
@@ -694,19 +689,17 @@ public function publishAction(Request $request, $id)
     {
         $resolvedId = Event::decodePublicViewKey((string) $id) ?: $id;
 
-        $event = Event::with([
+        $event = $this->visibleEventsQuery([
                 'programs.leader',
                 'lead',
                 'assistant',
                 'reviewerComments.user'
-            ])
-            ->inWorkspace()
-            ->findOrFail($resolvedId);
+            ])->findOrFail($resolvedId);
 
         $attendanceEvent = AttendanceEvent::where('event_id', $resolvedId)
             ->where('workspace_id', getActiveWorkSpace())
             ->first();
-        $events = Event::all();
+        $events = $this->visibleEventsQuery()->get();
         $members = ChurchMember::forWorkspace()->select('id', 'name')->get();
         $branches = ChurchBranch::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
         $departments = ChurchDepartment::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
@@ -724,7 +717,7 @@ public function publishAction(Request $request, $id)
         LivekitMeetingService $livekitMeetingService
     )
     {
-    $event = Event::findOrFail($id);
+    $event = $this->visibleEventsQuery()->findOrFail($id);
     if ($event->status === 'revision_required')
         {
             $status = 'resubmitted';
@@ -749,7 +742,6 @@ public function publishAction(Request $request, $id)
     ]);
 
     // Ã¢Å“â€¦ Update main event
-    $event = Event::findOrFail($id);
     $event->update([
         'title'        => $request->title,
         'event_type'   => $request->event_type,
@@ -1266,10 +1258,65 @@ public function analytics()
 
     public function destroy($id)
     {
-        $event = Event::inWorkspace()->findOrFail($id);
+        $event = $this->visibleEventsQuery()->findOrFail($id);
         $event->delete();
 
         return back()->with('success', __('Event deleted successfully.'));
+    }
+
+    protected function visibleEventsQuery(array $with = []): Builder
+    {
+        $query = Event::query()->inWorkspace();
+
+        if (!empty($with)) {
+            $query->with($with);
+        }
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $member = ChurchMember::forWorkspace()
+            ->with('departments')
+            ->where('user_id', $user->id)
+            ->first();
+
+        $memberId = $member?->id;
+        $branchId = $member?->branch_id;
+        $departmentIds = $member
+            ? $member->departments->pluck('id')->filter()->values()->all()
+            : [];
+
+        return $query->where(function (Builder $visibleQuery) use ($user, $memberId, $branchId, $departmentIds) {
+            $visibleQuery->where('created_by', $user->id);
+
+            if ($memberId) {
+                $visibleQuery->orWhere('lead_id', $memberId)
+                    ->orWhere('assistant_id', $memberId)
+                    ->orWhereHas('programs', function (Builder $programQuery) use ($memberId) {
+                        $programQuery->where('leader_id', $memberId);
+                    });
+            }
+
+            $visibleQuery->orWhereHas('attendanceEvents', function (Builder $attendanceQuery) use ($branchId, $departmentIds) {
+                $attendanceQuery->where(function (Builder $scopeQuery) use ($branchId, $departmentIds) {
+                    $scopeQuery->where(function (Builder $globalQuery) {
+                        $globalQuery->whereNull('branch_id')
+                            ->whereNull('department_id');
+                    });
+
+                    if (!empty($departmentIds)) {
+                        $scopeQuery->orWhereIn('department_id', $departmentIds);
+                    }
+
+                    if ($branchId) {
+                        $scopeQuery->orWhere('branch_id', $branchId);
+                    }
+                });
+            });
+        });
     }
 }
 

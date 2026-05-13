@@ -22,6 +22,9 @@
             $methods = is_array($attendanceEvent->enabled_methods)
                 ? $attendanceEvent->enabled_methods
                 : (json_decode($attendanceEvent->enabled_methods ?? '[]', true) ?? []);
+            $eventDate = $attendanceEvent->event?->date
+                ? \Carbon\Carbon::parse($attendanceEvent->event->date)->format('M d, Y')
+                : __('Date not set');
       
             $hasManual = in_array('manual', $methods);
             $hasQr = in_array('qr', $methods);
@@ -51,7 +54,7 @@
                 <p class="text-muted">{{ $attendanceEvent->event->description }}</p>
 
                 <div class="mb-3">
-                    <strong>{{ __('Date:') }}</strong> {{ $attendanceEvent->event->date }} <br>
+                    <strong>{{ __('Date:') }}</strong> {{ $eventDate }} <br>
                     <strong>{{ __('Mode:') }}</strong> {{ ucfirst($attendanceEvent->mode) }} <br>
                     <strong>{{ __('Methods Enabled:') }}</strong> {{ implode(', ', $methods) }}
                 </div>

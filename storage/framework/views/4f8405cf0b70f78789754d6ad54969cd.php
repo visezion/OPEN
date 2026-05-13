@@ -16,7 +16,7 @@
     $weekEndingValue = old(
     'week_ending_date',
     optional($feedback)->week_ending_date?->toDateString()
-        ?? ($defaultWeekEnding ?? now()->endOfWeek(\Carbon\Carbon::SUNDAY)->toDateString())
+        ?? ($defaultWeekEnding ?? now()->toDateString())
 );
     $steps = [
         1 => ['label' => __('Week'), 'icon' => 'ti ti-calendar-event'],
@@ -255,7 +255,7 @@
                     <i class="ti ti-clipboard-list text-primary"></i>
                 </div>
                 <h4 class="d-inline-block mb-1"><?php echo e($isEditing ? __('Update Weekly Report') : __('Submit Weekly Report')); ?></h4>
-                <p class="report-hero__meta mb-0"><?php echo e(__('Complete each section and review the report before submission. Attendance is linked automatically from existing attendance events or meeting records for the selected week.')); ?></p>
+                <p class="report-hero__meta mb-0"><?php echo e(__('Complete each section and review the report before submission. Attendance is linked automatically from the most current matching record based on attendance date or event date for the selected week.')); ?></p>
             </div>
             <div class="text-end">
                 <div class="small text-muted"><?php echo e(__('Status')); ?></div>
@@ -297,7 +297,7 @@
                                 <i class="ti ti-calendar-event text-primary fs-4"></i>
                             </div>
                             <h5 class="mb-2"><?php echo e(__('Select Report Week')); ?></h5>
-                            <p class="text-muted mb-0"><?php echo e(__('The report will pull attendance from the latest matching attendance event or meeting created in this week.')); ?></p>
+                            <p class="text-muted mb-0"><?php echo e(__('The report will pull attendance from the most current matching attendance event in this week, using attendance date or event date.')); ?></p>
                         </div>
 
                         <div class="form-group">
@@ -377,7 +377,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </select>
                     <div class="small text-muted mt-2">
-                        <?php echo e(__('Admins can select from attendance records in the same report week that were created by them or belong to the same department.')); ?>
+                        <?php echo e(__('Only one attendance record can be linked to this report. Available choices are limited to records you created, records linked to your department, or records from events you attended.')); ?>
 
                     </div>
                 </div>
@@ -411,7 +411,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                 </div>
 
                 <div class="report-note" id="attendance-note">
-                    <?php echo e(__('The attendance panel updates when the week or selected attendance record changes. If no record exists for that report week yet, the report stays unlinked until one is created.')); ?>
+                    <?php echo e(__('The attendance panel updates when the week or selected attendance record changes. If more than one matching record exists, keep only one selected for this report.')); ?>
 
                 </div>
             </div>

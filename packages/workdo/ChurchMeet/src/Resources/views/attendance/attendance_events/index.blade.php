@@ -80,17 +80,23 @@
                             </thead>
                             <tbody>
                                 @foreach($attendanceEvents as $attendanceEvent)
+                                    @php
+                                        $event = $attendanceEvent->event;
+                                        $eventDate = $event?->date
+                                            ? \Carbon\Carbon::parse($event->date)->format('M d, Y')
+                                            : __('-');
+                                    @endphp
                                     <tr>
                                         <td>
-                                            @if($attendanceEvent->event)
-                                                <a href="{{ route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id) }}" 
+                                            @if($event)
+                                                <a href="{{ route('churchmeet.events.show', optional($event)->public_view_key ?? $attendanceEvent->event_id) }}" 
                                                 class="fw-semibold text-primary text-decoration-none">
-                                                    {{ $attendanceEvent->event->title ?? __('N/A') }}
+                                                    {{ $event->title ?? __('N/A') }}
                                                 </a>
                                                 <br>
                                                 <small class="text-muted">
-                                                    {{ $attendanceEvent->event->description 
-                                                        ? Str::limit($attendanceEvent->event->description, 60) 
+                                                    {{ $event->description
+                                                        ? Str::limit($event->description, 60)
                                                         : __('No description provided') }}
                                                 </small>
                                             @else
@@ -99,9 +105,7 @@
                                         </td>
 
                                         <td>
-                                            {{ $attendanceEvent->event && $attendanceEvent->event->date 
-                                                ? \Carbon\Carbon::parse($attendanceEvent->event->date)->format('M d, Y') 
-                                                : __('-') }}
+                                            {{ $eventDate }}
                                         </td>
                                         <td>
                                             <span class="badge bg-{{ $attendanceEvent->mode == 'online' ? 'info' : ($attendanceEvent->mode == 'hybrid' ? 'warning' : 'success') }}">
@@ -194,11 +198,17 @@
             </div>
             <div class="card-body small">
                 @forelse($recentAttendance as $att)
+                    @php
+                        $recentEvent = $att->event;
+                        $recentEventDate = $recentEvent?->date
+                            ? \Carbon\Carbon::parse($recentEvent->date)->format('M d, Y')
+                            : null;
+                    @endphp
                     <div class="alert alert-{{ $att->mode == 'online' ? 'info' : ($att->mode == 'hybrid' ? 'warning' : 'success') }} py-2 mb-2">
                         <i class="ti ti-calendar-event"></i> 
-                        <strong>{{ $att->event->title ?? 'Unnamed Event' }}</strong><br>
+                        <strong>{{ $recentEvent->title ?? 'Unnamed Event' }}</strong><br>
                         <span class="text-muted">
-                            {{ __('Created on') }} {{ $att->created_at->format('M d, Y h:i A') }}
+                            {{ $recentEventDate ? __('Scheduled for :date', ['date' => $recentEventDate]) : __('Date not set') }}
                         </span>
                     </div>
                 @empty

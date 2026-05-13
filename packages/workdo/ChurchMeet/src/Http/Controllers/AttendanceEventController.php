@@ -5,6 +5,7 @@ namespace Workdo\ChurchMeet\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Workdo\ChurchMeet\Entities\AttendanceEvent;
 use Workdo\ChurchMeet\Entities\Event;
 use Workdo\ChurchMeet\Entities\AttendanceRecord;
@@ -14,19 +15,19 @@ class AttendanceEventController extends Controller
 {
     public function index()
     {
-        $attendanceEvents = AttendanceEvent::with('event')
-            ->where('workspace_id', getActiveWorkSpace())
+        $attendanceEvents = $this->visibleAttendanceEventsQuery(['event'])
             ->latest()
             ->paginate(20);
-        $recentAttendance = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->orderBy('created_at', 'desc')->get();
+        $recentAttendance = $this->visibleAttendanceEventsQuery(['event'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('churchmeet::attendance.attendance_events.index', compact('attendanceEvents','recentAttendance'));
     }
 
     public function create()
     {
         $selectedEventId = (int) request('event_id');
-        $events = Event::query()
-            ->inWorkspace()
+        $events = $this->visibleEventsQuery()
             ->withCount('attendanceEvents')
             ->orderByRaw('CASE WHEN start_time IS NULL THEN 1 ELSE 0 END')
             ->orderByDesc('start_time')
@@ -46,12 +47,10 @@ class AttendanceEventController extends Controller
         ]);
 
         $workspaceId = getActiveWorkSpace();
-        $event = Event::query()
-            ->inWorkspace()
+        $event = $this->visibleEventsQuery()
             ->findOrFail((int) $request->event_id);
 
-        $existingAttendanceEvent = AttendanceEvent::query()
-            ->where('workspace_id', $workspaceId)
+        $existingAttendanceEvent = $this->visibleAttendanceEventsQuery()
             ->where('event_id', $event->id)
             ->first();
 
@@ -87,9 +86,8 @@ class AttendanceEventController extends Controller
     // Edit form
     public function edit($id)
     {
-        $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
-        $events = Event::query()
-            ->inWorkspace()
+        $attendanceEvent = $this->visibleAttendanceEventsQuery()->findOrFail($id);
+        $events = $this->visibleEventsQuery()
             ->orderByRaw('CASE WHEN start_time IS NULL THEN 1 ELSE 0 END')
             ->orderByDesc('start_time')
             ->orderByDesc('created_at')
@@ -101,7 +99,7 @@ class AttendanceEventController extends Controller
     // Update existing record
     public function update(Request $request, $id)
     {
-        $attendanceEvent = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
+        $attendanceEvent = $this->visibleAttendanceEventsQuery()->findOrFail($id);
 
         $request->validate([
             'mode' => 'required|string|in:onsite,online,hybrid',
@@ -130,8 +128,7 @@ class AttendanceEventController extends Controller
 
     public function show($id)
     {
-        $attendanceEvent = AttendanceEvent::with('event','records')
-            ->where('workspace_id', getActiveWorkSpace())
+        $attendanceEvent = $this->visibleAttendanceEventsQuery(['event', 'records'])
             ->findOrFail($id);
         return view('churchmeet::attendance.attendance_events.show', compact('attendanceEvent'));
     }
@@ -139,7 +136,7 @@ class AttendanceEventController extends Controller
     // QR scanner
     public function showScanner($id)
     {
-        $event = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
+        $event = $this->visibleAttendanceEventsQuery()->findOrFail($id);
         return view('churchmeet::attendance.scanner', compact('event'));
     }
 
@@ -147,7 +144,7 @@ class AttendanceEventController extends Controller
     {
         $request->validate(['qr' => 'required|string']);
 
-        $event = AttendanceEvent::where('workspace_id', getActiveWorkSpace())->findOrFail($id);
+        $event = $this->visibleAttendanceEventsQuery()->findOrFail($id);
         $data = json_decode($request->qr, true);
 
         if (!$data || !isset($data['member_id'])) {
@@ -178,6 +175,117 @@ class AttendanceEventController extends Controller
             'message' => "{$member->name} marked present!",
             'record_id' => $record->id,
         ]);
+    }
+
+    protected function visibleAttendanceEventsQuery(array $with = []): Builder
+    {
+        $query = AttendanceEvent::query()
+            ->where('workspace_id', getActiveWorkSpace());
+
+        if (!empty($with)) {
+            $query->with($with);
+        }
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $member = ChurchMember::forWorkspace()
+            ->with('departments')
+            ->where('user_id', $user->id)
+            ->first();
+
+        $memberId = $member?->id;
+        $branchId = $member?->branch_id;
+        $departmentIds = $member
+            ? $member->departments->pluck('id')->filter()->values()->all()
+            : [];
+
+        return $query->where(function (Builder $visibleQuery) use ($user, $memberId, $branchId, $departmentIds) {
+            $visibleQuery->where('created_by', $user->id)
+                ->orWhereHas('event', function (Builder $eventQuery) use ($user, $memberId) {
+                    $eventQuery->where(function (Builder $eventVisibleQuery) use ($user, $memberId) {
+                        $eventVisibleQuery->where('created_by', $user->id);
+
+                        if ($memberId) {
+                            $eventVisibleQuery->orWhere('lead_id', $memberId)
+                                ->orWhere('assistant_id', $memberId)
+                                ->orWhereHas('programs', function (Builder $programQuery) use ($memberId) {
+                                    $programQuery->where('leader_id', $memberId);
+                                });
+                        }
+                    });
+                })
+                ->orWhere(function (Builder $scopeQuery) use ($branchId, $departmentIds) {
+                    $scopeQuery->whereNull('branch_id')
+                        ->whereNull('department_id');
+
+                    if (!empty($departmentIds)) {
+                        $scopeQuery->orWhereIn('department_id', $departmentIds);
+                    }
+
+                    if ($branchId) {
+                        $scopeQuery->orWhere('branch_id', $branchId);
+                    }
+                });
+        });
+    }
+
+    protected function visibleEventsQuery(array $with = []): Builder
+    {
+        $query = Event::query()->inWorkspace();
+
+        if (!empty($with)) {
+            $query->with($with);
+        }
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $member = ChurchMember::forWorkspace()
+            ->with('departments')
+            ->where('user_id', $user->id)
+            ->first();
+
+        $memberId = $member?->id;
+        $branchId = $member?->branch_id;
+        $departmentIds = $member
+            ? $member->departments->pluck('id')->filter()->values()->all()
+            : [];
+
+        return $query->where(function (Builder $visibleQuery) use ($user, $memberId, $branchId, $departmentIds) {
+            $visibleQuery->where('created_by', $user->id);
+
+            if ($memberId) {
+                $visibleQuery->orWhere('lead_id', $memberId)
+                    ->orWhere('assistant_id', $memberId)
+                    ->orWhereHas('programs', function (Builder $programQuery) use ($memberId) {
+                        $programQuery->where('leader_id', $memberId);
+                    });
+            }
+
+            $visibleQuery->orWhereHas('attendanceEvents', function (Builder $attendanceQuery) use ($branchId, $departmentIds) {
+                $attendanceQuery->where(function (Builder $scopeQuery) use ($branchId, $departmentIds) {
+                    $scopeQuery->where(function (Builder $globalQuery) {
+                        $globalQuery->whereNull('branch_id')
+                            ->whereNull('department_id');
+                    });
+
+                    if (!empty($departmentIds)) {
+                        $scopeQuery->orWhereIn('department_id', $departmentIds);
+                    }
+
+                    if ($branchId) {
+                        $scopeQuery->orWhere('branch_id', $branchId);
+                    }
+                });
+            });
+        });
     }
 }
 

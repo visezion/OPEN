@@ -99,7 +99,7 @@ class ChurchFeedbackController extends Controller
     public function create()
     {
         $member = $this->resolveChurchMember(Auth::user());
-        $defaultWeekEnding = now()->endOfWeek(Carbon::SUNDAY)->toDateString();
+        $defaultWeekEnding = now()->toDateString();
         $attendanceSelection = $this->buildAttendanceSelectionData($defaultWeekEnding, $member);
         $attendancePreview = $attendanceSelection['summary'];
         $attendanceOptions = $attendanceSelection['options'];
@@ -162,7 +162,7 @@ class ChurchFeedbackController extends Controller
         }
 
         $member = $this->resolveChurchMember(Auth::user());
-        $defaultWeekEnding = optional($feedback->week_ending_date)->toDateString() ?? now()->endOfWeek(Carbon::SUNDAY)->toDateString();
+        $defaultWeekEnding = optional($feedback->week_ending_date)->toDateString() ?? now()->toDateString();
         $attendanceSelection = $this->buildAttendanceSelectionData(
             $defaultWeekEnding,
             $member,
@@ -658,7 +658,7 @@ class ChurchFeedbackController extends Controller
         ?ChurchMember $member,
         ?int $selectedAttendanceEventId = null
     ): array {
-        $weekEnding = $weekEndingDate ? Carbon::parse($weekEndingDate)->endOfDay() : now()->endOfWeek(Carbon::SUNDAY)->endOfDay();
+        $weekEnding = $weekEndingDate ? Carbon::parse($weekEndingDate)->endOfDay() : now()->endOfDay();
         $weekStart = $weekEnding->copy()->subDays(6)->startOfDay();
         $attendanceEvents = $this->attendanceEventsForWeek($weekStart, $weekEnding, $member);
         $matchedAttendanceEvent = $selectedAttendanceEventId
@@ -692,6 +692,83 @@ class ChurchFeedbackController extends Controller
             ];
         }
 
+        $selectedOption = $this->attendanceOptionPayload($attendanceEvent, $member);
+        $summary = $this->attendanceSummaryPayload($attendanceEvent, $weekStart, $weekEnding, $totalMembers, $selectedOption);
+
+        return [
+            'summary' => $summary,
+            'options' => $attendanceEvents
+                ->map(fn (AttendanceEvent $event) => $this->attendanceOptionPayload($event, $member))
+                ->values()
+                ->all(),
+            'selected_attendance_event_id' => $attendanceEvent->id,
+            'requested_attendance_event_id_valid' => $requestedAttendanceEventIdValid,
+        ];
+    }
+
+    protected function attendanceEventsForWeek(Carbon $weekStart, Carbon $weekEnding, ?ChurchMember $member)
+    {
+        $departmentId = $this->resolveDepartmentId($member);
+        $memberId = $member?->id;
+        $userId = Auth::id();
+
+        return AttendanceEvent::with(['event', 'records'])
+            ->where('workspace_id', getActiveWorkSpace())
+            ->where(function ($query) use ($userId, $departmentId, $memberId) {
+                $query->where('created_by', $userId)
+                    ->orWhereHas('event', function ($eventQuery) use ($userId) {
+                        $eventQuery->where('created_by', $userId);
+                    });
+
+                if ($departmentId) {
+                    $query->orWhere('department_id', $departmentId);
+                }
+
+                if ($memberId) {
+                    $query->orWhereHas('records', function ($recordQuery) use ($memberId) {
+                        $recordQuery->where('member_id', $memberId);
+                    });
+                }
+            })
+            ->where(function ($query) use ($weekStart, $weekEnding) {
+                $query->whereBetween('checkin_start_at', [$weekStart, $weekEnding])
+                    ->orWhereBetween('created_at', [$weekStart, $weekEnding])
+                    ->orWhereHas('event', function ($eventQuery) use ($weekStart, $weekEnding) {
+                        $eventQuery->whereBetween('start_time', [$weekStart, $weekEnding])
+                            ->orWhereBetween('created_at', [$weekStart, $weekEnding]);
+                    });
+            })
+            ->whereHas('records')
+            ->get()
+            ->sortBy(function (AttendanceEvent $attendanceEvent) use ($member, $userId) {
+                $sourceDate = $this->attendanceEventSourceDate($attendanceEvent);
+                $sourceTimestamp = $sourceDate?->timestamp ?? 0;
+                $distanceFromNow = $sourceDate ? abs($sourceDate->diffInSeconds(now(), false)) : 999999999999;
+                $activePriority = $this->attendanceEventIsActiveNow($attendanceEvent) ? 0 : 1;
+                $todayPriority = $sourceDate?->isToday() ? 0 : 1;
+                $futurePriority = $sourceDate && $sourceDate->isFuture() && !$sourceDate->isToday() ? 1 : 0;
+                $scopePriority = $this->attendanceEventScopePriority($attendanceEvent, $member, $userId);
+
+                return sprintf(
+                    '%d-%d-%d-%012d-%d-%010d',
+                    $activePriority,
+                    $todayPriority,
+                    $futurePriority,
+                    $distanceFromNow,
+                    $scopePriority,
+                    max(0, 9999999999 - min($sourceTimestamp, 9999999999))
+                );
+            })
+            ->values();
+    }
+
+    protected function attendanceSummaryPayload(
+        AttendanceEvent $attendanceEvent,
+        Carbon $weekStart,
+        Carbon $weekEnding,
+        int $totalMembers,
+        array $selectedOption
+    ): array {
         $latestMemberStates = $attendanceEvent->records
             ->sortByDesc(function ($record) {
                 return optional($record->check_in_time ?? $record->created_at)->timestamp;
@@ -712,74 +789,113 @@ class ChurchFeedbackController extends Controller
             : $explicitAbsentCount;
 
         $attendanceRate = $totalMembers > 0 ? round(($presentCount / $totalMembers) * 100, 1) : 0;
-        $sourceDate = $attendanceEvent->event?->start_time ?? $attendanceEvent->checkin_start_at ?? $attendanceEvent->created_at;
+
+        return [
+            'week_start' => $weekStart->toDateString(),
+            'week_end' => $weekEnding->toDateString(),
+            'attendance_event_id' => $attendanceEvent->id,
+            'source_label' => $selectedOption['label'],
+            'source_mode' => $selectedOption['mode'],
+            'total_members' => $totalMembers,
+            'present_count' => $presentCount,
+            'absent_count' => $absentCount,
+            'attendance_rate' => $attendanceRate,
+            'is_auto_synced' => true,
+        ];
+    }
+
+    protected function attendanceOptionPayload(AttendanceEvent $attendanceEvent, ?ChurchMember $member): array
+    {
+        $sourceDate = $this->attendanceEventSourceDate($attendanceEvent);
         $sourceName = $attendanceEvent->event?->title ?? __('Attendance Session');
         $sourceMode = $attendanceEvent->online_platform
             ? strtoupper((string) $attendanceEvent->online_platform)
             : ucfirst((string) ($attendanceEvent->mode ?? 'onsite'));
+        $scopeLabels = $this->attendanceEventScopeLabels($attendanceEvent, $member, Auth::id());
+        $scopeSuffix = empty($scopeLabels) ? '' : ' • ' . implode(' / ', $scopeLabels);
 
         return [
-            'summary' => [
-                'week_start' => $weekStart->toDateString(),
-                'week_end' => $weekEnding->toDateString(),
-                'attendance_event_id' => $attendanceEvent->id,
-                'source_label' => $sourceName . ' - ' . optional($sourceDate)->format('d M Y'),
-                'source_mode' => $sourceMode,
-                'total_members' => $totalMembers,
-                'present_count' => $presentCount,
-                'absent_count' => $absentCount,
-                'attendance_rate' => $attendanceRate,
-                'is_auto_synced' => true,
-            ],
-            'options' => $attendanceEvents->map(function (AttendanceEvent $attendanceEvent) {
-                $sourceDate = $attendanceEvent->event?->start_time ?? $attendanceEvent->checkin_start_at ?? $attendanceEvent->created_at;
-                $sourceName = $attendanceEvent->event?->title ?? __('Attendance Session');
-                $sourceMode = $attendanceEvent->online_platform
-                    ? strtoupper((string) $attendanceEvent->online_platform)
-                    : ucfirst((string) ($attendanceEvent->mode ?? 'onsite'));
-
-                return [
-                    'id' => $attendanceEvent->id,
-                    'label' => $sourceName . ' - ' . optional($sourceDate)->format('d M Y'),
-                    'mode' => $sourceMode,
-                ];
-            })->values()->all(),
-            'selected_attendance_event_id' => $attendanceEvent->id,
-            'requested_attendance_event_id_valid' => $requestedAttendanceEventIdValid,
+            'id' => $attendanceEvent->id,
+            'label' => $sourceName . ' - ' . ($sourceDate?->format('d M Y') ?? __('No date')) . $scopeSuffix,
+            'mode' => $sourceMode,
         ];
     }
 
-    protected function attendanceEventsForWeek(Carbon $weekStart, Carbon $weekEnding, ?ChurchMember $member)
+    protected function attendanceEventScopeLabels(AttendanceEvent $attendanceEvent, ?ChurchMember $member, ?int $userId): array
     {
+        $labels = [];
+        $memberId = $member?->id;
         $departmentId = $this->resolveDepartmentId($member);
-        $branchId = $member?->branch_id;
-        $userId = Auth::id();
 
-        return AttendanceEvent::with(['event', 'records'])
-            ->where('workspace_id', getActiveWorkSpace())
-            ->where(function ($query) use ($userId, $departmentId, $branchId) {
-                $query->where('created_by', $userId);
+        if ($userId && $this->attendanceEventWasCreatedByUser($attendanceEvent, $userId)) {
+            $labels[] = __('Created by you');
+        }
 
-                if ($departmentId) {
-                    $query->orWhere('department_id', $departmentId);
-                } elseif ($branchId) {
-                    $query->orWhere(function ($branchQuery) use ($branchId) {
-                        $branchQuery->whereNull('department_id')
-                            ->where('branch_id', $branchId);
-                    });
-                }
-            })
-            ->where(function ($query) use ($weekStart, $weekEnding) {
-                $query->whereBetween('checkin_start_at', [$weekStart, $weekEnding])
-                    ->orWhereHas('event', function ($eventQuery) use ($weekStart, $weekEnding) {
-                        $eventQuery->whereBetween('start_time', [$weekStart, $weekEnding]);
-                    });
-            })
-            ->whereHas('records')
-            ->orderByRaw('CASE WHEN created_by = ? THEN 0 ELSE 1 END', [$userId])
-            ->orderByDesc('checkin_start_at')
-            ->orderByDesc('id')
-            ->get();
+        if ($departmentId && (int) $attendanceEvent->department_id === (int) $departmentId) {
+            $labels[] = __('Your department');
+        }
+
+        if ($memberId && $attendanceEvent->records->contains('member_id', $memberId)) {
+            $labels[] = __('You attended');
+        }
+
+        return array_values(array_unique($labels));
+    }
+
+    protected function attendanceEventScopePriority(AttendanceEvent $attendanceEvent, ?ChurchMember $member, ?int $userId): int
+    {
+        $memberId = $member?->id;
+        $departmentId = $this->resolveDepartmentId($member);
+
+        if ($userId && $this->attendanceEventWasCreatedByUser($attendanceEvent, $userId)) {
+            return 0;
+        }
+
+        if ($memberId && $attendanceEvent->records->contains('member_id', $memberId)) {
+            return 1;
+        }
+
+        if ($departmentId && (int) $attendanceEvent->department_id === (int) $departmentId) {
+            return 2;
+        }
+
+        return 3;
+    }
+
+    protected function attendanceEventWasCreatedByUser(AttendanceEvent $attendanceEvent, int $userId): bool
+    {
+        return (int) $attendanceEvent->created_by === $userId
+            || (int) ($attendanceEvent->event?->created_by ?? 0) === $userId;
+    }
+
+    protected function attendanceEventSourceDate(AttendanceEvent $attendanceEvent): ?Carbon
+    {
+        $date = $attendanceEvent->checkin_start_at
+            ?? $attendanceEvent->event?->start_time
+            ?? $attendanceEvent->created_at
+            ?? $attendanceEvent->event?->created_at;
+
+        if (!$date) {
+            return null;
+        }
+
+        return $date instanceof Carbon ? $date : Carbon::parse($date);
+    }
+
+    protected function attendanceEventIsActiveNow(AttendanceEvent $attendanceEvent): bool
+    {
+        $now = now();
+        $start = $attendanceEvent->checkin_start_at ?? $attendanceEvent->event?->start_time;
+        $end = $attendanceEvent->checkin_end_at ?? $attendanceEvent->event?->end_time;
+
+        if (!$start) {
+            return false;
+        }
+
+        $start = $start instanceof Carbon ? $start : Carbon::parse($start);
+        $end = $end ? ($end instanceof Carbon ? $end : Carbon::parse($end)) : $start->copy()->endOfDay();
+
+        return $now->between($start, $end);
     }
 
     protected function resolveChurchMember($user): ?ChurchMember

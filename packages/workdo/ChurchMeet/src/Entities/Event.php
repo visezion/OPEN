@@ -5,6 +5,7 @@ namespace Workdo\ChurchMeet\Entities;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Carbon;
 
 class Event extends Model
 {
@@ -36,6 +37,14 @@ class Event extends Model
         'reviewed_at',
         'approved_at',
         'published_at',
+    ];
+
+    protected $casts = [
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'reviewed_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'published_at' => 'datetime',
     ];
 
     /**
@@ -109,6 +118,27 @@ class Event extends Model
     {
         return $this->hasMany(ChurchEventReviewerComment::class, 'event_id')
                     ->orderBy('commented_at', 'asc');
+    }
+
+    public function getDateAttribute(): ?string
+    {
+        $date = $this->start_time ?: $this->created_at;
+
+        if (!$date) {
+            return null;
+        }
+
+        return ($date instanceof Carbon ? $date : Carbon::parse($date))->toDateString();
+    }
+
+    public function getTimeAttribute(): ?string
+    {
+        if (!$this->start_time) {
+            return null;
+        }
+
+        return ($this->start_time instanceof Carbon ? $this->start_time : Carbon::parse($this->start_time))
+            ->format('H:i:s');
     }
 
     public function getPublicViewKeyAttribute(): string
