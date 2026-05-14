@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('page-title', __('Church Events'))
+@section('page-title', __('Church Events/Meetings'))
 
 @push('css')
 <link rel="stylesheet" href="{{ asset('packages/workdo/ChurchMeet/src/Resources/assets/css/churchmeet-shared.css') }}">
@@ -9,7 +9,7 @@
 
 @section('page-action')
     <a href="{{ route('churchmeet.events.create') }}" class="btn btn-sm btn-primary">
-        <i class="ti ti-plus"></i> {{ __('Add New Event') }}
+        <i class="ti ti-plus"></i> {{ __('Add New Events/Meetings') }}
     </a>
 @endsection
 
@@ -20,8 +20,8 @@
         <div class="card shadow-sm border-0">
             <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
                 <div>
-                    <h5 class="mb-0 fw-bold">{{ __('Upcoming & Past Events') }}</h5>
-                    <small class="text-muted">{{ __('View, manage, and organize all your church events in one place.') }}</small>
+                    <h5 class="mb-0 fw-bold">{{ __('Upcoming & Past Events/Meetings') }}</h5>
+                    <small class="text-muted">{{ __('View, manage, and organize all your church events and meetings in one place.') }}</small>
                 </div>
                 
             </div>
@@ -98,7 +98,7 @@
                                             <a href="{{ route('churchmeet.events.show', $event->public_view_key) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View Details') }}">
                                                 <i class="ti ti-eye"></i>
                                             </a>
-                                            <a href="{{ route('churchmeet.events.edit', $event->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit Event') }}">
+                                            <a href="{{ route('churchmeet.events.edit', $event->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit Events/Meetings') }}">
                                                 <i class="ti ti-pencil"></i>
                                             </a>
                                             <form action="{{ route('churchmeet.events.destroy', $event->id) }}" 

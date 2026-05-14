@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -24,6 +25,7 @@ use Workdo\Churchly\Helpers\ChurchHelper;
 use Workdo\Churchly\Entities\ChurchMemberField;
 use Workdo\Churchly\Entities\ChurchMemberCustomValue;
 use Workdo\Churchly\Entities\ChurchActivityLog;
+use Workdo\Churchly\Entities\AttendanceEvent;
 use Workdo\Churchly\Entities\DiscipleshipStage;
 use Workdo\Churchly\Entities\Household;
 use Workdo\Churchly\Entities\MemberNote;
@@ -288,6 +290,33 @@ public function show($id)
         ->get();
     $availableSmartTags = SmartTag::forWorkspace()->orderBy('name')->withCount('members')->get();
     $careTeamUsers = User::select('id', 'name')->orderBy('name')->get();
+    $churchMeetEnabled = function_exists('module_is_active') && module_is_active('ChurchMeet');
+    $attendanceTimeline = collect();
+    $attendancePendingSessions = collect();
+    $attendanceStats = [
+        'total' => 0,
+        'present' => 0,
+        'late' => 0,
+        'absent' => 0,
+        'excused' => 0,
+        'no_record' => 0,
+    ];
+
+    if ($churchMeetEnabled) {
+        $attendanceTimeline = $this->buildMemberAttendanceTimeline($member);
+        $attendancePendingSessions = $this->buildMemberPendingAttendanceSessions(
+            $member,
+            $attendanceTimeline->pluck('attendance_event_id')->all()
+        );
+        $attendanceStats = [
+            'total' => $attendanceTimeline->count(),
+            'present' => $attendanceTimeline->where('status', 'present')->count(),
+            'late' => $attendanceTimeline->where('status', 'late')->count(),
+            'absent' => $attendanceTimeline->where('status', 'absent')->count(),
+            'excused' => $attendanceTimeline->where('status', 'excused')->count(),
+            'no_record' => $attendancePendingSessions->count(),
+        ];
+    }
 
     // ✅ Family group
     $familyMembers = ChurchMember::where('family_id', $member->family_id)
@@ -454,8 +483,209 @@ public function show($id)
         'memberCommunications',
         'memberContributions',
         'availableSmartTags',
-        'careTeamUsers'
+        'careTeamUsers',
+        'churchMeetEnabled',
+        'attendanceTimeline',
+        'attendancePendingSessions',
+        'attendanceStats'
     ));
+}
+
+protected function buildMemberAttendanceTimeline(ChurchMember $member)
+{
+    $attendanceEvents = AttendanceEvent::query()
+        ->where('workspace_id', getActiveWorkSpace())
+        ->with([
+            'event.programs',
+            'occurrence',
+            'records' => function ($query) use ($member) {
+                $query->where('member_id', $member->id)
+                    ->orderByDesc('check_in_time')
+                    ->orderByDesc('created_at');
+            },
+        ])
+        ->whereHas('records', function (Builder $recordQuery) use ($member) {
+            $recordQuery->where('member_id', $member->id);
+        })
+        ->orderByRaw('CASE WHEN checkin_start_at IS NULL THEN 1 ELSE 0 END')
+        ->orderByDesc('checkin_start_at')
+        ->orderByDesc('created_at')
+        ->get();
+
+    return $attendanceEvents->map(function (AttendanceEvent $attendanceEvent) use ($member) {
+        $event = $attendanceEvent->event;
+        $record = $attendanceEvent->records->first();
+        $resolvedDate = $attendanceEvent->resolved_start_at
+            ?? $event?->created_at
+            ?? $attendanceEvent->created_at;
+
+        $date = $resolvedDate
+            ? ($resolvedDate instanceof Carbon ? $resolvedDate : Carbon::parse($resolvedDate))
+            : null;
+
+        $status = $record?->status ?: 'absent';
+
+        $statusLabel = match ($status) {
+            'present' => __('Present'),
+            'late' => __('Late'),
+            'absent' => __('Absent'),
+            'excused' => __('Excused'),
+            default => __('Not Marked'),
+        };
+
+        $badgeClass = match ($status) {
+            'present' => 'bg-success',
+            'late' => 'bg-warning text-dark',
+            'absent' => 'bg-danger',
+            'excused' => 'bg-secondary',
+            default => 'bg-light text-dark border',
+        };
+
+        return (object) [
+            'attendance_event_id' => $attendanceEvent->id,
+            'title' => $event?->title ?? __('Untitled event'),
+            'date_label' => $date?->format('d M Y') ?? __('No date'),
+            'date_value' => $date?->toDateString(),
+            'status' => $status,
+            'status_label' => $statusLabel,
+            'badge_class' => $badgeClass,
+            'scope_label' => $this->attendanceScopeLabel($attendanceEvent, $member),
+            'mode_label' => ucfirst((string) ($attendanceEvent->mode ?: __('n/a'))),
+            'check_in_label' => $record?->check_in_time
+                ? Carbon::parse($record->check_in_time)->format('d M Y H:i')
+                : __('Not checked in'),
+            'device_label' => $record?->device_used
+                ? strtoupper((string) $record->device_used)
+                : __('N/A'),
+            'sort_at' => $date?->timestamp ?? 0,
+        ];
+    })
+        ->sortByDesc('sort_at')
+        ->values();
+}
+
+protected function buildMemberPendingAttendanceSessions(ChurchMember $member, array $recordedAttendanceEventIds = [])
+{
+    $attendanceEvents = $this->memberRelatedAttendanceEventsQuery($member)
+        ->when(!empty($recordedAttendanceEventIds), function (Builder $query) use ($recordedAttendanceEventIds) {
+            $query->whereNotIn('id', $recordedAttendanceEventIds);
+        })
+        ->with('event.programs')
+        ->with('occurrence')
+        ->orderByRaw('CASE WHEN checkin_start_at IS NULL THEN 1 ELSE 0 END')
+        ->orderByDesc('checkin_start_at')
+        ->orderByDesc('created_at')
+        ->get();
+
+    return $attendanceEvents->map(function (AttendanceEvent $attendanceEvent) use ($member) {
+        $event = $attendanceEvent->event;
+        $resolvedDate = $attendanceEvent->resolved_start_at
+            ?? $event?->created_at
+            ?? $attendanceEvent->created_at;
+        $date = $resolvedDate
+            ? ($resolvedDate instanceof Carbon ? $resolvedDate : Carbon::parse($resolvedDate))
+            : null;
+
+        return (object) [
+            'attendance_event_id' => $attendanceEvent->id,
+            'title' => $event?->title ?? __('Untitled event'),
+            'date_label' => $date?->format('d M Y') ?? __('No date'),
+            'scope_label' => $this->attendanceScopeLabel($attendanceEvent, $member),
+            'mode_label' => ucfirst((string) ($attendanceEvent->mode ?: __('n/a'))),
+            'status_label' => __('No Attendance Record'),
+            'badge_class' => 'bg-light text-dark border',
+            'sort_at' => $date?->timestamp ?? 0,
+        ];
+    })
+        ->sortByDesc('sort_at')
+        ->values();
+}
+
+protected function memberRelatedAttendanceEventsQuery(ChurchMember $member): Builder
+{
+    $departmentIds = $member->departments->pluck('id')->filter()->values()->all();
+
+    return AttendanceEvent::query()
+        ->where('workspace_id', getActiveWorkSpace())
+        ->where(function (Builder $relatedQuery) use ($member, $departmentIds) {
+            $relatedQuery->where(function (Builder $scopeQuery) use ($member, $departmentIds) {
+                $scopeQuery->where(function (Builder $globalQuery) {
+                    $globalQuery->whereNull('branch_id')
+                        ->whereNull('department_id');
+                });
+
+                if (!empty($departmentIds)) {
+                    $scopeQuery->orWhereIn('department_id', $departmentIds);
+                }
+
+                if ($member->branch_id) {
+                    $scopeQuery->orWhere('branch_id', $member->branch_id);
+                }
+            });
+
+            if ($member->user_id) {
+                $relatedQuery->orWhere('created_by', $member->user_id);
+            }
+
+            $relatedQuery->orWhereHas('event', function (Builder $eventQuery) use ($member) {
+                $eventQuery->where(function (Builder $eventVisibleQuery) use ($member) {
+                    if ($member->user_id) {
+                        $eventVisibleQuery->where('created_by', $member->user_id)
+                            ->orWhere('lead_id', $member->id)
+                            ->orWhere('assistant_id', $member->id)
+                            ->orWhereHas('programs', function (Builder $programQuery) use ($member) {
+                                $programQuery->where('leader_id', $member->id);
+                            });
+
+                        return;
+                    }
+
+                    $eventVisibleQuery->where('lead_id', $member->id)
+                        ->orWhere('assistant_id', $member->id)
+                        ->orWhereHas('programs', function (Builder $programQuery) use ($member) {
+                            $programQuery->where('leader_id', $member->id);
+                        });
+                });
+            });
+        });
+}
+
+protected function attendanceScopeLabel(AttendanceEvent $attendanceEvent, ChurchMember $member): string
+{
+    $event = $attendanceEvent->event;
+    $departmentIds = $member->departments->pluck('id')->filter()->map(fn ($id) => (int) $id)->all();
+    $programLeaderIds = $event
+        ? $event->programs->pluck('leader_id')->filter()->map(fn ($value) => (int) $value)->all()
+        : [];
+
+    if (
+        ($member->user_id && (int) $attendanceEvent->created_by === (int) $member->user_id) ||
+        ($event && $member->user_id && (int) $event->created_by === (int) $member->user_id)
+    ) {
+        return __('Created');
+    }
+
+    if ($event && (int) $event->lead_id === (int) $member->id) {
+        return __('Event Lead');
+    }
+
+    if ($event && (int) $event->assistant_id === (int) $member->id) {
+        return __('Assistant');
+    }
+
+    if (in_array((int) $member->id, $programLeaderIds, true)) {
+        return __('Program Schedule');
+    }
+
+    if (!empty($departmentIds) && $attendanceEvent->department_id && in_array((int) $attendanceEvent->department_id, $departmentIds, true)) {
+        return __('Department');
+    }
+
+    if ($member->branch_id && (int) $attendanceEvent->branch_id === (int) $member->branch_id) {
+        return __('Branch');
+    }
+
+    return __('Global');
 }
 
 

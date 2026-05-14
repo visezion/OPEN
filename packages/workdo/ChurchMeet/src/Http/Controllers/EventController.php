@@ -19,6 +19,7 @@ use Workdo\ChurchMeet\Entities\ChurchDesignation;
 use Workdo\ChurchMeet\Entities\ZoomSyncSetting;
 use Workdo\ChurchMeet\Entities\ZenderWaGroup;
 use Workdo\ChurchMeet\Http\Controllers\AttendanceRecordController;
+use Workdo\ChurchMeet\Services\EventOccurrenceSyncService;
 use Workdo\ChurchMeet\Services\JitsiMeetingService;
 use Workdo\ChurchMeet\Services\LivekitMeetingService;
 use Workdo\ChurchMeet\Services\ZoomMeetingService;
@@ -27,11 +28,11 @@ class EventController extends Controller
 {
     public function index()
     {
-        $events = $this->visibleEventsQuery()
+        $events = $this->visibleEventsQuery(['occurrences'])
             ->latest()
             ->paginate(20);
 
-        $recentEvents = $this->visibleEventsQuery()
+        $recentEvents = $this->visibleEventsQuery(['occurrences'])
             ->orderBy('created_at', 'desc')
             ->get();
        
@@ -52,6 +53,7 @@ class EventController extends Controller
     }
     public function store(
         Request $request,
+        EventOccurrenceSyncService $eventOccurrenceSyncService,
         ZoomMeetingService $zoomMeetingService,
         JitsiMeetingService $jitsiMeetingService,
         LivekitMeetingService $livekitMeetingService
@@ -62,6 +64,9 @@ class EventController extends Controller
             'event_type'  => 'required|string|max:100',
             'start_time'  => 'nullable|date',
             'end_time'    => 'nullable|date|after_or_equal:start_time',
+            'recurrence'  => 'nullable|string|in:none,daily,weekly,monthly',
+            'recurrence_until' => 'nullable|date|after_or_equal:start_time',
+            'recurrence_count' => 'nullable|integer|min:1|max:365',
             'venue'       => 'nullable|string|max:191',
             'description' => 'nullable|string',
             'mode' => 'required|string|in:onsite,online,hybrid',
@@ -71,6 +76,19 @@ class EventController extends Controller
             'longitude'   => 'nullable|numeric',
             'radius_meters' => 'nullable|integer|min:1',
         ]);
+
+        $recurrence = (string) ($request->recurrence ?? 'none');
+        if ($recurrence !== 'none' && !$request->filled('start_time')) {
+            return back()
+                ->withErrors(['start_time' => __('Recurring events require a start date and time.')])
+                ->withInput();
+        }
+
+        if ($recurrence !== 'none' && !$request->filled('recurrence_until') && !$request->filled('recurrence_count')) {
+            return back()
+                ->withErrors(['recurrence_until' => __('Set a repeat until date or an occurrence limit for recurring events.')])
+                ->withInput();
+        }
         
 
         // Ã¢Å“â€¦ Save event
@@ -98,7 +116,9 @@ class EventController extends Controller
             'status'       => 'draft',
             'start_time'   => $request->start_time,
             'end_time'     => $request->end_time,
-            'recurrence'   => $request->recurrence ?? 'none',
+            'recurrence'   => $recurrence,
+            'recurrence_until' => $request->recurrence_until,
+            'recurrence_count' => $request->recurrence_count,
             'lead_id'      => $request->lead_id,
             'assistant_id' => $request->assistant_id,
             'venue'        => $request->venue,
@@ -126,20 +146,11 @@ class EventController extends Controller
             }
         }
         // Ã°Å¸Â§Â© Save  Attendance Event
-        $attendanceEvent = AttendanceEvent::create([
-            'workspace_id' => getActiveWorkSpace(),
-            'branch_id' => $request->branch_id,
-            'department_id' => $request->department_id,
-            'event_id'     => $event->id,
-            'mode' => $request->mode,
-            'enabled_methods' => $resolvedEnabledMethods,
-            'online_platform' => $resolvedOnlinePlatform,
-            'meeting_link' => $request->meeting_link,
-            'meeting_id' => $request->meeting_id,
-            'meeting_passcode' => $request->meeting_passcode,
-            'auto_log_attendance' => $autoLogAttendance,
-            'created_by' => Auth::id(),
-        ]);
+        $attendanceEvents = $eventOccurrenceSyncService->sync(
+            $event,
+            $this->buildAttendanceTemplate($request, $resolvedEnabledMethods, $resolvedOnlinePlatform, $autoLogAttendance)
+        );
+        $attendanceEvent = $this->resolvePreferredAttendanceEvent($event, $attendanceEvents);
 
         $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest(
             $request,
@@ -620,19 +631,35 @@ public function publishAction(Request $request, $id)
                 'assistant',
                 'creator',
                 'programs.leader',
-                'reviewerComments.user'
+                'reviewerComments.user',
+                'occurrences.attendanceEvent.records.member'
             ])->findOrFail($resolvedId);
 
         // Ã¢Å“â€¦ Load attendance data if available
-        $attendanceEvent = AttendanceEvent::with(['event', 'records.member'])
-            ->where('event_id', $event->id)
-            ->first();
+        $attendanceEvent = $this->resolvePreferredAttendanceEvent($event);
+        $attendanceOccurrences = $event->occurrences
+            ->where('is_cancelled', false)
+            ->map(function ($occurrence) {
+                $session = $occurrence->attendanceEvent;
+
+                return (object) [
+                    'id' => $occurrence->id,
+                    'sequence' => $occurrence->sequence,
+                    'date_label' => $occurrence->starts_at ? $occurrence->starts_at->format('d M Y h:i A') : __('No scheduled date'),
+                    'attendance_event_id' => $session?->id,
+                    'public_join_key' => $session?->public_join_key,
+                    'total_registered' => $session?->records?->count() ?? 0,
+                    'present' => $session?->records?->where('status', 'present')->count() ?? 0,
+                    'can_join' => $this->canJoinOnlineMeeting($session),
+                ];
+            })
+            ->values();
 
         // Ã¢Å“â€¦ Attendance stats summary
         $attendanceStats = [
-            'total_registered' => $attendanceEvent?->records?->count() ?? 0,
-            'present' => $attendanceEvent?->records?->where('status', 'present')->count() ?? 0,
-            'absent'  => $attendanceEvent?->records?->where('status', 'absent')->count() ?? 0,
+            'total_registered' => $event->occurrences->sum(fn ($occurrence) => $occurrence->attendanceEvent?->records?->count() ?? 0),
+            'present' => $event->occurrences->sum(fn ($occurrence) => $occurrence->attendanceEvent?->records?->where('status', 'present')->count() ?? 0),
+            'absent'  => $event->occurrences->sum(fn ($occurrence) => $occurrence->attendanceEvent?->records?->where('status', 'absent')->count() ?? 0),
         ];
 
         // Ã¢Å“â€¦ Format times for clean display
@@ -666,6 +693,7 @@ public function publishAction(Request $request, $id)
         return view('churchmeet::attendance.events.show', compact(
             'event',
             'attendanceEvent',
+            'attendanceOccurrences',
             'attendanceStats',
             'reviewComments',
             'canCreateZoomMeeting',
@@ -693,12 +721,11 @@ public function publishAction(Request $request, $id)
                 'programs.leader',
                 'lead',
                 'assistant',
-                'reviewerComments.user'
+                'reviewerComments.user',
+                'occurrences.attendanceEvent.records'
             ])->findOrFail($resolvedId);
 
-        $attendanceEvent = AttendanceEvent::where('event_id', $resolvedId)
-            ->where('workspace_id', getActiveWorkSpace())
-            ->first();
+        $attendanceEvent = $this->resolvePreferredAttendanceEvent($event);
         $events = $this->visibleEventsQuery()->get();
         $members = ChurchMember::forWorkspace()->select('id', 'name')->get();
         $branches = ChurchBranch::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
@@ -712,12 +739,14 @@ public function publishAction(Request $request, $id)
     public function update(
         Request $request,
         $id,
+        EventOccurrenceSyncService $eventOccurrenceSyncService,
         ZoomMeetingService $zoomMeetingService,
         JitsiMeetingService $jitsiMeetingService,
         LivekitMeetingService $livekitMeetingService
     )
     {
-    $event = $this->visibleEventsQuery()->findOrFail($id);
+    $event = $this->visibleEventsQuery(['occurrences.attendanceEvent.records'])->findOrFail($id);
+    $attendanceEvent = $this->resolvePreferredAttendanceEvent($event);
     if ($event->status === 'revision_required')
         {
             $status = 'resubmitted';
@@ -730,6 +759,9 @@ public function publishAction(Request $request, $id)
         'event_type'  => 'required|string|max:100',
         'start_time'  => 'nullable|date',
         'end_time'    => 'nullable|date|after_or_equal:start_time',
+        'recurrence'  => 'nullable|string|in:none,daily,weekly,monthly',
+        'recurrence_until' => 'nullable|date|after_or_equal:start_time',
+        'recurrence_count' => 'nullable|integer|min:1|max:365',
         'venue'       => 'nullable|string|max:191',
         'description' => 'nullable|string',
         'mode'        => 'required|string|in:onsite,online,hybrid',
@@ -741,6 +773,19 @@ public function publishAction(Request $request, $id)
         
     ]);
 
+    $recurrence = (string) ($request->recurrence ?? 'none');
+    if ($recurrence !== 'none' && !$request->filled('start_time')) {
+        return back()
+            ->withErrors(['start_time' => __('Recurring events require a start date and time.')])
+            ->withInput();
+    }
+
+    if ($recurrence !== 'none' && !$request->filled('recurrence_until') && !$request->filled('recurrence_count')) {
+        return back()
+            ->withErrors(['recurrence_until' => __('Set a repeat until date or an occurrence limit for recurring events.')])
+            ->withInput();
+    }
+
     // Ã¢Å“â€¦ Update main event
     $event->update([
         'title'        => $request->title,
@@ -750,18 +795,15 @@ public function publishAction(Request $request, $id)
         'status'       => $status,
         'start_time'   => $request->start_time,
         'end_time'     => $request->end_time,
-        'recurrence'   => $request->recurrence ?? 'none',
+        'recurrence'   => $recurrence,
+        'recurrence_until' => $request->recurrence_until,
+        'recurrence_count' => $request->recurrence_count,
         'lead_id'      => $request->lead_id,
         'assistant_id' => $request->assistant_id,
         'latitude'     => $request->latitude,
         'longitude'    => $request->longitude,
         'radius_meters'=> $request->radius_meters ?? $event->radius_meters,
         'updated_at'   => now(),
-    ]);
-
-    $attendanceEvent = AttendanceEvent::firstOrNew([
-        'workspace_id' => getActiveWorkSpace(),
-        'event_id' => $event->id,
     ]);
 
     $zoomSetting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
@@ -778,18 +820,6 @@ public function publishAction(Request $request, $id)
     $autoLogAttendance = $request->has('auto_log_attendance')
         ? (bool) $request->boolean('auto_log_attendance')
         : in_array($request->mode, ['online', 'hybrid'], true);
-
-    $attendanceEvent->branch_id = $request->branch_id;
-    $attendanceEvent->department_id = $request->department_id;
-    $attendanceEvent->mode = $request->mode;
-    $attendanceEvent->enabled_methods = $resolvedEnabledMethods;
-    $attendanceEvent->online_platform = $resolvedOnlinePlatform;
-    $attendanceEvent->meeting_link = $request->meeting_link;
-    $attendanceEvent->meeting_id = $request->meeting_id;
-    $attendanceEvent->meeting_passcode = $request->meeting_passcode;
-    $attendanceEvent->auto_log_attendance = $autoLogAttendance;
-    $attendanceEvent->created_by = $attendanceEvent->created_by ?: Auth::id();
-    $attendanceEvent->save();
 
     // Ã¢Å“â€¦ Refresh program items
     EventProgram::where('event_id', $id)->delete();
@@ -845,6 +875,11 @@ public function publishAction(Request $request, $id)
             }
 
     }
+    $attendanceEvents = $eventOccurrenceSyncService->sync(
+        $event->fresh(['occurrences.attendanceEvent.records']),
+        $this->buildAttendanceTemplate($request, $resolvedEnabledMethods, $resolvedOnlinePlatform, $autoLogAttendance)
+    );
+    $attendanceEvent = $this->resolvePreferredAttendanceEvent($event->fresh(['occurrences.attendanceEvent.records']), $attendanceEvents);
     $meetingMessage = $this->maybeCreateOnlineMeetingFromRequest(
         $request,
         $attendanceEvent,
@@ -1254,6 +1289,64 @@ public function analytics()
         }
 
         return false;
+    }
+
+    protected function buildAttendanceTemplate(Request $request, array $enabledMethods, ?string $platform, bool $autoLogAttendance): array
+    {
+        return [
+            'branch_id' => $request->branch_id,
+            'department_id' => $request->department_id,
+            'mode' => $request->mode,
+            'enabled_methods' => $enabledMethods,
+            'online_platform' => $platform,
+            'meeting_link' => $request->meeting_link,
+            'meeting_id' => $request->meeting_id,
+            'meeting_passcode' => $request->meeting_passcode,
+            'auto_log_attendance' => $autoLogAttendance,
+            'created_by' => Auth::id(),
+        ];
+    }
+
+    protected function resolvePreferredAttendanceEvent(Event $event, $attendanceEvents = null): ?AttendanceEvent
+    {
+        if ($attendanceEvents instanceof \Illuminate\Support\Collection && $attendanceEvents->isNotEmpty()) {
+            $preferred = $attendanceEvents
+                ->sortBy(function (AttendanceEvent $attendanceEvent) {
+                    return optional($attendanceEvent->resolved_start_at)->timestamp ?? PHP_INT_MAX;
+                })
+                ->first(function (AttendanceEvent $attendanceEvent) {
+                    return $attendanceEvent->resolved_start_at && $attendanceEvent->resolved_start_at->greaterThanOrEqualTo(now());
+                });
+
+            return $preferred ?: $attendanceEvents
+                ->sortByDesc(function (AttendanceEvent $attendanceEvent) {
+                    return optional($attendanceEvent->resolved_start_at)->timestamp ?? 0;
+                })
+                ->first();
+        }
+
+        $event->loadMissing('occurrences.attendanceEvent.records');
+
+        $preferredOccurrence = $event->occurrences
+            ->where('is_cancelled', false)
+            ->first(function ($occurrence) {
+                return $occurrence->attendanceEvent
+                    && $occurrence->starts_at
+                    && $occurrence->starts_at->greaterThanOrEqualTo(now());
+            });
+
+        if ($preferredOccurrence?->attendanceEvent) {
+            return $preferredOccurrence->attendanceEvent;
+        }
+
+        return $event->occurrences
+            ->where('is_cancelled', false)
+            ->sortByDesc(function ($occurrence) {
+                return optional($occurrence->starts_at)->timestamp ?? 0;
+            })
+            ->pluck('attendanceEvent')
+            ->filter()
+            ->first();
     }
 
     public function destroy($id)

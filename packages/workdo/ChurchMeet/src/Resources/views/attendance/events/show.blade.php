@@ -5,7 +5,7 @@
 @endsection
 
 @section('page-breadcrumb')
-    {{ __('Event Details') }}
+    {{ __('Events/Meetings Details') }}
 @endsection
 
 @push('css')
@@ -47,7 +47,7 @@
         <i class="ti ti-file-type-pdf"></i> {{ __('Export PDF') }}
     </a>
     <a href="{{ route('churchmeet.events.index') }}" class="btn btn-light btn-sm">
-        <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
+        <i class="ti ti-arrow-left"></i> {{ __('Back to Events/Meetings') }}
     </a>
 @endsection
 
@@ -94,8 +94,8 @@
                 <div class="d-flex flex-wrap align-items-center gap-2">
                     <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                     <span class="badge bg-light text-dark border">{{ ucfirst((string) ($event->event_type ?? 'event')) }}</span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary churchmeet-copy-trigger" data-copy-text="{{ $eventShareUrl }}" data-copy-default="{{ __('Copy Event Link') }}" data-copy-success="{{ __('Copied') }}">
-                        <i class="ti ti-link me-1"></i><span>{{ __('Copy Event Link') }}</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary churchmeet-copy-trigger" data-copy-text="{{ $eventShareUrl }}" data-copy-default="{{ __('Copy Events/Meetings Link') }}" data-copy-success="{{ __('Copied') }}">
+                        <i class="ti ti-link me-1"></i><span>{{ __('Copy Events/Meetings Link') }}</span>
                     </button>
                     @if($meetingShareUrl)
                         <button type="button" class="btn btn-sm btn-outline-primary churchmeet-copy-trigger" data-copy-text="{{ $meetingShareUrl }}" data-copy-default="{{ __('Copy Meeting Link') }}" data-copy-success="{{ __('Copied') }}">

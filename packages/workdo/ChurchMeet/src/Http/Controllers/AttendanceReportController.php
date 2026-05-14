@@ -74,7 +74,7 @@ class AttendanceReportController extends Controller
         $eventPerformance = AttendanceEvent::query()
             ->where('workspace_id', $workspaceId)
             ->whereBetween('checkin_start_at', [$monthStart, $monthEnd])
-            ->with(['event', 'records'])
+            ->with(['event', 'occurrence', 'records'])
             ->get()
             ->map(function ($attendanceEvent) {
                 $records = $attendanceEvent->records;
@@ -85,7 +85,7 @@ class AttendanceReportController extends Controller
 
                 return (object) [
                     'title' => $attendanceEvent->event->title ?? __('Untitled event'),
-                    'date' => optional($attendanceEvent->checkin_start_at)->format('d M Y'),
+                    'date' => optional($attendanceEvent->resolved_start_at)->format('d M Y'),
                     'mode' => ucfirst($attendanceEvent->mode ?? 'in-person'),
                     'branch_id' => $attendanceEvent->branch_id,
                     'total' => $total,

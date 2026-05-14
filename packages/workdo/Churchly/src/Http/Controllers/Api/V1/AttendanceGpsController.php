@@ -5,7 +5,7 @@ namespace Workdo\Churchly\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Workdo\Churchly\Entities\{AttendanceEvent, AttendanceRecord};
+use Workdo\Churchly\Entities\{AttendanceEvent, AttendanceRecord, ChurchMember};
 
 class AttendanceGpsController extends Controller
 {
@@ -17,7 +17,13 @@ class AttendanceGpsController extends Controller
             'longitude' => 'required|numeric',
             'platform' => 'nullable|in:mobile,web',
         ]);
-        $memberId = Auth::user()->member->id ?? Auth::id();
+        $memberId = ChurchMember::query()
+            ->where('user_id', Auth::id())
+            ->value('id');
+
+        if (!$memberId) {
+            return response()->json(['status' => 'error', 'message' => 'Church member not found'], 404);
+        }
         $attendanceEvent = AttendanceEvent::with('event')->find($data['event_id']);
         if (!$attendanceEvent || !$attendanceEvent->event) {
             return response()->json(['status'=>'error','message'=>'Event not found'],404);

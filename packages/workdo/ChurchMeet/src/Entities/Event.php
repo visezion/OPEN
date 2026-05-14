@@ -22,6 +22,8 @@ class Event extends Model
         'start_time',
         'end_time',
         'recurrence',
+        'recurrence_until',
+        'recurrence_count',
         'lead_id',
         'assistant_id',
         'venue',
@@ -42,6 +44,7 @@ class Event extends Model
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'recurrence_until' => 'datetime',
         'reviewed_at' => 'datetime',
         'approved_at' => 'datetime',
         'published_at' => 'datetime',
@@ -76,6 +79,11 @@ class Event extends Model
     public function attendanceEvents()
     {
         return $this->hasMany(AttendanceEvent::class, 'event_id');
+    }
+
+    public function occurrences()
+    {
+        return $this->hasMany(EventOccurrence::class, 'event_id')->orderBy('sequence');
     }
 
     public function programs()
@@ -122,7 +130,7 @@ class Event extends Model
 
     public function getDateAttribute(): ?string
     {
-        $date = $this->start_time ?: $this->created_at;
+        $date = $this->resolveDisplayStartAt() ?: $this->created_at;
 
         if (!$date) {
             return null;
@@ -133,12 +141,63 @@ class Event extends Model
 
     public function getTimeAttribute(): ?string
     {
+        $time = $this->resolveDisplayStartAt();
+
+        if (!$time) {
+            return null;
+        }
+
+        return ($time instanceof Carbon ? $time : Carbon::parse($time))
+            ->format('H:i:s');
+    }
+
+    public function resolveDisplayOccurrence(): ?EventOccurrence
+    {
+        $occurrences = $this->relationLoaded('occurrences')
+            ? $this->occurrences
+            : $this->occurrences()->get();
+
+        if ($occurrences->isEmpty()) {
+            return null;
+        }
+
+        $upcoming = $occurrences
+            ->where('is_cancelled', false)
+            ->filter(function (EventOccurrence $occurrence) {
+                return $occurrence->starts_at && $occurrence->starts_at->greaterThanOrEqualTo(now());
+            })
+            ->sortBy('starts_at')
+            ->first();
+
+        if ($upcoming) {
+            return $upcoming;
+        }
+
+        return $occurrences
+            ->where('is_cancelled', false)
+            ->sortByDesc(function (EventOccurrence $occurrence) {
+                return optional($occurrence->starts_at)->timestamp ?? 0;
+            })
+            ->first();
+    }
+
+    public function resolveDisplayStartAt(): ?Carbon
+    {
+        $occurrence = $this->resolveDisplayOccurrence();
+
+        if ($occurrence?->starts_at) {
+            return $occurrence->starts_at instanceof Carbon
+                ? $occurrence->starts_at
+                : Carbon::parse($occurrence->starts_at);
+        }
+
         if (!$this->start_time) {
             return null;
         }
 
-        return ($this->start_time instanceof Carbon ? $this->start_time : Carbon::parse($this->start_time))
-            ->format('H:i:s');
+        return $this->start_time instanceof Carbon
+            ? $this->start_time
+            : Carbon::parse($this->start_time);
     }
 
     public function getPublicViewKeyAttribute(): string

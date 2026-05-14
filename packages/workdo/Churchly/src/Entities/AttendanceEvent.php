@@ -3,6 +3,7 @@
 namespace Workdo\Churchly\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class AttendanceEvent extends Model
 {
@@ -13,6 +14,7 @@ class AttendanceEvent extends Model
         'branch_id',
         'department_id',
         'event_id',
+        'occurrence_id',
         'mode',
         'checkin_start_at',
         'checkin_end_at',
@@ -46,8 +48,49 @@ class AttendanceEvent extends Model
         return $this->belongsTo(Event::class, 'event_id');
     }
 
+    public function occurrence()
+    {
+        return $this->belongsTo(EventOccurrence::class, 'occurrence_id');
+    }
+
     public function records()
     {
         return $this->hasMany(AttendanceRecord::class, 'attendance_event_id');
+    }
+
+    public function getResolvedStartAtAttribute(): ?Carbon
+    {
+        $value = $this->occurrence?->starts_at ?: $this->checkin_start_at ?: $this->event?->start_time;
+
+        if (!$value) {
+            return null;
+        }
+
+        return $value instanceof Carbon ? $value : Carbon::parse($value);
+    }
+
+    public function getResolvedEndAtAttribute(): ?Carbon
+    {
+        $value = $this->occurrence?->ends_at ?: $this->checkin_end_at ?: $this->event?->end_time;
+
+        if (!$value) {
+            return null;
+        }
+
+        return $value instanceof Carbon ? $value : Carbon::parse($value);
+    }
+
+    public function getResolvedDateAttribute(): ?string
+    {
+        return $this->resolved_start_at?->toDateString();
+    }
+
+    public function getOccurrenceLabelAttribute(): string
+    {
+        if ($this->resolved_start_at) {
+            return $this->resolved_start_at->format('d M Y h:i A');
+        }
+
+        return __('No scheduled date');
     }
 }

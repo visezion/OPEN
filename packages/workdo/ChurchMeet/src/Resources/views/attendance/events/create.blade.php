@@ -1,11 +1,11 @@
 @extends('layouts.main')
 
 @section('page-title')
-    {{ __('Create Event') }}
+    {{ __('Create Events/Meetings') }}
 @endsection
 
 @section('page-breadcrumb')
-    {{ __('ChurchMeet') }},{{ __('Create Event') }}
+    {{ __('ChurchMeet') }},{{ __('Create Events/Meetings') }}
 @endsection
 
 @push('css')
@@ -16,7 +16,7 @@
 
 @section('page-action')
     <a href="{{ route('churchmeet.events.index') }}" class="btn btn-outline-secondary btn-sm">
-        <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
+        <i class="ti ti-arrow-left"></i> {{ __('Back to Events/Meetings') }}
     </a>
 @endsection
 
@@ -33,7 +33,7 @@
             <div class="card-body p-4">
                 <div class="d-flex flex-wrap justify-content-between gap-3 align-items-start">
                     <div>
-                        <h4 class="mb-2">{{ __('Create a New Event') }}</h4>
+                        <h4 class="mb-2">{{ __('Create New Events/Meetings') }}</h4>
                         <p class="section-copy mb-0">{{ __('Start with the basics first. Meeting settings and advanced options are kept lower down so the page stays easier to use.') }}</p>
                     </div>
                     <span class="badge bg-light text-primary border">{{ __('Draft Stage') }}</span>
@@ -103,6 +103,17 @@
                         </div>
 
                         <!-- Ã°Å¸â€Â Searchable Dropdown Added -->
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ __('Repeat Until') }}</label>
+                            <input type="datetime-local" class="form-control" name="recurrence_until" value="{{ old('recurrence_until') }}">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ __('Occurrence Limit') }}</label>
+                            <input type="number" min="1" max="365" class="form-control" name="recurrence_count" value="{{ old('recurrence_count') }}" placeholder="{{ __('Optional') }}">
+                            <small class="text-muted">{{ __('Use a repeat until date, a limit, or both.') }}</small>
+                        </div>
+
                         <div class="col-md-3 mb-3">
                             <label class="form-label">{{ __('Lead Minister / Person-in-Charge') }}</label>
                             <select class="form-select member-select" id="lead_id" name="lead_id">

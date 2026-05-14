@@ -23,7 +23,7 @@ class MeetingRoomController extends Controller
 {
     public function createJitsiForEvent(int $eventId, JitsiMeetingService $jitsiMeetingService)
     {
-        $event = Event::with('attendanceEvents.event')->inWorkspace()->findOrFail($eventId);
+        $event = Event::with('occurrences.attendanceEvent.event')->inWorkspace()->findOrFail($eventId);
         $attendanceEvent = $this->resolveAttendanceEvent($event);
 
         abort_unless($this->userCanManageOnlineMeeting($attendanceEvent), 403, __('You are not allowed to create online meetings for this event.'));
@@ -35,7 +35,7 @@ class MeetingRoomController extends Controller
 
     public function createLiveKitForEvent(int $eventId, LivekitMeetingService $livekitMeetingService)
     {
-        $event = Event::with('attendanceEvents.event')->inWorkspace()->findOrFail($eventId);
+        $event = Event::with('occurrences.attendanceEvent.event')->inWorkspace()->findOrFail($eventId);
         $attendanceEvent = $this->resolveAttendanceEvent($event);
 
         abort_unless($this->userCanManageOnlineMeeting($attendanceEvent), 403, __('You are not allowed to create online meetings for this event.'));
@@ -200,7 +200,7 @@ class MeetingRoomController extends Controller
         $resolvedId = AttendanceEvent::decodePublicJoinKey($attendanceEventId);
         abort_if(!$resolvedId, 404, __('Meeting link is invalid.'));
 
-        return AttendanceEvent::with('event')->findOrFail($resolvedId);
+        return AttendanceEvent::with(['event', 'occurrence'])->findOrFail($resolvedId);
     }
 
     protected function buildPresenceStats(AttendanceEvent $attendanceEvent, AttendanceRecord $record): array
@@ -212,10 +212,9 @@ class MeetingRoomController extends Controller
         $joinedSeconds = $checkIn ? max(0, $checkIn->diffInSeconds($effectiveEnd)) : 0;
 
         $meetingSeconds = null;
-        $event = $attendanceEvent->event;
-        if (!empty($event?->start_time) && !empty($event?->end_time)) {
-            $start = Carbon::parse($event->start_time);
-            $end = Carbon::parse($event->end_time);
+        if ($attendanceEvent->resolved_start_at && $attendanceEvent->resolved_end_at) {
+            $start = Carbon::parse($attendanceEvent->resolved_start_at);
+            $end = Carbon::parse($attendanceEvent->resolved_end_at);
             $meetingSeconds = max(0, $start->diffInSeconds($end, false));
             if ($meetingSeconds === 0) {
                 $meetingSeconds = null;
@@ -238,17 +237,51 @@ class MeetingRoomController extends Controller
 
     protected function resolveAttendanceEvent(Event $event): AttendanceEvent
     {
-        $attendanceEvent = $event->attendanceEvents()->first();
+        $event->loadMissing('occurrences.attendanceEvent.records');
+        $attendanceEvent = $event->occurrences
+            ->where('is_cancelled', false)
+            ->sortBy(function ($occurrence) {
+                return optional($occurrence->starts_at)->timestamp ?? PHP_INT_MAX;
+            })
+            ->pluck('attendanceEvent')
+            ->filter()
+            ->first(function (AttendanceEvent $attendanceEvent) {
+                return $attendanceEvent->resolved_start_at && $attendanceEvent->resolved_start_at->greaterThanOrEqualTo(now());
+            });
+
+        if (!$attendanceEvent) {
+            $attendanceEvent = $event->occurrences
+                ->where('is_cancelled', false)
+                ->sortByDesc(function ($occurrence) {
+                    return optional($occurrence->starts_at)->timestamp ?? 0;
+                })
+                ->pluck('attendanceEvent')
+                ->filter()
+                ->first();
+        }
 
         if ($attendanceEvent) {
             return $attendanceEvent;
         }
+
+        $occurrence = $event->occurrences()->firstOrCreate(
+            ['event_id' => $event->id, 'sequence' => 1],
+            [
+                'workspace_id' => getActiveWorkSpace(),
+                'starts_at' => $event->start_time,
+                'ends_at' => $event->end_time,
+                'created_by' => Auth::id(),
+            ]
+        );
 
         return AttendanceEvent::create([
             'workspace_id' => getActiveWorkSpace(),
             'branch_id' => null,
             'department_id' => null,
             'event_id' => $event->id,
+            'occurrence_id' => $occurrence->id,
+            'checkin_start_at' => $occurrence->starts_at,
+            'checkin_end_at' => $occurrence->ends_at,
             'mode' => 'online',
             'enabled_methods' => ['jitsi'],
             'online_platform' => 'jitsi',

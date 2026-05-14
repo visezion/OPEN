@@ -82,8 +82,8 @@
                                 @foreach($attendanceEvents as $attendanceEvent)
                                     @php
                                         $event = $attendanceEvent->event;
-                                        $eventDate = $event?->date
-                                            ? \Carbon\Carbon::parse($event->date)->format('M d, Y')
+                                        $eventDate = $attendanceEvent->resolved_start_at
+                                            ? \Carbon\Carbon::parse($attendanceEvent->resolved_start_at)->format('M d, Y')
                                             : __('-');
                                     @endphp
                                     <tr>
@@ -200,8 +200,8 @@
                 @forelse($recentAttendance as $att)
                     @php
                         $recentEvent = $att->event;
-                        $recentEventDate = $recentEvent?->date
-                            ? \Carbon\Carbon::parse($recentEvent->date)->format('M d, Y')
+                        $recentEventDate = $att->resolved_start_at
+                            ? \Carbon\Carbon::parse($att->resolved_start_at)->format('M d, Y')
                             : null;
                     @endphp
                     <div class="alert alert-{{ $att->mode == 'online' ? 'info' : ($att->mode == 'hybrid' ? 'warning' : 'success') }} py-2 mb-2">

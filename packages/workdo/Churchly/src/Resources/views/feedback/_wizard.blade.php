@@ -9,9 +9,9 @@
         'attendance_event_id',
         $selectedAttendanceEventId ?? ($attendanceSummary['attendance_event_id'] ?? ($feedback->attendance_event_id ?? null))
     );
-    $selectedRecipientUserId = old(
-        'recipient_user_id',
-        $selectedRecipientUserId ?? ($feedback->recipient_user_id ?? null)
+    $selectedRecipientMemberId = old(
+        'recipient_member_id',
+        $selectedRecipientMemberId ?? ($feedback->recipient_member_id ?? null)
     );
     $weekEndingValue = old(
     'week_ending_date',
@@ -32,6 +32,7 @@
 
 @push('css')
     <link href="{{ asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <style>
         .report-shell {
             display: grid;
@@ -309,11 +310,11 @@
 
                         @if ($canSendDirect)
                             <div class="form-group mt-4">
-                                {{ Form::label('recipient_user_id', __('Send Weekly Report To'), ['class' => 'report-label']) }}
-                                <select name="recipient_user_id" id="recipient_user_id" class="form-select">
+                                {{ Form::label('recipient_member_id', __('Send Weekly Report To'), ['class' => 'report-label']) }}
+                                <select name="recipient_member_id" id="recipient_member_id" class="form-select report-search-select" data-placeholder="{{ __('Search and select a direct recipient') }}">
                                     <option value="">{{ __('Department / standard inbox') }}</option>
                                     @foreach ($directRecipients as $recipientOption)
-                                        <option value="{{ $recipientOption['id'] }}" {{ (string) $selectedRecipientUserId === (string) $recipientOption['id'] ? 'selected' : '' }}>
+                                        <option value="{{ $recipientOption['id'] }}" {{ (string) $selectedRecipientMemberId === (string) $recipientOption['id'] ? 'selected' : '' }}>
                                             {{ $recipientOption['label'] }}
                                         </option>
                                     @endforeach
@@ -321,7 +322,7 @@
                                 <div class="small text-muted mt-2">
                                     {{ __('Choose a person here to make this a private direct weekly report. Only you, that recipient, and full-access admins will see it.') }}
                                 </div>
-                                @error('recipient_user_id')
+                                @error('recipient_member_id')
                                     <div class="text-danger small mt-2">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -470,6 +471,7 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/plugins/summernote-0.8.18-dist/summernote-lite.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('weekly-report-form');
@@ -497,6 +499,14 @@
                     ['view', ['codeview']]
                 ]
             });
+
+            if (window.$ && $.fn && $.fn.select2) {
+                $('#recipient_member_id').select2({
+                    width: '100%',
+                    placeholder: $('#recipient_member_id').data('placeholder') || '{{ __('Search and select a direct recipient') }}',
+                    allowClear: true
+                });
+            }
 
             const escapeHtml = function (value) {
                 const div = document.createElement('div');
@@ -552,7 +562,7 @@
             const renderReview = function () {
                 const sections = [
                     { title: '{{ __('Week Selection') }}', content: escapeHtml(weekInput.value || '') || '<span class="report-empty">{{ __('Not selected') }}</span>' },
-                    { title: '{{ __('Report Recipient') }}', content: escapeHtml(document.getElementById('recipient_user_id')?.selectedOptions?.[0]?.text || '{{ __('Department / standard inbox') }}') },
+                    { title: '{{ __('Report Recipient') }}', content: escapeHtml(document.getElementById('recipient_member_id')?.selectedOptions?.[0]?.text || '{{ __('Department / standard inbox') }}') },
                     { title: '{{ __('Activities & Achievements') }}', content: readFieldHtml('activities') + readFieldHtml('achievements') },
                     { title: '{{ __('Attendance') }}', content: `
                         <p><strong>{{ __('Source') }}:</strong> ${escapeHtml(document.getElementById('attendance-source-label').textContent)}</p>

@@ -30,21 +30,14 @@
                     @csrf
                     @method('PUT')
 
-                    {{-- Select Event --}}
+                    {{-- Linked Event --}}
                     <div class="mb-4">
                         <label class="form-label fw-semibold">
-                            <i class="ti ti-calendar-event text-primary"></i> {{ __('Linked Event') }}
+                            <i class="ti ti-calendar-event text-primary"></i> {{ __('Linked Event Date') }}
                         </label>
-                        <select disabled name="event_id" class="form-select" required>
-                            @foreach($events as $event)
-                                <option value="{{ $event->id }}"
-                                    {{ $attendanceEvent->event_id == $event->id ? 'selected' : '' }}>
-                                    {{ $event->title }} ({{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }})
-                                </option>
-                            @endforeach
-                        </select>
+                        <input type="text" class="form-control" value="{{ ($attendanceEvent->event->title ?? __('Untitled event')) . ' (' . $attendanceEvent->occurrence_label . ')' }}" disabled>
                         <small class="text-muted d-block mt-1">
-                            {{ __('The event to which attendance tracking is linked.') }}
+                            {{ __('Attendance is linked to one specific occurrence in the recurring series.') }}
                         </small>
                     </div>
 

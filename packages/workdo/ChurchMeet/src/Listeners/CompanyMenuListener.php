@@ -27,7 +27,7 @@ class CompanyMenuListener
 
         $menu->add([
             'category' => 'Church',
-            'title' => __('All Events'),
+            'title' => __('All Events/Meetings'),
             'icon' => '',
             'name' => 'churchmeet-events',
             'parent' => 'churchmeet',
@@ -83,7 +83,7 @@ class CompanyMenuListener
 
         $menu->add([
             'category' => 'Church',
-            'title' => __('Event Stage Timer'),
+            'title' => __('Events/Meetings Stage Timer'),
             'icon' => '',
             'name' => 'churchmeet-timer',
             'parent' => 'churchmeet',

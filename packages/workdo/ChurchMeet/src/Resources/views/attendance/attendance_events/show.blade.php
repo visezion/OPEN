@@ -4,7 +4,7 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
-@section('page-title', $attendanceEvent->event->title . ' - ' . __('Attendance'))
+@section('page-title', ($attendanceEvent->event->title ?? __('Event')) . ' - ' . __('Attendance'))
 
 @section('page-action')
     <a href="{{ route('churchmeet.attendance_events.index') }}" class="btn btn-sm btn-primary">
@@ -22,18 +22,18 @@
             $methods = is_array($attendanceEvent->enabled_methods)
                 ? $attendanceEvent->enabled_methods
                 : (json_decode($attendanceEvent->enabled_methods ?? '[]', true) ?? []);
-            $eventDate = $attendanceEvent->event?->date
-                ? \Carbon\Carbon::parse($attendanceEvent->event->date)->format('M d, Y')
+            $eventDate = $attendanceEvent->resolved_start_at
+                ? \Carbon\Carbon::parse($attendanceEvent->resolved_start_at)->format('M d, Y')
                 : __('Date not set');
       
             $hasManual = in_array('manual', $methods);
             $hasQr = in_array('qr', $methods);
             $meetingDurationMinutes = null;
-            if (!empty($attendanceEvent->event?->start_time) && !empty($attendanceEvent->event?->end_time)) {
+            if (!empty($attendanceEvent->resolved_start_at) && !empty($attendanceEvent->resolved_end_at)) {
                 $meetingDurationMinutes = max(
                     0,
-                    \Carbon\Carbon::parse($attendanceEvent->event->start_time)->diffInMinutes(
-                        \Carbon\Carbon::parse($attendanceEvent->event->end_time),
+                    \Carbon\Carbon::parse($attendanceEvent->resolved_start_at)->diffInMinutes(
+                        \Carbon\Carbon::parse($attendanceEvent->resolved_end_at),
                         false
                     )
                 );

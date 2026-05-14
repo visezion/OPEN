@@ -72,8 +72,8 @@
                             $canReviewItem = auth()->user()->isAbleTo('feedback review')
                                 && (
                                     auth()->user()->isAbleTo('feedback view all')
-                                    || (!$item->recipient_user_id)
-                                    || ((int) $item->recipient_user_id === (int) auth()->id())
+                                    || (!$item->recipient_member_id)
+                                    || ((int) $item->recipient_member_id === (int) ($currentMember->id ?? 0))
                                 );
                             $canEditItem = auth()->user()->isAbleTo('feedback edit')
                                 && (

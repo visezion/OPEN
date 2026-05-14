@@ -9,7 +9,7 @@
 
 @section('page-action')
     <a href="{{ route('churchmeet.events.index') }}" class="btn btn-sm btn-outline-primary">
-        <i class="ti ti-calendar"></i> {{ __('View All Events') }}
+        <i class="ti ti-calendar"></i> {{ __('View All Events/Meetings') }}
     </a>
     <a href="{{ route('churchmeet.attendance_events.index') }}" class="btn btn-sm btn-outline-primary">
         <i class="ti ti-list-details"></i> {{ __('View All Attendance Events') }}
@@ -18,12 +18,12 @@
 
 @section('content')
 @php
-    $selectedEventValue = old('event_id', $selectedEventId ?? null);
-    $upcomingEvents = $events->filter(function ($event) {
-        return empty($event->start_time) || \Illuminate\Support\Carbon::parse($event->start_time)->isFuture();
+    $selectedOccurrenceValue = old('occurrence_id', $selectedOccurrenceId ?? null);
+    $upcomingOccurrences = $occurrences->filter(function ($occurrence) {
+        return !$occurrence->is_past;
     });
-    $pastEvents = $events->filter(function ($event) {
-        return !empty($event->start_time) && \Illuminate\Support\Carbon::parse($event->start_time)->isPast();
+    $pastOccurrences = $occurrences->filter(function ($occurrence) {
+        return $occurrence->is_past;
     });
 @endphp
 <div class="row attendance-events-create">
@@ -42,48 +42,42 @@
             <div class="card-body p-4">
                 <div class="alert alert-info border-start border-4 border-info shadow-sm mb-4">
                     <strong><i class="ti ti-info-circle"></i> {{ __('Attendance Flow') }}:</strong>
-                    {{ __('You can attach attendance to both upcoming and past events. If an attendance session already exists for the selected event, ChurchMeet will reopen that same session automatically so records stay in one place.') }}
+                    {{ __('You can attach attendance to both upcoming and past event dates. If an attendance session already exists for the selected occurrence, ChurchMeet will reopen that same session automatically so records stay in one place.') }}
                 </div>
 
                 <form method="POST" action="{{ route('churchmeet.attendance_events.store') }}">
                     @csrf
 
-                    {{-- Select Event --}}
+                    {{-- Select Occurrence --}}
                     <div class="mb-4">
                         <label class="form-label fw-semibold">
-                            <i class="ti ti-calendar-event text-primary"></i> {{ __('Select Event') }}
+                            <i class="ti ti-calendar-event text-primary"></i> {{ __('Select Event Date') }}
                         </label>
-                        <select name="event_id" class="form-select" required>
-                            <option value="" disabled {{ empty($selectedEventValue) ? 'selected' : '' }}>{{ __('-- Choose an Event --') }}</option>
-                            @if($upcomingEvents->isNotEmpty())
-                                <optgroup label="{{ __('Upcoming Events') }}">
-                                    @foreach($upcomingEvents as $event)
-                                        <option value="{{ $event->id }}" {{ (string) $selectedEventValue === (string) $event->id ? 'selected' : '' }}>
-                                            {{ $event->title }}
-                                            @if(!empty($event->start_time))
-                                                ({{ \Illuminate\Support\Carbon::parse($event->start_time)->format('M d, Y h:i A') }})
-                                            @endif
-                                            {{ $event->attendance_events_count > 0 ? ' - ' . __('Attendance already linked') : '' }}
+                        <select name="occurrence_id" class="form-select" required>
+                            <option value="" disabled {{ empty($selectedOccurrenceValue) ? 'selected' : '' }}>{{ __('-- Choose an Event Date --') }}</option>
+                            @if($upcomingOccurrences->isNotEmpty())
+                                <optgroup label="{{ __('Upcoming Dates') }}">
+                                    @foreach($upcomingOccurrences as $occurrence)
+                                        <option value="{{ $occurrence->id }}" {{ (string) $selectedOccurrenceValue === (string) $occurrence->id ? 'selected' : '' }}>
+                                            {{ $occurrence->title }} ({{ $occurrence->date_label }})
+                                            {{ $occurrence->has_session ? ' - ' . __('Attendance already linked') : '' }}
                                         </option>
                                     @endforeach
                                 </optgroup>
                             @endif
-                            @if($pastEvents->isNotEmpty())
-                                <optgroup label="{{ __('Past Events') }}">
-                                    @foreach($pastEvents as $event)
-                                        <option value="{{ $event->id }}" {{ (string) $selectedEventValue === (string) $event->id ? 'selected' : '' }}>
-                                            {{ $event->title }}
-                                            @if(!empty($event->start_time))
-                                                ({{ \Illuminate\Support\Carbon::parse($event->start_time)->format('M d, Y h:i A') }})
-                                            @endif
-                                            {{ $event->attendance_events_count > 0 ? ' - ' . __('Attendance already linked') : '' }}
+                            @if($pastOccurrences->isNotEmpty())
+                                <optgroup label="{{ __('Past Dates') }}">
+                                    @foreach($pastOccurrences as $occurrence)
+                                        <option value="{{ $occurrence->id }}" {{ (string) $selectedOccurrenceValue === (string) $occurrence->id ? 'selected' : '' }}>
+                                            {{ $occurrence->title }} ({{ $occurrence->date_label }})
+                                            {{ $occurrence->has_session ? ' - ' . __('Attendance already linked') : '' }}
                                         </option>
                                     @endforeach
                                 </optgroup>
                             @endif
                         </select>
                         <small class="text-muted d-block mt-1">
-                            {{ __('The attendance session will be linked to this event. Past events are allowed, and existing attendance sessions are reused automatically.') }}
+                            {{ __('The attendance session will be linked to one dated occurrence of the event. Past dates are allowed, and existing attendance sessions are reused automatically.') }}
                         </small>
                     </div>
 
@@ -216,7 +210,7 @@
             <div class="card-body small text-muted">
                 <p class="fw-semibold text-dark mb-2">{{ __('How to Configure:') }}</p>
                 <ul class="ps-3 mb-3">
-                    <li><strong>{{ __('Select Event:') }}</strong> Choose the parent event (e.g., Sunday Service).</li>
+                    <li><strong>{{ __('Select Event Date:') }}</strong> Choose the exact recurring date you want attendance to track.</li>
                     <li><strong>{{ __('Mode:') }}</strong> Choose onsite, online, or hybrid attendance type.</li>
                     <li><strong>{{ __('Methods:') }}</strong> Decide how members will check in (QR, Face AI, etc.).</li>
                     <li><strong>{{ __('Online Config:') }}</strong> Add Zoom/YouTube details for live streaming.</li>

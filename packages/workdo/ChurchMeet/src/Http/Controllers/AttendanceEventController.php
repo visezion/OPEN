@@ -2,80 +2,127 @@
 
 namespace Workdo\ChurchMeet\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Builder;
 use Workdo\ChurchMeet\Entities\AttendanceEvent;
-use Workdo\ChurchMeet\Entities\Event;
 use Workdo\ChurchMeet\Entities\AttendanceRecord;
 use Workdo\ChurchMeet\Entities\ChurchMember;
+use Workdo\ChurchMeet\Entities\Event;
 
 class AttendanceEventController extends Controller
 {
     public function index()
     {
-        $attendanceEvents = $this->visibleAttendanceEventsQuery(['event'])
-            ->latest()
+        $attendanceEvents = $this->visibleAttendanceEventsQuery(['event', 'occurrence'])
+            ->orderByRaw('CASE WHEN checkin_start_at IS NULL THEN 1 ELSE 0 END')
+            ->orderByDesc('checkin_start_at')
+            ->orderByDesc('created_at')
             ->paginate(20);
-        $recentAttendance = $this->visibleAttendanceEventsQuery(['event'])
-            ->orderBy('created_at', 'desc')
+
+        $recentAttendance = $this->visibleAttendanceEventsQuery(['event', 'occurrence'])
+            ->orderByRaw('CASE WHEN checkin_start_at IS NULL THEN 1 ELSE 0 END')
+            ->orderByDesc('checkin_start_at')
+            ->orderByDesc('created_at')
             ->get();
-        return view('churchmeet::attendance.attendance_events.index', compact('attendanceEvents','recentAttendance'));
+
+        return view('churchmeet::attendance.attendance_events.index', compact('attendanceEvents', 'recentAttendance'));
     }
 
     public function create()
     {
+        $selectedOccurrenceId = (int) request('occurrence_id');
         $selectedEventId = (int) request('event_id');
-        $events = $this->visibleEventsQuery()
-            ->withCount('attendanceEvents')
+
+        $events = $this->visibleEventsQuery(['occurrences.attendanceEvent'])
             ->orderByRaw('CASE WHEN start_time IS NULL THEN 1 ELSE 0 END')
             ->orderByDesc('start_time')
             ->orderByDesc('created_at')
             ->get();
 
-        return view('churchmeet::attendance.attendance_events.create', compact('events', 'selectedEventId'));
+        $occurrences = $events->flatMap(function (Event $event) {
+            return $event->occurrences
+                ->where('is_cancelled', false)
+                ->map(function ($occurrence) use ($event) {
+                    $startsAt = $occurrence->starts_at;
+
+                    return (object) [
+                        'id' => $occurrence->id,
+                        'event_id' => $event->id,
+                        'title' => $event->title,
+                        'sequence' => $occurrence->sequence,
+                        'date_label' => $startsAt ? $startsAt->format('M d, Y h:i A') : __('No scheduled date'),
+                        'is_past' => $startsAt ? $startsAt->isPast() : false,
+                        'has_session' => (bool) $occurrence->attendanceEvent,
+                        'sort_at' => $startsAt?->timestamp ?? 0,
+                    ];
+                });
+        })
+            ->sortByDesc('sort_at')
+            ->values();
+
+        if (!$selectedOccurrenceId && $selectedEventId) {
+            $selectedOccurrenceId = (int) optional(
+                $occurrences
+                    ->where('event_id', $selectedEventId)
+                    ->sortBy('sort_at')
+                    ->first(fn ($occurrence) => !$occurrence->is_past)
+            )->id;
+
+            if (!$selectedOccurrenceId) {
+                $selectedOccurrenceId = (int) optional($occurrences->firstWhere('event_id', $selectedEventId))->id;
+            }
+        }
+
+        return view('churchmeet::attendance.attendance_events.create', compact('occurrences', 'selectedOccurrenceId'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'event_id' => 'required|integer',
+            'occurrence_id' => 'required|integer',
             'mode' => 'required|string|in:onsite,online,hybrid',
             'checkin_start_at' => 'nullable|date',
             'checkin_end_at' => 'nullable|date|after_or_equal:checkin_start_at',
         ]);
 
-        $workspaceId = getActiveWorkSpace();
-        $event = $this->visibleEventsQuery()
-            ->findOrFail((int) $request->event_id);
+        $occurrenceId = (int) $request->occurrence_id;
+        $event = $this->visibleEventsQuery(['occurrences'])
+            ->whereHas('occurrences', function (Builder $query) use ($occurrenceId) {
+                $query->where('church_event_occurrences.id', $occurrenceId);
+            })
+            ->firstOrFail();
+
+        $occurrence = $event->occurrences->firstWhere('id', $occurrenceId);
+        abort_unless($occurrence, 404);
 
         $existingAttendanceEvent = $this->visibleAttendanceEventsQuery()
-            ->where('event_id', $event->id)
+            ->where('occurrence_id', $occurrence->id)
             ->first();
 
         if ($existingAttendanceEvent) {
             return redirect()
                 ->route('churchmeet.attendance_events.edit', $existingAttendanceEvent->id)
-                ->with('info', __('Attendance tracking is already linked to ":event". The existing session has been opened so you can keep using the same records.', [
-                    'event' => $event->title,
-                ]));
+                ->with('info', __('Attendance tracking is already linked to the selected occurrence. The existing session has been opened so you can keep using the same records.'));
         }
 
         $attendanceEvent = AttendanceEvent::create([
-            'checkin_start_at' => $request->checkin_start_at ?: $event->start_time,
-            'checkin_end_at' => $request->checkin_end_at ?: $event->end_time,
-            'workspace_id' => $workspaceId,
+            'checkin_start_at' => $request->checkin_start_at ?: $occurrence->starts_at ?: $event->start_time,
+            'checkin_end_at' => $request->checkin_end_at ?: $occurrence->ends_at ?: $event->end_time,
+            'workspace_id' => getActiveWorkSpace(),
             'branch_id' => $request->branch_id,
             'department_id' => $request->department_id,
             'event_id' => $event->id,
+            'occurrence_id' => $occurrence->id,
             'mode' => $request->mode,
             'enabled_methods' => $request->enabled_methods ?? [],
             'online_platform' => $request->online_platform,
             'meeting_link' => $request->meeting_link,
             'meeting_id' => $request->meeting_id,
             'meeting_passcode' => $request->meeting_passcode,
-            'auto_log_attendance' => (bool)($request->auto_log_attendance ?? false),
+            'auto_log_attendance' => (bool) ($request->auto_log_attendance ?? false),
             'created_by' => Auth::id(),
         ]);
 
@@ -83,23 +130,16 @@ class AttendanceEventController extends Controller
             ->with('success', __('Attendance event created successfully.'));
     }
 
-    // Edit form
     public function edit($id)
     {
-        $attendanceEvent = $this->visibleAttendanceEventsQuery()->findOrFail($id);
-        $events = $this->visibleEventsQuery()
-            ->orderByRaw('CASE WHEN start_time IS NULL THEN 1 ELSE 0 END')
-            ->orderByDesc('start_time')
-            ->orderByDesc('created_at')
-            ->get();
+        $attendanceEvent = $this->visibleAttendanceEventsQuery(['event', 'occurrence'])->findOrFail($id);
 
-        return view('churchmeet::attendance.attendance_events.edit', compact('attendanceEvent', 'events'));
+        return view('churchmeet::attendance.attendance_events.edit', compact('attendanceEvent'));
     }
 
-    // Update existing record
     public function update(Request $request, $id)
     {
-        $attendanceEvent = $this->visibleAttendanceEventsQuery()->findOrFail($id);
+        $attendanceEvent = $this->visibleAttendanceEventsQuery(['occurrence'])->findOrFail($id);
 
         $request->validate([
             'mode' => 'required|string|in:onsite,online,hybrid',
@@ -108,8 +148,8 @@ class AttendanceEventController extends Controller
         ]);
 
         $attendanceEvent->update([
-            'checkin_start_at' => $request->checkin_start_at,
-            'checkin_end_at' => $request->checkin_end_at,
+            'checkin_start_at' => $request->checkin_start_at ?: $attendanceEvent->occurrence?->starts_at,
+            'checkin_end_at' => $request->checkin_end_at ?: $attendanceEvent->occurrence?->ends_at,
             'branch_id' => $request->branch_id,
             'department_id' => $request->department_id,
             'mode' => $request->mode,
@@ -118,7 +158,7 @@ class AttendanceEventController extends Controller
             'meeting_link' => $request->meeting_link,
             'meeting_id' => $request->meeting_id,
             'meeting_passcode' => $request->meeting_passcode,
-            'auto_log_attendance' => (bool)($request->auto_log_attendance ?? false),
+            'auto_log_attendance' => (bool) ($request->auto_log_attendance ?? false),
             'updated_by' => Auth::id(),
         ]);
 
@@ -128,15 +168,16 @@ class AttendanceEventController extends Controller
 
     public function show($id)
     {
-        $attendanceEvent = $this->visibleAttendanceEventsQuery(['event', 'records'])
+        $attendanceEvent = $this->visibleAttendanceEventsQuery(['event', 'occurrence', 'records'])
             ->findOrFail($id);
+
         return view('churchmeet::attendance.attendance_events.show', compact('attendanceEvent'));
     }
 
-    // QR scanner
     public function showScanner($id)
     {
         $event = $this->visibleAttendanceEventsQuery()->findOrFail($id);
+
         return view('churchmeet::attendance.scanner', compact('event'));
     }
 
@@ -288,5 +329,3 @@ class AttendanceEventController extends Controller
         });
     }
 }
-
-

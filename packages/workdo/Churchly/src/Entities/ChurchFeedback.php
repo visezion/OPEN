@@ -28,6 +28,7 @@ class ChurchFeedback extends Model
         'branch_id',
         'department_id',
         'recipient_user_id',
+        'recipient_member_id',
         'attendance_event_id',
         'record_kind',
         'week_ending_date',
@@ -61,7 +62,7 @@ class ChurchFeedback extends Model
 
     public function recipient()
     {
-        return $this->belongsTo(\App\Models\User::class, 'recipient_user_id');
+        return $this->belongsTo(ChurchMember::class, 'recipient_member_id');
     }
 
     /**

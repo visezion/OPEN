@@ -1,13 +1,13 @@
 @extends('layouts.main')
 
-@section('page-title', __('Edit Event'))
+@section('page-title', __('Edit Events/Meetings'))
 
 @section('page-action')
     <a href="{{ route('churchmeet.events.create') }}" class="btn btn-sm btn-outline-success">
-        <i class="ti ti-plus"></i> {{ __('Create New Event') }}
+        <i class="ti ti-plus"></i> {{ __('Create New Events/Meetings') }}
     </a>
     <a href="{{ route('churchmeet.events.index') }}" class="btn btn-sm btn-outline-primary">
-        <i class="ti ti-list-details"></i> {{ __('View All Events') }}
+        <i class="ti ti-list-details"></i> {{ __('View All Events/Meetings') }}
     </a>
 @endsection
 
@@ -38,7 +38,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-light py-3">
                 <h5 class="fw-bold mb-0">
-                    <i class="ti ti-edit text-primary"></i> {{ __('Edit Event Details') }}
+                    <i class="ti ti-edit text-primary"></i> {{ __('Edit Events/Meetings Details') }}
                 </h5>
                 <small class="text-muted">
                     {{ __('Modify the event information, timing, or program schedule. Changes apply immediately after saving.') }}
@@ -133,11 +133,23 @@
                     <div class="mb-4">
                         <label class="form-label fw-semibold"><i class="ti ti-repeat text-primary"></i> {{ __('Recurrence') }}</label>
                         <select name="recurrence" class="form-select">
-                            <option value="none" {{ $event->recurrence == 'none' ? 'selected' : '' }}>None</option>
-                            <option value="daily" {{ $event->recurrence == 'daily' ? 'selected' : '' }}>Daily</option>
-                            <option value="weekly" {{ $event->recurrence == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                            <option value="monthly" {{ $event->recurrence == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                            <option value="none" {{ old('recurrence', $event->recurrence) == 'none' ? 'selected' : '' }}>None</option>
+                            <option value="daily" {{ old('recurrence', $event->recurrence) == 'daily' ? 'selected' : '' }}>Daily</option>
+                            <option value="weekly" {{ old('recurrence', $event->recurrence) == 'weekly' ? 'selected' : '' }}>Weekly</option>
+                            <option value="monthly" {{ old('recurrence', $event->recurrence) == 'monthly' ? 'selected' : '' }}>Monthly</option>
                         </select>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ __('Repeat Until') }}</label>
+                            <input type="datetime-local" name="recurrence_until" value="{{ old('recurrence_until', $event->recurrence_until ? $event->recurrence_until->format('Y-m-d\\TH:i') : '') }}" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ __('Occurrence Limit') }}</label>
+                            <input type="number" min="1" max="365" name="recurrence_count" value="{{ old('recurrence_count', $event->recurrence_count) }}" class="form-control" placeholder="{{ __('Optional') }}">
+                            <small class="text-muted">{{ __('Use a repeat until date, a limit, or both for recurring events.') }}</small>
+                        </div>
                     </div>
 
                     {{-- Leaders --}}

@@ -22,7 +22,7 @@
             </a>
         @endif
         <a href="{{ route('churchmeet.events.show', optional($attendanceEvent->event)->public_view_key ?? $attendanceEvent->event_id) }}" class="btn btn-light btn-sm">
-            <i class="ti ti-arrow-left"></i> {{ __('Back to Events') }}
+            <i class="ti ti-arrow-left"></i> {{ __('Back to Events/Meetings') }}
         </a>
     @endauth
 @endsection

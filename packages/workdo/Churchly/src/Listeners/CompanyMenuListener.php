@@ -386,7 +386,7 @@ class CompanyMenuListener
             'depend_on' => [],
             'route' => '',
             'module' => $module,
-            'permission' => 'churchly dashboard manage'
+            'permission' => 'discipleship manage'
         ]);
 
          $menu->add([
@@ -400,7 +400,7 @@ class CompanyMenuListener
             'depend_on' => [],
             'route' => 'discipleship.dashboard',
             'module' => $module,
-            'permission' => 'church_settings manage'
+            'permission' => 'discipleship manage'
         ]);
 
         
@@ -415,7 +415,7 @@ class CompanyMenuListener
             'depend_on' => [],
             'route' => 'discipleship.progress',
             'module' => $module,
-            'permission' => 'church_settings manage'
+            'permission' => 'discipleship manage'
         ]);
 
         $menu->add([
@@ -429,7 +429,7 @@ class CompanyMenuListener
             'depend_on' => [],
             'route' => 'discipleship.my_journey',
             'module' => $module,
-            'permission' => ''
+            'permission' => 'discipleship manage'
         ]);
 
         $menu->add([
@@ -443,7 +443,7 @@ class CompanyMenuListener
             'depend_on' => [],
             'route' => 'discipleship.approvers.index',
             'module' => $module,
-            'permission' => 'church_settings manage'
+            'permission' => 'discipleship manage'
         ]);
 
         $menu->add([
@@ -457,12 +457,12 @@ class CompanyMenuListener
             'depend_on' => [],
             'route' => 'discipleship.index',
             'module' => $module,
-            'permission' => 'church_settings manage'
+            'permission' => 'discipleship manage'
         ]);
 
         
 
-         $menu->add([
+        $menu->add([
             'category' => 'Church',
             'title' => __('App/Web Settings'),
             'icon' => ' ti ti-phone',
@@ -473,7 +473,7 @@ class CompanyMenuListener
             'depend_on' => [],
             'route' => '',
             'module' => $module,
-            'permission' => 'churchly dashboard manage'
+            'permission' => 'church_settings manage'
         ]);
 
         $menu->add([

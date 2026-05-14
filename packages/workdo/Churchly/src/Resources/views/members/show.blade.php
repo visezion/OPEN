@@ -84,7 +84,9 @@
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#family">{{ __('Family Tree') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#teams">{{ __('Teams') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#donations">{{ __('Donations') }}</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#attendance">{{ __('Attendance') }}</button></li>
+            @if($churchMeetEnabled)
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#attendance">{{ __('Attendance') }}</button></li>
+            @endif
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#activity">{{ __('Activity') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#care">{{ __('Pastoral Care') }}</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#smart-tags">{{ __('Smart Tags') }}</button></li>
@@ -569,12 +571,96 @@
             </div>
 
             <!-- Attendance -->
-            <div class="tab-pane fade" id="attendance">
-                <div class="card p-3 shadow-sm border-0">
-                    <h6>{{ __('Attendance Calendar') }}</h6>
-                    <div id="attendanceCalendar"></div>
+            @if($churchMeetEnabled)
+                <div class="tab-pane fade" id="attendance">
+                    <div class="row g-3">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card p-3 shadow-sm border-0 h-100">
+                                <div class="small text-muted">{{ __('Recorded Events') }}</div>
+                                <h3 class="mb-0">{{ $attendanceStats['total'] }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card p-3 shadow-sm border-0 h-100">
+                                <div class="small text-muted">{{ __('Present') }}</div>
+                                <h3 class="mb-0 text-success">{{ $attendanceStats['present'] }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card p-3 shadow-sm border-0 h-100">
+                                <div class="small text-muted">{{ __('Late / Absent') }}</div>
+                                <h3 class="mb-0 text-warning">{{ $attendanceStats['late'] + $attendanceStats['absent'] }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card p-3 shadow-sm border-0 h-100">
+                                <div class="small text-muted">{{ __('No Record Yet') }}</div>
+                                <h3 class="mb-0 text-secondary">{{ $attendanceStats['no_record'] }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card p-3 shadow-sm border-0 h-100">
+                                <h6>{{ __('Related Sessions Without Record') }}</h6>
+                                <div id="attendanceCalendar" class="d-grid gap-2">
+                                    @forelse($attendancePendingSessions as $attendanceEntry)
+                                        <div class="border rounded p-3 bg-light">
+                                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                                <div>
+                                                    <div class="fw-semibold">{{ $attendanceEntry->date_label }}</div>
+                                                    <div class="small text-muted">{{ $attendanceEntry->title }}</div>
+                                                </div>
+                                                <span class="badge {{ $attendanceEntry->badge_class }}">{{ $attendanceEntry->status_label }}</span>
+                                            </div>
+                                            <div class="small text-muted mt-2">
+                                                {{ $attendanceEntry->scope_label }} · {{ $attendanceEntry->mode_label }}
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <p class="text-muted mb-0">{{ __('Every related session currently has a recorded attendance entry for this member.') }}</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="card p-3 shadow-sm border-0 h-100">
+                                <h6>{{ __('Recorded Attendance Timeline') }}</h6>
+                                <div class="table-responsive">
+                                    <table class="table align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('Event') }}</th>
+                                                <th>{{ __('Date') }}</th>
+                                                <th>{{ __('Related By') }}</th>
+                                                <th>{{ __('Status') }}</th>
+                                                <th>{{ __('Check In') }}</th>
+                                                <th>{{ __('Device') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($attendanceTimeline as $attendanceEntry)
+                                                <tr>
+                                                    <td class="fw-semibold">{{ $attendanceEntry->title }}</td>
+                                                    <td>{{ $attendanceEntry->date_label }}</td>
+                                                    <td>{{ $attendanceEntry->scope_label }}</td>
+                                                    <td><span class="badge {{ $attendanceEntry->badge_class }}">{{ $attendanceEntry->status_label }}</span></td>
+                                                    <td>{{ $attendanceEntry->check_in_label }}</td>
+                                                    <td>{{ $attendanceEntry->device_label }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">{{ __('No attendance timeline is available for this member yet.') }}</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Activity -->
             <div class="tab-pane fade" id="activity">

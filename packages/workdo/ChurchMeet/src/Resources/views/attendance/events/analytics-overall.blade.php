@@ -6,7 +6,7 @@
 @section('page-action')
     <div class="d-flex flex-wrap gap-2">
         <a href="{{ route('churchmeet.events.index') }}" class="btn btn-sm btn-outline-primary">
-            <i class="ti ti-calendar-event me-1"></i>{{ __('All Events') }}
+            <i class="ti ti-calendar-event me-1"></i>{{ __('All Events/Meetings') }}
         </a>
         <a href="{{ route('churchmeet.attendance.reports.dashboard') }}" class="btn btn-sm btn-primary">
             <i class="ti ti-chart-donut-3 me-1"></i>{{ __('Attendance Reports') }}

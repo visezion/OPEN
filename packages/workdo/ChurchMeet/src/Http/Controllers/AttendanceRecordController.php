@@ -25,7 +25,11 @@ class AttendanceRecordController extends Controller
 
     public function qrCheckIn($attendanceEventId)
     {
-        $memberId = Auth::user()->member->id ?? null;
+        $memberId = $this->resolveAuthenticatedMemberId();
+
+        if (!$memberId) {
+            return response()->json(['success' => false, 'msg' => 'Church member not found'], 404);
+        }
 
         AttendanceRecord::updateOrCreate(
             ['attendance_event_id' => $attendanceEventId, 'member_id' => $memberId],
@@ -49,14 +53,20 @@ class AttendanceRecordController extends Controller
 
     public function faceAiCheckIn(Request $request, $attendanceEventId)
     {
+        $memberId = $this->resolveAuthenticatedMemberId();
+
+        if (!$memberId) {
+            return back()->with('error', __('Church member not found.'));
+        }
+
         $response = Http::attach('image', $request->file('photo')->get(), 'face.jpg')
             ->post(env('FACE_AI_ENDPOINT').'/verify', [
-                'member_id' => Auth::id(),
+                'member_id' => $memberId,
             ]);
 
         if ($response->ok() && $response->json('verified')) {
             AttendanceRecord::updateOrCreate(
-                ['attendance_event_id' => $attendanceEventId, 'member_id' => Auth::id()],
+                ['attendance_event_id' => $attendanceEventId, 'member_id' => $memberId],
                 ['status' => 'present', 'check_in_time' => now(), 'device_used' => 'face_ai']
             );
             return back()->with('success', __('Facial recognition check-in successful.'));
@@ -92,12 +102,31 @@ class AttendanceRecordController extends Controller
 
     public function onlineCheckIn($attendanceEventId)
     {
+        $memberId = $this->resolveAuthenticatedMemberId();
+
+        if (!$memberId) {
+            return redirect()->back()->with('error', __('Church member not found.'));
+        }
+
         AttendanceRecord::updateOrCreate(
-            ['attendance_event_id' => $attendanceEventId, 'member_id' => Auth::id()],
+            ['attendance_event_id' => $attendanceEventId, 'member_id' => $memberId],
             ['status' => 'present', 'check_in_time' => now(), 'device_used' => 'online']
         );
 
         return redirect()->back()->with('success', __('Online attendance recorded.'));
+    }
+
+    protected function resolveAuthenticatedMemberId(): ?int
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return null;
+        }
+
+        return \Workdo\ChurchMeet\Entities\ChurchMember::query()
+            ->where('user_id', $user->id)
+            ->value('id');
     }
 
 
@@ -116,8 +145,8 @@ class AttendanceRecordController extends Controller
         $xp = 10;
 
         // Bonus for on-time
-        if ($attendanceEvent->event->start_time && $record->check_in_time) {
-            if ($record->check_in_time <= $attendanceEvent->event->start_time) {
+        if ($attendanceEvent->resolved_start_at && $record->check_in_time) {
+            if ($record->check_in_time <= $attendanceEvent->resolved_start_at) {
                 $xp += 5;
             }
         }

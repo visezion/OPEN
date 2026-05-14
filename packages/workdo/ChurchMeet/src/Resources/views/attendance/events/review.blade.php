@@ -1,11 +1,11 @@
 @extends('layouts.main')
 
 @section('page-title')
-    Review Event: {{ $event->title }}
+    {{ __('Review Events/Meetings') }}: {{ $event->title }}
 @endsection
 
 @section('page-breadcrumb')
-   Rview Event
+   {{ __('Review Events/Meetings') }}
 @endsection
 
 @push('css')
@@ -19,7 +19,7 @@
         <div class="card shadow-sm border-0">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-muted mb-0">Event Workflow</h6>
+                    <h6 class="text-muted mb-0">{{ __('Events/Meetings Workflow') }}</h6>
                     <span class="small text-secondary">Status: <strong class="text-primary">Draft</strong></span>
                 </div>
 
@@ -72,7 +72,7 @@
         <!-- Event Overview -->
         <div class="mb-4">
             <h6 class="text-uppercase fw-bold border-bottom pb-2">
-                <i class="ti ti-calendar-event"></i> Event Details
+                <i class="ti ti-calendar-event"></i> {{ __('Events/Meetings Details') }}
             </h6>
             <div class="row mt-2">
                 <div class="col-md-6">
@@ -183,7 +183,7 @@
                     </button>
 
                     <a href="{{ route('churchmeet.events.index') }}" class="btn btn-outline-secondary px-4 ms-2">
-                        <i class="ti ti-arrow-left"></i> Back to Events
+                        <i class="ti ti-arrow-left"></i> {{ __('Back to Events/Meetings') }}
                     </a>
                 </div>
             </form>

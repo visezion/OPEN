@@ -78,6 +78,7 @@ class ChurchFeedbackController extends Controller
     public function index(Request $request)
     {
         $query = $this->visibleFeedbackQuery();
+        $currentMember = $this->resolveChurchMember(Auth::user());
 
         $query->when($request->status, fn ($q) => $q->where('status', $request->status))
             ->when($request->type, fn ($q) => $q->where('type', $request->type))
@@ -93,7 +94,7 @@ class ChurchFeedbackController extends Controller
         $perPage = (int) $request->get('per_page', 15);
         $feedbacks = $query->latest('week_ending_date')->latest()->paginate($perPage)->appends($request->all());
 
-        return view('churchly::feedback.index', compact('feedbacks'));
+        return view('churchly::feedback.index', compact('feedbacks', 'currentMember'));
     }
 
     public function create()
@@ -106,7 +107,7 @@ class ChurchFeedbackController extends Controller
         $selectedAttendanceEventId = $attendanceSelection['selected_attendance_event_id'];
         $directRecipients = $this->directRecipientOptions(Auth::user());
         $canSendDirect = $this->canUserSendDirectReports(Auth::user()) && $directRecipients->isNotEmpty();
-        $selectedRecipientUserId = old('recipient_user_id');
+        $selectedRecipientMemberId = old('recipient_member_id');
 
         return view('churchly::feedback.create', compact(
             'attendancePreview',
@@ -115,7 +116,7 @@ class ChurchFeedbackController extends Controller
             'defaultWeekEnding',
             'directRecipients',
             'canSendDirect',
-            'selectedRecipientUserId'
+            'selectedRecipientMemberId'
         ));
     }
 
@@ -123,7 +124,7 @@ class ChurchFeedbackController extends Controller
     {
         $member = $this->resolveChurchMember(Auth::user());
         $validated = $this->validateReportRequest($request);
-        $recipientUserId = $this->resolveRecipientUserId($request, $validated);
+        $recipientMemberId = $this->resolveRecipientMemberId($request, $validated);
         $attendanceSelection = $this->buildAttendanceSelectionData(
             $validated['week_ending_date'],
             $member,
@@ -138,7 +139,7 @@ class ChurchFeedbackController extends Controller
 
         $attendanceSummary = $attendanceSelection['summary'];
 
-        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary, null, $recipientUserId);
+        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary, null, $recipientMemberId);
 
         if ($request->hasFile('attachment')) {
             $data['attachment'] = $request->file('attachment')->store('feedback_attachments', 'public');
@@ -176,7 +177,7 @@ class ChurchFeedbackController extends Controller
         );
         $directRecipients = $this->directRecipientOptions(Auth::user());
         $canSendDirect = $this->canUserSendDirectReports(Auth::user()) && $directRecipients->isNotEmpty();
-        $selectedRecipientUserId = old('recipient_user_id', $feedback->recipient_user_id);
+        $selectedRecipientMemberId = old('recipient_member_id', $feedback->recipient_member_id);
 
         return view('churchly::feedback.edit', compact(
             'feedback',
@@ -186,7 +187,7 @@ class ChurchFeedbackController extends Controller
             'defaultWeekEnding',
             'directRecipients',
             'canSendDirect',
-            'selectedRecipientUserId'
+            'selectedRecipientMemberId'
         ));
     }
 
@@ -202,7 +203,7 @@ class ChurchFeedbackController extends Controller
 
         $member = $this->resolveChurchMember(Auth::user());
         $validated = $this->validateReportRequest($request);
-        $recipientUserId = $this->resolveRecipientUserId($request, $validated, $feedback);
+        $recipientMemberId = $this->resolveRecipientMemberId($request, $validated, $feedback);
         $attendanceSelection = $this->buildAttendanceSelectionData(
             $validated['week_ending_date'],
             $member,
@@ -216,7 +217,7 @@ class ChurchFeedbackController extends Controller
         }
 
         $attendanceSummary = $attendanceSelection['summary'];
-        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary, $feedback, $recipientUserId);
+        $data = $this->buildReportRecordData($validated, $member, $attendanceSummary, $feedback, $recipientMemberId);
 
         if ($request->hasFile('attachment')) {
             if ($feedback->attachment && Storage::disk('public')->exists($feedback->attachment)) {
@@ -389,14 +390,22 @@ class ChurchFeedbackController extends Controller
             return $query;
         }
 
+        $memberId = (int) ($member?->id ?? 0);
         $branchId = $member?->branch_id ?? $user->branch_id ?? null;
         $departmentId = $this->resolveDepartmentId($member) ?? $user->department_id ?? null;
+        $canReceiveDirectReports = $this->canUserReceiveDirectReports($user);
 
-        return $query->where(function (Builder $visibleQuery) use ($user, $branchId, $departmentId) {
+        return $query->where(function (Builder $visibleQuery) use ($user, $memberId, $branchId, $departmentId, $canReceiveDirectReports) {
             $visibleQuery->where('submitted_by', $user->id)
-                ->orWhere('recipient_user_id', $user->id)
+                ->orWhere(function (Builder $directRecipientQuery) use ($memberId, $canReceiveDirectReports) {
+                    $directRecipientQuery->where('recipient_member_id', $memberId);
+
+                    if (!$canReceiveDirectReports) {
+                        $directRecipientQuery->whereRaw('1 = 0');
+                    }
+                })
                 ->orWhere(function (Builder $standardScopeQuery) use ($user, $branchId, $departmentId) {
-                    $standardScopeQuery->whereNull('recipient_user_id')
+                    $standardScopeQuery->whereNull('recipient_member_id')
                         ->where(function (Builder $permissionScopeQuery) use ($user, $branchId, $departmentId) {
                             $hasScope = false;
 
@@ -431,7 +440,7 @@ class ChurchFeedbackController extends Controller
         return $request->validate([
             'week_ending_date' => 'required|date',
             'attendance_event_id' => 'nullable|integer',
-            'recipient_user_id' => 'nullable|integer',
+            'recipient_member_id' => 'nullable|integer',
             'activities' => 'nullable|string',
             'achievements' => 'nullable|string',
             'service_tasks' => 'nullable|string',
@@ -450,7 +459,7 @@ class ChurchFeedbackController extends Controller
         ?ChurchMember $member,
         array $attendanceSummary,
         ?ChurchFeedback $feedback = null,
-        ?int $recipientUserId = null
+        ?int $recipientMemberId = null
     ): array {
         $attendanceEvent = null;
         if (!empty($attendanceSummary['attendance_event_id'])) {
@@ -489,7 +498,7 @@ class ChurchFeedbackController extends Controller
             'email' => Auth::user()?->email,
             'branch_id' => $branchId,
             'department_id' => $departmentId,
-            'recipient_user_id' => $recipientUserId,
+            'recipient_member_id' => $recipientMemberId,
             'workspace_id' => Auth::user()?->workspace_id ?? getActiveWorkSpace(),
             'is_anonymous' => (bool) ($validated['is_anonymous'] ?? false),
         ];
@@ -941,6 +950,11 @@ class ChurchFeedbackController extends Controller
         return (bool) $user?->isAbleTo('feedback send direct');
     }
 
+    protected function canUserReceiveDirectReports(?User $user): bool
+    {
+        return (bool) $user?->isAbleTo('feedback send direct');
+    }
+
     protected function directRecipientOptions(?User $sender)
     {
         if (!$sender || !$this->canUserSendDirectReports($sender)) {
@@ -948,39 +962,44 @@ class ChurchFeedbackController extends Controller
         }
 
         $workspaceId = getActiveWorkSpace();
+        $senderMemberId = $this->resolveChurchMember($sender)?->id;
 
-        return User::query()
-            ->where('id', '!=', $sender->id)
-            ->where(function (Builder $query) use ($workspaceId) {
-                $query->where('workspace_id', $workspaceId)
-                    ->orWhere('active_workspace', $workspaceId);
+        return ChurchMember::query()
+            ->with('user')
+            ->where('workspace', $workspaceId)
+            ->whereNotNull('user_id')
+            ->when($senderMemberId, function (Builder $query) use ($senderMemberId) {
+                $query->where('id', '!=', $senderMemberId);
             })
             ->orderBy('name')
             ->get()
-            ->filter(function (User $user) {
-                return $user->isAbleTo('feedback review') || $user->isAbleTo('feedback view all');
+            ->filter(function (ChurchMember $member) {
+                return $member->user && $this->canUserReceiveDirectReports($member->user);
             })
             ->values()
-            ->map(function (User $user) {
-                $label = $user->name;
-                if (!empty($user->email)) {
-                    $label .= ' (' . $user->email . ')';
+            ->map(function (ChurchMember $member) {
+                $label = $member->name;
+                if (!empty($member->formatted_member_id)) {
+                    $label .= ' [' . $member->formatted_member_id . ']';
+                }
+                if (!empty($member->email)) {
+                    $label .= ' (' . $member->email . ')';
                 }
 
                 return [
-                    'id' => $user->id,
+                    'id' => $member->id,
                     'label' => $label,
                 ];
             });
     }
 
-    protected function resolveRecipientUserId(Request $request, array $validated, ?ChurchFeedback $feedback = null): ?int
+    protected function resolveRecipientMemberId(Request $request, array $validated, ?ChurchFeedback $feedback = null): ?int
     {
-        if (!$request->has('recipient_user_id')) {
-            return $feedback?->recipient_user_id;
+        if (!$request->has('recipient_member_id')) {
+            return $feedback?->recipient_member_id;
         }
 
-        if (!$request->filled('recipient_user_id')) {
+        if (!$request->filled('recipient_member_id')) {
             return null;
         }
 
@@ -988,11 +1007,12 @@ class ChurchFeedbackController extends Controller
             abort(403, 'Unauthorized recipient selection.');
         }
 
-        $selectedRecipientUserId = (int) ($validated['recipient_user_id'] ?? 0);
+        $selectedRecipientMemberId = (int) ($validated['recipient_member_id'] ?? 0);
+        $senderMemberId = $this->resolveChurchMember(Auth::user())?->id;
 
-        if ($selectedRecipientUserId === (int) Auth::id()) {
+        if ($senderMemberId && $selectedRecipientMemberId === (int) $senderMemberId) {
             throw ValidationException::withMessages([
-                'recipient_user_id' => __('You cannot send a direct report to yourself.'),
+                'recipient_member_id' => __('You cannot send a direct report to yourself.'),
             ]);
         }
 
@@ -1000,13 +1020,13 @@ class ChurchFeedbackController extends Controller
             ->pluck('id')
             ->map(fn ($id) => (int) $id);
 
-        if (!$allowedRecipientIds->contains($selectedRecipientUserId)) {
+        if (!$allowedRecipientIds->contains($selectedRecipientMemberId)) {
             throw ValidationException::withMessages([
-                'recipient_user_id' => __('The selected direct recipient is not allowed for this report.'),
+                'recipient_member_id' => __('The selected direct recipient is not allowed for this report.'),
             ]);
         }
 
-        return $selectedRecipientUserId;
+        return $selectedRecipientMemberId;
     }
 
     protected function canViewFeedback(ChurchFeedback $feedback): bool
@@ -1058,8 +1078,11 @@ class ChurchFeedbackController extends Controller
             return true;
         }
 
-        if ($feedback->recipient_user_id) {
-            return (int) $feedback->recipient_user_id === (int) $user->id;
+        $member = $this->resolveChurchMember($user);
+
+        if ($feedback->recipient_member_id) {
+            return $this->canUserReceiveDirectReports($user)
+                && (int) $feedback->recipient_member_id === (int) ($member?->id ?? 0);
         }
 
         return $this->canViewFeedback($feedback);
@@ -1067,7 +1090,7 @@ class ChurchFeedbackController extends Controller
 
     protected function notifyDepartmentWhatsapp(ChurchFeedback $feedback): void
     {
-        if ($feedback->recipient_user_id) {
+        if ($feedback->recipient_member_id) {
             return;
         }
 
