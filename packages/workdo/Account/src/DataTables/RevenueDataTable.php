@@ -5,6 +5,8 @@ namespace Workdo\Account\DataTables;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Workdo\Account\Entities\Revenue;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -16,6 +18,11 @@ use Yajra\DataTables\Services\DataTable;
 
 class RevenueDataTable extends DataTable
 {
+    private function supportsCategories(): bool
+    {
+        return class_exists(\Workdo\ProductService\Entities\Category::class) && Schema::hasTable('categories');
+    }
+
     /**
      * Build the DataTable class.
      *
@@ -81,7 +88,20 @@ class RevenueDataTable extends DataTable
      */
     public function query(Revenue $model, Request $request)
     {
-        $query =  $model->select('revenues.*', 'bank_accounts.bank_name as bank_name', 'bank_accounts.holder_name as holder_name', 'customers.name as customer_name', 'categories.name as category_name')->where('revenues.workspace', '=', getActiveWorkSpace());
+        $query = $model
+            ->select(
+                'revenues.*',
+                'bank_accounts.bank_name as bank_name',
+                'bank_accounts.holder_name as holder_name',
+                'customers.name as customer_name'
+            )
+            ->where('revenues.workspace', '=', getActiveWorkSpace());
+
+        if ($this->supportsCategories()) {
+            $query->addSelect('categories.name as category_name');
+        } else {
+            $query->addSelect(DB::raw("'' as category_name"));
+        }
 
 
         if (count(explode('to', $request->date)) > 1) {
@@ -100,16 +120,20 @@ class RevenueDataTable extends DataTable
             $query->where('revenues.account_id', '=', $request->account);
         }
 
-        if (!empty($request->category)) {
+        if ($this->supportsCategories() && !empty($request->category)) {
             $query->where('revenues.category_id', '=', $request->category);
         }
 
         if (!empty($request->payment)) {
             $query->where('revenues.payment_method', '=', $request->payment);
         }
-        $revenues = $query->join('customers', 'revenues.customer_id', '=', 'customers.id')
-            ->join('bank_accounts', 'revenues.account_id', '=', 'bank_accounts.id')
-            ->join('categories', 'revenues.category_id', '=', 'categories.id');
+        $revenues = $query
+            ->join('customers', 'revenues.customer_id', '=', 'customers.id')
+            ->join('bank_accounts', 'revenues.account_id', '=', 'bank_accounts.id');
+
+        if ($this->supportsCategories()) {
+            $revenues->leftJoin('categories', 'revenues.category_id', '=', 'categories.id');
+        }
 
 
         return $revenues;
@@ -121,7 +145,7 @@ class RevenueDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         $dataTable = $this->builder()
-            ->setTableId('transfers-table')
+            ->setTableId('revenue-table')
             ->columns($this->getColumns())
             ->ajax([
                 'data' => 'function(d) {
@@ -159,7 +183,7 @@ class RevenueDataTable extends DataTable
                         return;
                     }
 
-                    $("#transfers-table").DataTable().draw();
+                    $("#revenue-table").DataTable().draw();
                 });
 
                 $("body").on("click", "#clearfilter", function() {
@@ -167,7 +191,7 @@ class RevenueDataTable extends DataTable
                     $("select[name=account]").val("")
                     $("select[name=customer]").val("")
                     $("select[name=category]").val("")
-                    $("#transfers-table").DataTable().draw();
+                    $("#revenue-table").DataTable().draw();
                 });
 
                 var searchInput = $(\'#\'+table.api().table().container().id+\' label input[type="search"]\');
@@ -267,7 +291,7 @@ class RevenueDataTable extends DataTable
             Column::make('amount')->title(__('Amount')),
             Column::make('bank_name')->title(__('Account'))->name('bank_accounts.bank_name'),
             Column::make('customer_name')->title(__('Customer'))->name('customers.name'),
-            Column::make('category_name')->title(__('Category'))->name('categories.name'),
+            Column::make('category_name')->title(__('Category'))->name('category_name'),
             Column::make('reference')->title(__('Reference')),
             Column::make('description')->title(__('Description')),
             Column::make('add_receipt')->title(__('Payment Receipt')),

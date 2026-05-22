@@ -5,6 +5,8 @@ namespace Workdo\Account\DataTables;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Workdo\Account\Entities\Payment;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -16,6 +18,11 @@ use Yajra\DataTables\Services\DataTable;
 
 class PaymentDataTable extends DataTable
 {
+    private function supportsCategories(): bool
+    {
+        return class_exists(\Workdo\ProductService\Entities\Category::class) && Schema::hasTable('categories');
+    }
+
     /**
      * Build the DataTable class.
      *
@@ -55,7 +62,20 @@ class PaymentDataTable extends DataTable
      */
     public function query(Payment $model, Request $request)
     {
-        $query = $model->select('payments.*', 'bank_accounts.bank_name as bank_name', 'bank_accounts.holder_name as holder_name', 'vendors.name as vendors_name', 'categories.name as category_name')->where('payments.workspace', '=', getActiveWorkSpace());
+        $query = $model
+            ->select(
+                'payments.*',
+                'bank_accounts.bank_name as bank_name',
+                'bank_accounts.holder_name as holder_name',
+                'vendors.name as vendors_name'
+            )
+            ->where('payments.workspace', '=', getActiveWorkSpace());
+
+        if ($this->supportsCategories()) {
+            $query->addSelect('categories.name as category_name');
+        } else {
+            $query->addSelect(DB::raw("'' as category_name"));
+        }
 
 
 
@@ -74,12 +94,15 @@ class PaymentDataTable extends DataTable
             $query->where('payments.account_id', '=', $request->account);
         }
 
-        if (!empty($request->category)) {
+        if ($this->supportsCategories() && !empty($request->category)) {
             $query->where('payments.category_id', '=', $request->category);
         }
         $payments = $query->join('vendors', 'payments.vendor_id', '=', 'vendors.id')
-            ->join('bank_accounts', 'payments.account_id', '=', 'bank_accounts.id')
-            ->join('categories', 'payments.category_id', '=', 'categories.id');
+            ->join('bank_accounts', 'payments.account_id', '=', 'bank_accounts.id');
+
+        if ($this->supportsCategories()) {
+            $payments->leftJoin('categories', 'payments.category_id', '=', 'categories.id');
+        }
 
         return $payments;
     }
@@ -237,7 +260,7 @@ class PaymentDataTable extends DataTable
 
             Column::make('bank_name')->title(__('Account'))->name('bank_accounts.bank_name'),
             Column::make('vendors_name')->title(__('Vendor'))->name('vendors.name'),
-            Column::make('category_name')->title(__('Category'))->name('categories.name'),
+            Column::make('category_name')->title(__('Category'))->name('category_name'),
             Column::make('reference')->title(__('Reference')),
             Column::make('description')->title(__('Description')),
         ];
