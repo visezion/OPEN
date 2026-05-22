@@ -103,6 +103,10 @@ class Purchase extends Model
 
     public function getTotalTax()
     {
+        if (!module_is_active('ProductService') || !class_exists(\Workdo\ProductService\Entities\Tax::class)) {
+            return 0;
+        }
+
         $totalTax = 0;
 
         // Retrieve all tax information for the items

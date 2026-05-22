@@ -1,0 +1,2 @@
+<small class="text-danger"><?php echo e(__('Please avoid to use enter key for new line. You can use <br> for new Line')); ?></small>
+<?php /**PATH C:\xampp\htdocs\OPEN\resources\views\components\textarea-setting-validation.blade.php ENDPATH**/ ?>

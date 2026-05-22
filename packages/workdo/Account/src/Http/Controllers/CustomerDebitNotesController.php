@@ -24,6 +24,12 @@ use Workdo\Account\Events\UpdateCustomerDebitNote;
 class CustomerDebitNotesController extends Controller
 {
     use CreditDebitNoteBalance;
+
+    private function hasProductService(): bool
+    {
+        return class_exists(\Workdo\ProductService\Entities\ProductService::class);
+    }
+
     /**
      * Display a listing of the resource.
      * @return Renderable
@@ -295,7 +301,7 @@ class CustomerDebitNotesController extends Controller
         if($request->type == 'bill')
         {
             $bill = Bill::find($request->bill_id);
-            if(($bill->bill_module == 'account')){
+            if($bill && $bill->bill_module == 'account' && $this->hasProductService()){
                 $items = BillProduct::select('bill_products.*' , 'product_services.name as product_name')->join('product_services' , 'product_services.id' , 'bill_products.product_id')->where('bill_id' , $request->bill_id)->get();
                 $getDue = $bill->getTotal() - $bill->getDue();
                 return response()->json(['type' => 'withproduct' ,'items' => $items , 'getDue' => $getDue]);
@@ -309,6 +315,12 @@ class CustomerDebitNotesController extends Controller
         else
         {
             $purchase = Purchase::find($request->bill_id);
+            if (!$this->hasProductService()) {
+                $amount = $purchase ? $purchase->getTotal() : 0;
+                $getDue = $purchase ? ($purchase->getTotal() - $purchase->getDue()) : 0;
+                return response()->json(['type' => 'witoutproduct' ,'amount' => $amount , 'getDue' => $getDue]);
+            }
+
             $items = PurchaseProduct::select('purchase_products.*' , 'product_services.name as product_name')->join('product_services' , 'product_services.id' , 'purchase_products.product_id')->where('purchase_id' , $request->bill_id)->get();
             $getDue = $purchase->getTotal() - $purchase->getDue();
 
@@ -328,7 +340,7 @@ class CustomerDebitNotesController extends Controller
         $totalPrice     = 0;
         if($billProduct != null)
         {
-            $product        = \Workdo\ProductService\Entities\ProductService::find($billProduct->product_id);
+            $product        = $this->hasProductService() ? \Workdo\ProductService\Entities\ProductService::find($billProduct->product_id) : null;
             $taxRate        = !empty($product) ? (!empty($product->tax_id) ? $product->taxRate($product->tax_id) : 0) : 0;
             $totalTax       = ($taxRate / 100) * (($billProduct->price * $billProduct->quantity) - $billProduct->discount);
             $totalPrice     = (($billProduct->price * $billProduct->quantity) + $totalTax) - $billProduct->discount;

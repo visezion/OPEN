@@ -42,6 +42,11 @@ use Workdo\Taskly\Entities\Project;
 
 class BillController extends Controller
 {
+    private function hasProductService(): bool
+    {
+        return class_exists(\Workdo\ProductService\Entities\ProductService::class);
+    }
+
     /**
      * Display a listing of the resource.
      * @return Renderable
@@ -229,7 +234,7 @@ class BillController extends Controller
                     }
 
                     //Warehouse Stock Report
-                    $product = ProductService::find($billProduct->product_id);
+                    $product = $this->hasProductService() ? ProductService::find($billProduct->product_id) : null;
                     if(!empty($product) && !empty($product->warehouse_id))
                     {
                         Invoice::warehouse_quantity('plus',$billProduct->quantity,$billProduct->product_id,$product->warehouse_id);
@@ -558,7 +563,7 @@ class BillController extends Controller
                             }
 
                             //Warehouse Stock Report
-                            $product = ProductService::find($billProduct->product_id);
+                            $product = $this->hasProductService() ? ProductService::find($billProduct->product_id) : null;
                             if(!empty($product) && !empty($product->warehouse_id))
                             {
                                 Invoice::warehouse_quantity('plus',$billProduct->quantity,$billProduct->product_id,$product->warehouse_id);
@@ -576,7 +581,7 @@ class BillController extends Controller
                             }
 
                             //Warehouse Stock Report
-                            $product = ProductService::find($billProduct->product_id);
+                            $product = $this->hasProductService() ? ProductService::find($billProduct->product_id) : null;
                             if(!empty($product) && !empty($product->warehouse_id))
                             {
                                 Invoice::warehouse_quantity('minus',$billProduct->quantity,$billProduct->product_id,$product->warehouse_id);
@@ -599,7 +604,7 @@ class BillController extends Controller
                         }
 
                         //Warehouse Stock Report
-                        $product = ProductService::find($billProduct->product_id);
+                        $product = $this->hasProductService() ? ProductService::find($billProduct->product_id) : null;
                         if(!empty($product) && !empty($product->warehouse_id))
                         {
                             Invoice::warehouse_quantity('plus',$billProduct->quantity,$billProduct->product_id,$product->warehouse_id);
@@ -737,7 +742,7 @@ class BillController extends Controller
                         }
 
                         //Warehouse Stock Report
-                        $product = ProductService::find($billProduct->product_id);
+                        $product = $this->hasProductService() ? ProductService::find($billProduct->product_id) : null;
                         if(!empty($product) && !empty($product->warehouse_id))
                         {
                             Invoice::warehouse_quantity('minus',$billProduct->quantity,$billProduct->product_id,$product->warehouse_id);
@@ -783,6 +788,16 @@ class BillController extends Controller
     }
     public function product(Request $request)
     {
+        if (!$this->hasProductService() || !module_is_active('ProductService')) {
+            return response()->json([
+                'product' => null,
+                'unit' => '',
+                'taxRate' => 0,
+                'taxes' => [],
+                'totalAmount' => 0,
+            ]);
+        }
+
         $data['product'] = $product = \Workdo\ProductService\Entities\ProductService::find($request->product_id);
         $data['unit'] = !empty($product) ? ((!empty($product->unit())) ? $product->unit()->name : '') : '';
         $data['taxRate'] = $taxRate = !empty($product) ? (!empty($product->tax_id) ? $product->taxRate($product->tax_id) : 0) : 0;
@@ -928,7 +943,10 @@ class BillController extends Controller
         if (Auth::user()->isAbleTo('bill payment create')) {
             $bill = Bill::where('id', $bill_id)->first();
             $vendors = Vender::where('workspace', '=', getActiveWorkSpace())->get()->pluck('name', 'id');
-            $categories = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->get()->pluck('name', 'id');
+            $categories = [];
+            if ($this->hasProductService() && module_is_active('ProductService')) {
+                $categories = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->get()->pluck('name', 'id');
+            }
             $accounts = BankAccount::select(
                 '*',
                 DB::raw("CONCAT(COALESCE(bank_name, ''), ' ', COALESCE(holder_name, '')) AS name")
@@ -1487,7 +1505,7 @@ class BillController extends Controller
             }
 
             //Warehouse Stock Report
-            $product = ProductService::find($billProduct->product_id);
+            $product = $this->hasProductService() ? ProductService::find($billProduct->product_id) : null;
             if(!empty($product) && !empty($product->warehouse_id))
             {
                 Invoice::warehouse_quantity('minus',$billProduct->quantity,$billProduct->product_id,$product->warehouse_id);
@@ -1599,6 +1617,13 @@ class BillController extends Controller
 
     public function BillSectionGet(Request $request)
     {
+        if ($request->type == "product" && (!$this->hasProductService() || !module_is_active('ProductService'))) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Product & Service module is not available.'),
+            ], 422);
+        }
+
         $type = $request->type;
         $acction = $request->acction;
         $bill = [];

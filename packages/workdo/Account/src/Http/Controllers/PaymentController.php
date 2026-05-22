@@ -24,6 +24,11 @@ use Workdo\Account\Events\UpdatePayment;
 
 class PaymentController extends Controller
 {
+    private function hasProductService(): bool
+    {
+        return class_exists(\Workdo\ProductService\Entities\Category::class);
+    }
+
     /**
      * Display a listing of the resource.
      * @return Renderable
@@ -38,7 +43,7 @@ class PaymentController extends Controller
             $account = BankAccount::where('workspace',getActiveWorkSpace())->get()->pluck('holder_name', 'id');
 
             $category=[];
-            if(module_is_active('ProductService'))
+            if($this->hasProductService() && module_is_active('ProductService'))
             {
                 $category = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', 2)->get()->pluck('name', 'id');
 
@@ -65,7 +70,7 @@ class PaymentController extends Controller
         {
             $vendors = Vender::where('workspace', '=',getActiveWorkSpace())->get()->pluck('name', 'id');
             $categories=[];
-            if(module_is_active('ProductService'))
+            if($this->hasProductService() && module_is_active('ProductService'))
             {
                 $categories = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type','2')->get()->pluck('name', 'id');
             }
@@ -88,17 +93,20 @@ class PaymentController extends Controller
     {
         if(Auth::user()->isAbleTo('expense payment create'))
         {
-            $validator = \Validator::make(
-                $request->all(), [
-                                   'date' => 'required|date_format:Y-m-d',
-                                   'amount' => 'required|gte:0',
-                                   'account_id' => 'required',
-                                   'vendor_id' => 'required',
-                                   'category_id' => 'required',
-                                   'reference' => 'required',
-                                   'description' => 'required',
-                               ]
-            );
+            $rules = [
+                'date' => 'required|date_format:Y-m-d',
+                'amount' => 'required|gte:0',
+                'account_id' => 'required',
+                'vendor_id' => 'required',
+                'reference' => 'required',
+                'description' => 'required',
+            ];
+
+            if ($this->hasProductService() && module_is_active('ProductService')) {
+                $rules['category_id'] = 'required';
+            }
+
+            $validator = \Validator::make($request->all(), $rules);
             if($validator->fails())
             {
                 $messages = $validator->getMessageBag();
@@ -132,10 +140,13 @@ class PaymentController extends Controller
             $payment->created_by     = creatorId();
             $payment->save();
 
-            $category            = \Workdo\ProductService\Entities\Category::where('id', $request->category_id)->first();
             $payment->payment_id = $payment->id;
             $payment->type       = 'Payment';
-            $payment->category   = $category->name;
+            $payment->category   = '';
+            if ($this->hasProductService() && module_is_active('ProductService') && !empty($request->category_id)) {
+                $category = \Workdo\ProductService\Entities\Category::find($request->category_id);
+                $payment->category = $category->name ?? '';
+            }
             $payment->user_id    = $payment->vendor_id;
             $payment->user_type  = 'Vendor';
             $payment->account    = $request->account_id;
@@ -208,7 +219,7 @@ class PaymentController extends Controller
             $vendors = Vender::where('workspace', '=',getActiveWorkSpace())->get()->pluck('name', 'id');
 
             $categories=[];
-            if(module_is_active('ProductService'))
+            if($this->hasProductService() && module_is_active('ProductService'))
             {
                 $categories = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->get()->pluck('name', 'id');
             }
@@ -232,17 +243,20 @@ class PaymentController extends Controller
     {
         if(Auth::user()->isAbleTo('expense payment edit'))
         {
-            $validator = \Validator::make(
-                $request->all(), [
-                                    'date' => 'required|date_format:Y-m-d',
-                                    'amount' => 'required|gte:0',
-                                    'account_id' => 'required',
-                                    'vendor_id' => 'required',
-                                    'category_id' => 'required',
-                                    'reference' => 'required',
-                                    'description' => 'required',
-                               ]
-            );
+            $rules = [
+                'date' => 'required|date_format:Y-m-d',
+                'amount' => 'required|gte:0',
+                'account_id' => 'required',
+                'vendor_id' => 'required',
+                'reference' => 'required',
+                'description' => 'required',
+            ];
+
+            if ($this->hasProductService() && module_is_active('ProductService')) {
+                $rules['category_id'] = 'required';
+            }
+
+            $validator = \Validator::make($request->all(), $rules);
             if($validator->fails())
             {
                 $messages = $validator->getMessageBag();
@@ -292,8 +306,11 @@ class PaymentController extends Controller
             }
             $payment->save();
 
-            $category            = \Workdo\ProductService\Entities\Category::where('id', $request->category_id)->first();
-            $payment->category   = $category->name;
+            $payment->category   = '';
+            if ($this->hasProductService() && module_is_active('ProductService') && !empty($request->category_id)) {
+                $category = \Workdo\ProductService\Entities\Category::find($request->category_id);
+                $payment->category = $category->name ?? '';
+            }
             $payment->payment_id = $payment->id;
             $payment->type       = 'Payment';
             Transaction::editTransaction($payment);

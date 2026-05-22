@@ -1,0 +1,2 @@
+<a href="<?php echo e(route('projects.bill',$ids)); ?>" class="list-group-item list-group-item-action border-0 <?php echo e((request()->is('*bill') ? 'active' : '')); ?>"><?php echo e(__('Bill')); ?> <div class="float-end"><i class="ti ti-chevron-right"></i></div></a>
+<?php /**PATH C:\xampp\htdocs\OPEN\packages\workdo\Account\src\Resources\views\bill\finance.blade.php ENDPATH**/ ?>

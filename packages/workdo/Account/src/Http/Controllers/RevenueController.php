@@ -24,6 +24,11 @@ use Workdo\Account\Events\UpdateRevenue;
 
 class RevenueController extends Controller
 {
+    private function hasProductService(): bool
+    {
+        return class_exists(\Workdo\ProductService\Entities\Category::class);
+    }
+
     /**
      * Display a listing of the resource.
      * @return Renderable
@@ -36,7 +41,7 @@ class RevenueController extends Controller
 
                 $account = BankAccount::where('workspace',getActiveWorkSpace())->get()->pluck('holder_name', 'id');
                 $category = [];
-                if(module_is_active('ProductService'))
+                if($this->hasProductService() && module_is_active('ProductService'))
                 {
                     $category = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', 1)->get()->pluck('name', 'id');
                 }
@@ -57,7 +62,7 @@ class RevenueController extends Controller
         if(Auth::user()->isAbleTo('revenue create'))
         {
             $customers = Customer::where('workspace', '=',getActiveWorkSpace())->get()->pluck('name', 'id');
-            if(module_is_active('ProductService'))
+            if($this->hasProductService() && module_is_active('ProductService'))
             {
                 $categories = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', 1)->get()->pluck('name', 'id');
             }
@@ -93,16 +98,19 @@ class RevenueController extends Controller
         if(Auth::user()->isAbleTo('revenue create'))
         {
 
-            $validator = \Validator::make(
-                $request->all(), [
-                                   'date' => 'required|date_format:Y-m-d',
-                                   'amount' => 'required|numeric|gt:0',
-                                   'account_id' => 'required',
-                                   'category_id' => 'required',
-                                   'reference' => 'required',
-                                   'description' => 'required',
-                               ]
-            );
+            $rules = [
+                'date' => 'required|date_format:Y-m-d',
+                'amount' => 'required|numeric|gt:0',
+                'account_id' => 'required',
+                'reference' => 'required',
+                'description' => 'required',
+            ];
+
+            if ($this->hasProductService() && module_is_active('ProductService')) {
+                $rules['category_id'] = 'required';
+            }
+
+            $validator = \Validator::make($request->all(), $rules);
             if($validator->fails())
             {
                 $messages = $validator->getMessageBag();
@@ -116,7 +124,7 @@ class RevenueController extends Controller
             $revenue->amount         = $request->amount;
             $revenue->account_id     = $request->account_id;
             $revenue->customer_id    = $request->customer_id;
-            $revenue->user_id        = $customer->user_id;
+            $revenue->user_id        = $customer->user_id ?? null;
             $revenue->category_id    = $request->category_id;
             $revenue->payment_method = 0;
             $revenue->reference      = $request->reference;
@@ -139,7 +147,7 @@ class RevenueController extends Controller
             $revenue->created_by     = creatorId();
             $revenue->workspace        = getActiveWorkSpace();
             $revenue->save();
-            if(module_is_active('ProductService'))
+            if($this->hasProductService() && module_is_active('ProductService'))
             {
                 $category            = \Workdo\ProductService\Entities\Category::where('id', $request->category_id)->first();
             }
@@ -170,7 +178,7 @@ class RevenueController extends Controller
 
             event(new CreateRevenue($request,$revenue));
 
-            if(!empty(company_setting('Revenue Payment Create')) && company_setting('Revenue Payment Create')  == true)
+            if(!empty($customer) && !empty(company_setting('Revenue Payment Create')) && company_setting('Revenue Payment Create')  == true)
             {
                 $uArr = [
                     'payment_name' => $payment->name,
@@ -217,7 +225,7 @@ class RevenueController extends Controller
         if(Auth::user()->isAbleTo('revenue edit'))
         {
             $customers = Customer::where('workspace', '=',getActiveWorkSpace())->get()->pluck('name', 'id');
-            if(module_is_active('ProductService'))
+            if($this->hasProductService() && module_is_active('ProductService'))
             {
                 $categories = \Workdo\ProductService\Entities\Category::where('created_by', '=', creatorId())->where('workspace_id', getActiveWorkSpace())->where('type', 1)->get()->pluck('name', 'id');
             }
@@ -245,16 +253,19 @@ class RevenueController extends Controller
     {
         if(Auth::user()->isAbleTo('revenue edit'))
         {
-            $validator = \Validator::make(
-                $request->all(), [
-                                    'date' => 'required|date_format:Y-m-d',
-                                    'amount' => 'required|numeric|gt:0',
-                                    'account_id' => 'required',
-                                    'category_id' => 'required',
-                                    'reference' => 'required',
-                                    'description' => 'required',
-                               ]
-            );
+            $rules = [
+                'date' => 'required|date_format:Y-m-d',
+                'amount' => 'required|numeric|gt:0',
+                'account_id' => 'required',
+                'reference' => 'required',
+                'description' => 'required',
+            ];
+
+            if ($this->hasProductService() && module_is_active('ProductService')) {
+                $rules['category_id'] = 'required';
+            }
+
+            $validator = \Validator::make($request->all(), $rules);
             if($validator->fails())
             {
                 $messages = $validator->getMessageBag();
@@ -274,7 +285,7 @@ class RevenueController extends Controller
             $revenue->amount         = $request->amount;
             $revenue->account_id     = $request->account_id;
             $revenue->customer_id    = $request->customer_id;
-            $revenue->user_id        = $customer->user_id;
+            $revenue->user_id        = $customer->user_id ?? null;
             $revenue->category_id    = $request->category_id;
             $revenue->payment_method = 0;
             $revenue->reference      = $request->reference;
@@ -305,7 +316,7 @@ class RevenueController extends Controller
             }
 
             $revenue->save();
-            if(module_is_active('ProductService'))
+            if($this->hasProductService() && module_is_active('ProductService'))
             {
                 $category            = \Workdo\ProductService\Entities\Category::where('id', $request->category_id)->first();
             }

@@ -60,39 +60,40 @@
 @endphp
 @section('content')
     <div class="row justify-content-center px-0">
-        <div class=" col-12">
-            <div class="add-on-banner mb-4">
-                <img src="{{ asset('images/add-on-banner-layer.png') }}" class="banner-layer" alt="banner-layer">
-                <div class="row  row-gap align-items-center">
-                    <div class="col-xxl-4 col-md-6 col-12">
-                        <div class="add-on-banner-image">
-                            <img src="{{ asset('images/add-on-banner-image.png') }}" alt="banner-image" >
+        @if ($totalAddOns > 0)
+            <div class=" col-12">
+                <div class="add-on-banner mb-4">
+                    <img src="{{ asset('images/add-on-banner-layer.png') }}" class="banner-layer" alt="banner-layer">
+                    <div class="row  row-gap align-items-center">
+                        <div class="col-xxl-4 col-md-6 col-12">
+                            <div class="add-on-banner-image">
+                                <img src="{{ asset('images/add-on-banner-image.png') }}" alt="banner-image" >
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-xxl-4 col-md-6 col-12">
-                        <div class="add-on-banner-content text-center ">
-                            <a href="https://workdo.io/product-category/dash-saas-add-ons/?utm_source=demo&utm_medium=dash&utm_campaign=btn" target="new" class="btn btn-light mb-md-3 mb-2">
-                                <img src="https://workdo.io/wp-content/uploads/2023/03/favicon.jpg" alt="">
-                                <span>{{ __('Click Here') }}</span>
-                            </a>
-                            <h2>{{ __('Buy More Add-on') }}</h2>
-                            <p>+{{ $totalAddOns }}<span>{{ __('Premium Add-on') }}</span></p>
+                        <div class="col-xxl-4 col-md-6 col-12">
+                            <div class="add-on-banner-content text-center ">
+                                <a href="https://workdo.io/product-category/dash-saas-add-ons/?utm_source=demo&utm_medium=dash&utm_campaign=btn" target="new" class="btn btn-light mb-md-3 mb-2">
+                                    <img src="https://workdo.io/wp-content/uploads/2023/03/favicon.jpg" alt="">
+                                    <span>{{ __('Click Here') }}</span>
+                                </a>
+                                <h2>{{ __('Buy More Add-on') }}</h2>
+                                <p>+{{ $totalAddOns }}<span>{{ __('Premium Add-on') }}</span></p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-xxl-4 col-12">
-                        <div class="add-on-btn d-flex flex-wrap align-items-center justify-content-xxl-end justify-content-center gap-2">
-                            <a class="btn btn-warning" href="https://workdo.io/product-category/dash-saas-add-ons/dash-saas-bundle/?utm_source=demo&utm_medium=dash-bundle&utm_campaign=btn" target="new">
-                                {{ __('Buy Add-on Bundles') }}
-                              </a>
-                              <a class="btn btn-primary" href="https://workdo.io/product-category/dash-saas-add-ons/?utm_source=demo&utm_medium=dash&utm_campaign=btn" target="new">
-                                {{ __('Buy More Add-on') }}
-                              </a>
+                        <div class="col-xxl-4 col-12">
+                            <div class="add-on-btn d-flex flex-wrap align-items-center justify-content-xxl-end justify-content-center gap-2">
+                                <a class="btn btn-warning" href="https://workdo.io/product-category/dash-saas-add-ons/dash-saas-bundle/?utm_source=demo&utm_medium=dash-bundle&utm_campaign=btn" target="new">
+                                    {{ __('Buy Add-on Bundles') }}
+                                  </a>
+                                  <a class="btn btn-primary" href="https://workdo.io/product-category/dash-saas-add-ons/?utm_source=demo&utm_medium=dash&utm_campaign=btn" target="new">
+                                    {{ __('Buy More Add-on') }}
+                                  </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
-        </div>
+        @endif
         <!-- [ sample-page ] start -->
         <div class="event-cards row px-0">
             @if(count($devModules) > 0)
@@ -211,43 +212,45 @@
                 @endif
             @endforeach
 
-            <h2>{{ __('Explore Add-on') }}</h2>
+            @if (!empty($category_wise_add_ons))
+                <h2>{{ __('Explore Add-on') }}</h2>
 
-            <div class="col-xl-12">
-                @foreach ($category_wise_add_ons as $key => $category_wise_add_on)
-                    <div id="tab-{{ $key }}" class="card add_on_manager">
-                        <div class="card-header ">
-                            <h5>{{ $category_wise_add_on['name'] }}</h5>
-                            <small class="text-muted">{{ $category_wise_add_on['description'] }}</small>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                @foreach ($category_wise_add_on['add_ons'] as $add_on)
-                                    <div class="col-xxl-3 col-lg-4 col-sm-6 product-card ">
-                                        <a href="{{ $add_on['url'] }}" target="_new">
-                                            <div class="card enable_module manager-card">
-                                                <div class="product-img">
-                                                    <div class="theme-main">
-                                                        <div class="theme-avtar">
-                                                            <img src="{{ $add_on['image'] }}" alt=""
-                                                                class="img-user" style="max-width: 100%">
+                <div class="col-xl-12">
+                    @foreach ($category_wise_add_ons as $key => $category_wise_add_on)
+                        <div id="tab-{{ $key }}" class="card add_on_manager">
+                            <div class="card-header ">
+                                <h5>{{ $category_wise_add_on['name'] }}</h5>
+                                <small class="text-muted">{{ $category_wise_add_on['description'] }}</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @foreach ($category_wise_add_on['add_ons'] as $add_on)
+                                        <div class="col-xxl-3 col-lg-4 col-sm-6 product-card ">
+                                            <a href="{{ $add_on['url'] }}" target="_new">
+                                                <div class="card enable_module manager-card">
+                                                    <div class="product-img">
+                                                        <div class="theme-main">
+                                                            <div class="theme-avtar">
+                                                                <img src="{{ $add_on['image'] }}" alt=""
+                                                                    class="img-user" style="max-width: 100%">
+                                                            </div>
                                                         </div>
+                                                        <h5 class="text-capitalize"> {{ $add_on['name'] }}</h5>
                                                     </div>
-                                                    <h5 class="text-capitalize"> {{ $add_on['name'] }}</h5>
+                                                    <div class="product-content">
+                                                        <button
+                                                            class="btn btn-outline-secondary w-100 ">{{ __('View Details') }}</button>
+                                                    </div>
                                                 </div>
-                                                <div class="product-content">
-                                                    <button
-                                                        class="btn btn-outline-secondary w-100 ">{{ __('View Details') }}</button>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                @endforeach
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
         <!-- [ sample-page ] end -->
     </div>

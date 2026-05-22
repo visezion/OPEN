@@ -15,12 +15,180 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use ZipArchive;
 
 class ModuleController extends Controller
 {
+    private const HIDDEN_MODULE_CATALOG_ITEMS = [
+        'Explore',
+        'Ministry Add-ons',
+        'Social Media',
+        'Instagram Chat',
+        'Facebook Chat',
+        'Instagram Post',
+        'Facebook Post',
+        'Whatsapp Chat',
+        'Youtube Content Management',
+        'Telegram',
+        'Twilio',
+        'Slack',
+        'Discord',
+        'RocketChat',
+        'WhatsApp (Twilio)',
+        'Tawk.to Messenger',
+        'WhatsApp Messenger',
+        'WizzChat Messenger',
+        'HubSpot',
+        'HubspotSupportTicket',
+        'WhatsApp API',
+        'SMS',
+        'Fast2SMS',
+        'Vonage SMS',
+        'SinchSMS',
+        'Telesign SMS',
+        'Whatsender',
+        'Zita SMS',
+        'Plivo SMS',
+        'MSG91',
+        "Africa's Talking",
+        'Google Meet',
+        'Google Sheet',
+        'GoogleDrive',
+        'Google Docs',
+        'Zoom Meeting',
+        'Zoho Meeting',
+        'Livestorm Meeting',
+        'Whereby Meeting',
+        'Jitsi Meet',
+        'Bulk SMS',
+        'ClickSend',
+        'Integration',
+        'Google Calendar',
+        'Outlook Calendar',
+        'Zapier',
+        'Make',
+        'Webhook',
+        'Pabbly Connect',
+        'n8n',
+        'Indiamart',
+        'Sendinblue',
+        'OneNote',
+        'Trello',
+        'Microsoft To Do',
+        'Asana Project Management',
+        'Jira',
+        'Zulip Chat',
+        'Google Analytics',
+        'Google Slides',
+        'Social Media Analytics',
+        'WHMCS',
+        'Appointment',
+        'Google Form',
+        'Google Wallet',
+        'Pipedrive',
+        'e-Commerces and Sales',
+        'WordPress (WooCommerce)',
+        'Shopify Sync',
+        'Mailchimp',
+        'SalesForce',
+        'Sales',
+        'Newsletter',
+        'Feedback',
+        'Inventory',
+        'vCard',
+        'Restaurant Menu',
+        'Find Google Leads',
+        'Content Management',
+        'File Sharing',
+        'Internal Knowledge (KB)',
+        'Diagram',
+        'Portfolio',
+        'Resume Builder',
+        'Digital Certificate',
+        'OneDrive',
+        'Box',
+        'Dropbox',
+        'Spreadsheet',
+        'Video Hub',
+        'Innovation Center',
+        'Planning',
+        'Business Model',
+        'Business Plan',
+        'Marketing Plan',
+        'McKinsey 7-S Model',
+        'SWOT Analysis Model',
+        'PEST Analysis Model',
+        'PESTEL Analysis Model',
+        "Porter's Five Forces Model",
+        'Zendesk',
+        'Documents',
+        'Document Template',
+        'Finance',
+        'Quotation',
+        'QuickBooks',
+        'Sage',
+        'Xero',
+        'Contract',
+        'Budget Planner',
+        'Timesheet',
+        'Assets',
+        'Asset Borrow & Rent',
+        'Financial Goal',
+        'Retainer',
+        'Plaid',
+        'ZATCA',
+        'E-Invoice for European',
+        'Recurring Invoice & Bill',
+        'Double Entry',
+        'Contract Template',
+        'HR',
+        'Team Workload',
+        'Time Tracker',
+        'Biometric Attendance',
+        'Recruitment',
+        'Procurement',
+        'Performance',
+        'Petty Cash Management',
+        'Training',
+        'Job Search',
+        'LMS',
+        'Movie & Tv Studio',
+        'eBook',
+        'Industrial Solutions',
+        'Influencer Marketing',
+        'Courier Management',
+        'Beauty Spa Management',
+        'Beverages Production System',
+        'Catering Management',
+        'Childcare Management',
+        'Cleaning Management',
+        'Consignment Management System',
+        'Laundry Management',
+        'Machine Repair Management',
+        'Medical Lab Management',
+        'Newspaper Distribution Management',
+        'Car Dealership',
+        'Freight Management System',
+        'Mobile Service Management',
+        'Pharmacy Management',
+        'Rental Management',
+        'Repair Management System',
+        'Vehicle Inspection Management',
+        'Waste Management',
+        'GYM Management',
+        'Legal Case Management',
+        'Agriculture Management',
+        'Tour & Travel Management',
+        'School / Institute Management',
+        'Exam',
+        'Scholarship',
+        'LibraryManagement',
+        'Music Institute',
+    ];
+
     public function index()
     {
         if (Auth::user()->isAbleTo('module manage')) {
@@ -74,6 +242,10 @@ class ModuleController extends Controller
 
                     $index++;
                 }
+
+                $modules = $this->filterHiddenModules($modules);
+                $devModules = $this->filterHiddenDevModules($devModules);
+                $category_wise_add_ons = $this->filterHiddenCategoryAddOns($category_wise_add_ons);
 
             } catch (\Throwable $th) {
                 return redirect()->back()->with('error', __('oops something went wrong!'));
@@ -445,6 +617,66 @@ class ModuleController extends Controller
         }
 
         return rmdir($dirPath);
+    }
+
+    private function filterHiddenModules(array $modules): array
+    {
+        return array_values(array_filter($modules, function ($module) {
+            return !$this->isHiddenCatalogItem($module->name ?? null)
+                && !$this->isHiddenCatalogItem($module->alias ?? null);
+        }));
+    }
+
+    private function filterHiddenDevModules(array $modules): array
+    {
+        return array_values(array_filter($modules, function ($module) {
+            return !$this->isHiddenCatalogItem($module['name'] ?? null)
+                && !$this->isHiddenCatalogItem($module['alias'] ?? null);
+        }));
+    }
+
+    private function filterHiddenCategoryAddOns(array $categories): array
+    {
+        $filteredCategories = [];
+
+        foreach ($categories as $key => $category) {
+            if ($this->isHiddenCatalogItem($category['name'] ?? null)) {
+                continue;
+            }
+
+            $category['add_ons'] = array_values(array_filter($category['add_ons'] ?? [], function ($addOn) {
+                return !$this->isHiddenCatalogItem($addOn['name'] ?? null);
+            }));
+
+            if (!empty($category['add_ons'])) {
+                $filteredCategories[$key] = $category;
+            }
+        }
+
+        return $filteredCategories;
+    }
+
+    private function isHiddenCatalogItem(?string $value): bool
+    {
+        if (blank($value)) {
+            return false;
+        }
+
+        static $hiddenLookup = null;
+
+        if ($hiddenLookup === null) {
+            $hiddenLookup = array_fill_keys(
+                array_map(fn ($item) => $this->normalizeCatalogLabel($item), self::HIDDEN_MODULE_CATALOG_ITEMS),
+                true
+            );
+        }
+
+        return isset($hiddenLookup[$this->normalizeCatalogLabel($value)]);
+    }
+
+    private function normalizeCatalogLabel(string $value): string
+    {
+        return Str::lower(preg_replace('/[^a-z0-9]+/i', '', $value));
     }
 
 }

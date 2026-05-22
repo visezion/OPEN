@@ -69,7 +69,7 @@ Route::group(['middleware' => ['web', 'auth', 'verified','PlanModuleCheck:Accoun
     Route::get('invoice/{id}/credit-note', [CreditNoteController::class, 'create'])->name('invoice.credit.note');
     Route::post('invoice/{id}/credit-storenote', [CreditNoteController::class, 'store'])->name('invoice.credit.storenote');
     Route::get('invoice/{id}/credit-note/edit/{cn_id}', [CreditNoteController::class, 'edit'])->name('invoice.edit.credit.note');
-    Route::post('invoice/{id}/credit-note//{cn_id}', [CreditNoteController::class, 'update'])->name('invoice.edit.credit.updatenote');
+    Route::post('invoice/{id}/credit-note/{cn_id}', [CreditNoteController::class, 'update'])->name('invoice.edit.credit.updatenote');
     Route::delete('invoice/{id}/credit-note/delete/{cn_id}', [CreditNoteController::class, 'destroy'])->name('invoice.delete.credit.note');
     Route::post('invoice/credit-note/price', [CreditNoteController::class, 'getPrice'])->name('credit-note.price');
 

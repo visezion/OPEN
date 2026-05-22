@@ -23,6 +23,11 @@ class CustomerCreditNotesController extends Controller
 {
     use CreditDebitNoteBalance;
 
+    private function hasProductService(): bool
+    {
+        return class_exists(\Workdo\ProductService\Entities\ProductService::class);
+    }
+
     /**
      * Display a listing of the resource.
      * @return Renderable
@@ -240,7 +245,7 @@ class CustomerCreditNotesController extends Controller
     {
         $invoice = Invoice::find($request->invoice_id);
         $invoice_module = ['account','cmms' , 'rent' , 'sales' , 'mobileservice' , 'vehicleinspection' , 'machinerepair' , 'musicinstitute' , 'restaurantmenu'];
-        if(in_array($invoice->invoice_module , $invoice_module)){
+        if($invoice && in_array($invoice->invoice_module , $invoice_module) && $this->hasProductService()){
             $items = InvoiceProduct::select('invoice_products.*' , 'product_services.name as product_name')->join('product_services' ,  'product_services.id' , 'invoice_products.product_id')->where('invoice_id' , $request->invoice_id)->where('product_services.created_by',creatorId())->where('product_services.workspace_id' , getActiveWorkSpace())->get();        
             $getDue = $invoice->getTotal() - $invoice->getDue();
             return response()->json(['type' => 'withproduct' ,'items' => $items , 'getDue' => $getDue]);
@@ -258,7 +263,7 @@ class CustomerCreditNotesController extends Controller
         $totalPrice     = 0;
         if($invoiceProduct != null)
         {
-            $product        = \Workdo\ProductService\Entities\ProductService::find($invoiceProduct->product_id);
+            $product        = $this->hasProductService() ? \Workdo\ProductService\Entities\ProductService::find($invoiceProduct->product_id) : null;
             $taxRate        = !empty($product) ? (!empty($product->tax_id) ? $product->taxRate($product->tax_id) : 0) : 0;
             $totalTax       = ($taxRate / 100) * (($invoiceProduct->price * $invoiceProduct->quantity) - $invoiceProduct->discount);
             $totalPrice     = (($invoiceProduct->price * $invoiceProduct->quantity) + $totalTax) - $invoiceProduct->discount;
