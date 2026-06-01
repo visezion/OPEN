@@ -86,6 +86,7 @@
 
 
 <script src="<?php echo e(asset('js/custom.js')); ?>"></script>
+<?php echo $__env->make('partials.csrf-keepalive', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($message = Session::get('success')): ?>
     <script>
         toastrs('Success', '<?php echo $message; ?>', 'success');

@@ -84,6 +84,7 @@
 
 
 <script src="{{ asset('js/custom.js') }}"></script>
+@include('partials.csrf-keepalive')
 @if ($message = Session::get('success'))
     <script>
         toastrs('Success', '{!! $message !!}', 'success');

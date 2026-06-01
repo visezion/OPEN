@@ -76,9 +76,9 @@
                             <tr>
                                 <td class="text-center">{{ $index + 1 }}</td>
                                 <td>{{ $program->program_item }}</td>
-                                <td>{{ $program->leader?->name ?? 'Ã¢â‚¬â€' }}</td>
+                                <td>{{ $program->leader?->name ?? '-' }}</td>
                                 <td class="text-center">{{ $program->duration }}</td>
-                                <td>{{ $program->note ?? 'Ã¢â‚¬â€' }}</td>
+                                <td>{{ $program->note ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

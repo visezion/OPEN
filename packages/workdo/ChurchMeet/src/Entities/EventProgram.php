@@ -18,10 +18,10 @@ class EventProgram extends Model
         'duration',
         'leader_id',
         'note',
-        'status', // Ã¢Å“â€¦ Added
+        'status', // Persist workflow state for each program item.
     ];
 
-    // Ã°Å¸â€â€” Relationships
+    // Relationships
     public function event()
     {
         return $this->belongsTo(Event::class, 'event_id');
@@ -32,10 +32,9 @@ class EventProgram extends Model
         return $this->belongsTo(ChurchMember::class, 'leader_id');
     }
 
-    // Ã°Å¸â€Â¹ Helper: readable status
+    // Helper for a readable status label.
     public function getStatusLabelAttribute()
     {
         return ucfirst(str_replace('_', ' ', $this->status ?? 'planned'));
     }
 }
-

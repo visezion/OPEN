@@ -1,22 +1,22 @@
-@extends('layouts.auth')
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Session Timeout')); ?>
 
-@section('page-title')
-    {{ __('Session Timeout') }}
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('body-class')
-    {{ ' faith-login-page dms-faith-login session-expired-page' }}
-@endsection
+<?php $__env->startSection('body-class'); ?>
+    <?php echo e(' faith-login-page dms-faith-login session-expired-page'); ?>
 
-@php
+<?php $__env->stopSection(); ?>
+
+<?php
     $admin_settings = getAdminAllSetting();
     $brandName = !empty($admin_settings['title_text']) ? $admin_settings['title_text'] : config('app.name', 'Openzion');
     $dashboardUrl = auth()->check() ? route('dashboard') : route('login');
-@endphp
+?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="dms-content-logo">
-        <img src="{{ get_file(sidebar_logo()) }}{{ '?' . time() }}" alt="{{ $brandName }}">
+        <img src="<?php echo e(get_file(sidebar_logo())); ?><?php echo e('?' . time()); ?>" alt="<?php echo e($brandName); ?>">
     </div>
 
     <style>
@@ -187,26 +187,27 @@
     <div class="dms-faith-layout">
         <section class="dms-faith-hero">
             <div>
-                <div class="dms-expired-badge">{{ __('Session Timeout') }}</div>
+                <div class="dms-expired-badge"><?php echo e(__('Session Timeout')); ?></div>
 
                 <div class="mt-4">
                     <p class="dms-expired-code">419</p>
-                    <h1 class="dms-expired-title">{{ __('This page lost its secure session.') }}</h1>
+                    <h1 class="dms-expired-title"><?php echo e(__('This page lost its secure session.')); ?></h1>
                     <p class="dms-expired-copy">
-                        {{ __('The form or action you opened no longer holds a valid security token. This usually happens after a long idle period, when the same form stays open in multiple tabs, or when the browser sends back an older saved page state.') }}
+                        <?php echo e(__('The form or action you opened no longer holds a valid security token. This usually happens after a long idle period, when the same form stays open in multiple tabs, or when the browser sends back an older saved page state.')); ?>
+
                     </p>
                 </div>
             </div>
 
             <div class="dms-expired-points">
                 <div class="dms-expired-point">
-                    <strong>{{ __('What happened') }}</strong>
-                    <span>{{ __('OPEN blocked the request because the page token expired before submission. That is safer than accepting an outdated request.') }}</span>
+                    <strong><?php echo e(__('What happened')); ?></strong>
+                    <span><?php echo e(__('OPEN blocked the request because the page token expired before submission. That is safer than accepting an outdated request.')); ?></span>
                 </div>
 
                 <div class="dms-expired-point">
-                    <strong>{{ __('Best next step') }}</strong>
-                    <span>{{ __('Refresh this page first, then repeat the action from a fresh screen so the newest session token is used.') }}</span>
+                    <strong><?php echo e(__('Best next step')); ?></strong>
+                    <span><?php echo e(__('Refresh this page first, then repeat the action from a fresh screen so the newest session token is used.')); ?></span>
                 </div>
             </div>
         </section>
@@ -215,9 +216,9 @@
             <div class="dms-faith-card">
                 <div class="dms-card-head">
                     <div>
-                        <p class="dms-card-label">{{ __('Recover Quickly') }}</p>
-                        <h2>{{ __('Get back into the flow') }}</h2>
-                        <p class="dms-card-copy">{{ __('Use the actions below to reopen the request safely.') }}</p>
+                        <p class="dms-card-label"><?php echo e(__('Recover Quickly')); ?></p>
+                        <h2><?php echo e(__('Get back into the flow')); ?></h2>
+                        <p class="dms-card-copy"><?php echo e(__('Use the actions below to reopen the request safely.')); ?></p>
                     </div>
                     <div class="dms-card-icon" aria-hidden="true">
                         <i class="ti ti-refresh"></i>
@@ -225,40 +226,46 @@
                 </div>
 
                 <div class="dms-expired-actions">
-                    <a href="{{ url()->current() }}" class="btn btn-primary dms-submit-btn">
-                        <i class="ti ti-rotate-clockwise-2 me-1"></i>{{ __('Refresh This Page') }}
+                    <a href="<?php echo e(url()->current()); ?>" class="btn btn-primary dms-submit-btn">
+                        <i class="ti ti-rotate-clockwise-2 me-1"></i><?php echo e(__('Refresh This Page')); ?>
+
                     </a>
-                    <a href="{{ url()->previous() }}" class="btn btn-outline-primary">
-                        <i class="ti ti-arrow-left me-1"></i>{{ __('Go Back Safely') }}
+                    <a href="<?php echo e(url()->previous()); ?>" class="btn btn-outline-primary">
+                        <i class="ti ti-arrow-left me-1"></i><?php echo e(__('Go Back Safely')); ?>
+
                     </a>
-                    <a href="{{ $dashboardUrl }}" class="btn btn-light">
+                    <a href="<?php echo e($dashboardUrl); ?>" class="btn btn-light">
                         <i class="ti ti-layout-dashboard me-1"></i>
-                        {{ auth()->check() ? __('Open Dashboard') : __('Open Sign In') }}
+                        <?php echo e(auth()->check() ? __('Open Dashboard') : __('Open Sign In')); ?>
+
                     </a>
                 </div>
 
                 <div class="dms-faith-card mt-4" style="padding: 22px 20px; border: 1px solid #d8e2ef; box-shadow: none; background: #fff;">
-                    <h5 class="mb-3">{{ __('Helpful Checks') }}</h5>
+                    <h5 class="mb-3"><?php echo e(__('Helpful Checks')); ?></h5>
                     <div class="dms-expired-checks">
                         <div class="dms-expired-check">
                             <span>1</span>
-                            <div>{{ __('If you had multiple copies of the same form open, close the older tabs and keep only one active version.') }}</div>
+                            <div><?php echo e(__('If you had multiple copies of the same form open, close the older tabs and keep only one active version.')); ?></div>
                         </div>
                         <div class="dms-expired-check">
                             <span>2</span>
-                            <div>{{ __('If you signed out in another window, sign in again before retrying the action.') }}</div>
+                            <div><?php echo e(__('If you signed out in another window, sign in again before retrying the action.')); ?></div>
                         </div>
                         <div class="dms-expired-check">
                             <span>3</span>
-                            <div>{{ __('If this repeats often on one screen, refresh before long idle review or edit sessions.') }}</div>
+                            <div><?php echo e(__('If this repeats often on one screen, refresh before long idle review or edit sessions.')); ?></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="dms-expired-status">
-                    {{ __('Status') }}: 419 - {{ __('Page Expired') }} - {{ $brandName }}
+                    <?php echo e(__('Status')); ?>: 419 - <?php echo e(__('Page Expired')); ?> - <?php echo e($brandName); ?>
+
                 </div>
             </div>
         </section>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.auth', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\OPEN\resources\views/errors/419.blade.php ENDPATH**/ ?>

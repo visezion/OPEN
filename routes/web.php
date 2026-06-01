@@ -42,6 +42,13 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 Route::get('/', [HomeController::class, 'index'])->name('home.landing');
 
+Route::get('/_session/token', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'token' => $request->session()->token(),
+        'timestamp' => now()->timestamp,
+    ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+})->name('session.token');
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes

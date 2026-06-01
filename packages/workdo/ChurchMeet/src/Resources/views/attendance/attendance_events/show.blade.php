@@ -83,8 +83,8 @@
             <div class="card p-3 mb-4 shadow-sm">
                 <h6 class="fw-bold">{{ __('Manual Attendance Marking') }}</h6>
                 <p class="text-muted small mb-3">
-                    {{ __('Search for a member by name, phone number, or member ID. 
-                    Select the correct person, then click Ã¢â‚¬Å“Mark PresentÃ¢â‚¬Â to confirm attendance.') }}
+                    {{ __("Search for a member by name, phone number, or member ID.
+                    Select the correct person, then click 'Mark Present' to confirm attendance.") }}
                 </p>
 
                 <form action="{{ route('churchmeet.attendance.manualCheckIn', $attendanceEvent->id) }}" 
@@ -111,8 +111,8 @@
             <div class="card p-3 mb-4 shadow-sm">
                 <h6 class="fw-bold">{{ __('QR Code Attendance Scanner') }}</h6>
                 <p class="text-muted small mb-3">
-                    {{ __('Scan a memberÃ¢â‚¬â„¢s unique QR code to mark attendance instantly. 
-                    Works online and offline, syncing automatically once reconnected.') }}
+                    {{ __("Scan a member's unique QR code to mark attendance instantly.
+                    Works online and offline, syncing automatically once reconnected.") }}
                 </p>
 
                 <div class="text-center mt-5">

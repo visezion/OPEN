@@ -118,7 +118,7 @@
                         <input type="text" name="meeting_passcode" placeholder="{{ __('Passcode (Zoom)') }}"
                                class="form-control" value="{{ old('meeting_passcode', $attendanceEvent->meeting_passcode) }}">
                         <small class="text-muted d-block mt-1">
-                            {{ __('Only required if youÃ¢â‚¬â„¢re using Online or Hybrid mode.') }}
+                            {{ __("Only required if you're using Online or Hybrid mode.") }}
                         </small>
                     </div>
 

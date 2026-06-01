@@ -163,7 +163,7 @@
         }
     </style>
 </head>
-<body class="{{ $themeColor }}{{ request()->routeIs('login', 'register', 'password.request', 'password.reset') ? ' faith-login-page dms-faith-login' : '' }} ui-border-clean">
+<body class="{{ $themeColor }}{{ request()->routeIs('login', 'register', 'password.request', 'password.reset') ? ' faith-login-page dms-faith-login' : '' }}@yield('body-class') ui-border-clean">
     @php
         $footerText = $admin_settings['footer_text'] ?? null;
         $normalizedFooterText = trim((string) $footerText);
@@ -235,6 +235,7 @@
 <script src="{{ asset('js/jquery.min.js') }}"></script>
 <script src="{{ asset('js/custom.js') }}"></script>
 <script src="{{ asset('assets/js/plugins/bootstrap.min.js') }}"></script>
+@include('partials.csrf-keepalive')
 @stack('script')
 @if((isset($admin_settings['cust_darklayout']) ? $admin_settings['cust_darklayout'] : 'off') == 'on')
 <script>

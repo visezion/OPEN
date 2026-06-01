@@ -2,23 +2,21 @@
 
 namespace Workdo\ChurchMeet\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Builder;
-use Workdo\ChurchMeet\Entities\Event;
-use Workdo\ChurchMeet\Entities\ChurchMember;
-use Workdo\ChurchMeet\Entities\EventProgram;
 use Workdo\ChurchMeet\Entities\AttendanceEvent;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Workdo\ChurchMeet\Http\Controllers\SmsGatewayController;
 use Workdo\ChurchMeet\Entities\ChurchBranch;
-use Workdo\ChurchMeet\Entities\ChurchEventReviewerComment;
 use Workdo\ChurchMeet\Entities\ChurchDepartment;
 use Workdo\ChurchMeet\Entities\ChurchDesignation;
-use Workdo\ChurchMeet\Entities\ZoomSyncSetting;
+use Workdo\ChurchMeet\Entities\ChurchEventReviewerComment;
+use Workdo\ChurchMeet\Entities\ChurchMember;
+use Workdo\ChurchMeet\Entities\Event;
+use Workdo\ChurchMeet\Entities\EventProgram;
 use Workdo\ChurchMeet\Entities\ZenderWaGroup;
-use Workdo\ChurchMeet\Http\Controllers\AttendanceRecordController;
+use Workdo\ChurchMeet\Entities\ZoomSyncSetting;
+use Workdo\ChurchMeet\Http\Controllers\SmsGatewayController;
 use Workdo\ChurchMeet\Services\EventOccurrenceSyncService;
 use Workdo\ChurchMeet\Services\JitsiMeetingService;
 use Workdo\ChurchMeet\Services\LivekitMeetingService;
@@ -42,13 +40,13 @@ class EventController extends Controller
 
     public function create()
     {
-        // Ã¢Å“â€¦ Fetch all active church members for dropdowns
+        // Fetch all active church members for dropdowns
         $members = ChurchMember::forWorkspace()->select('id', 'name')->get();
         $branches = ChurchBranch::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
         $departments = ChurchDepartment::where('workspace', getActiveWorkSpace())->orderBy('name')->get();
         $zoomSetting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
 
-        // Ã¢Å“â€¦ Pass members to your Blade view
+        // Pass members to your Blade view
         return view('churchmeet::attendance.events.create', compact('members', 'branches', 'departments', 'zoomSetting'));
     }
     public function store(
@@ -91,7 +89,7 @@ class EventController extends Controller
         }
         
 
-        // Ã¢Å“â€¦ Save event
+        // Save event
         $zoomSetting = ZoomSyncSetting::firstOrNew(['workspace_id' => getActiveWorkSpace()]);
         $resolvedOnlinePlatform = $this->resolveOnlinePlatform(
             (string) $request->mode,
@@ -161,7 +159,7 @@ class EventController extends Controller
         );
 
 
-        // Ã¢Å“â€¦ Save uploaded files (if any)
+        // Save uploaded files (if any)
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
                 $path = $file->store('event_files', 'public');
@@ -170,7 +168,7 @@ class EventController extends Controller
             }
         }
 
-        // Ã¢Å“â€¦ Send WhatsApp notifications to Lead & Assistant
+        // Send WhatsApp notifications to Lead & Assistant
         $lead = ChurchMember::find($request->lead_id);
         $assistant = ChurchMember::find($request->assistant_id);
 
@@ -269,7 +267,7 @@ class EventController extends Controller
         $gateway = new SmsGatewayController();
         $reviewerName = Auth::user()->name ?? 'Reviewer';
 
-        // Ã¢Å“â€¦ Log reviewer comment (for both cases)
+        // Log reviewer comment (for both cases)
         if ($request->filled('comments')) {
             ChurchEventReviewerComment::create([
                 'event_id' => $event->id,
@@ -325,7 +323,7 @@ class EventController extends Controller
 
         if ($lead && !empty($lead->phone)) {
             $approveUrl = route('churchmeet.events.approve', $event->id);
-            $message = "Ã¢Å“â€¦ *Event Ready for Approval*\n\n"
+            $message = "*Event Ready for Approval*\n\n"
                 . "The event *{$event->title}* has been reviewed and is ready for final approval.\n\n"
                 . "Ã°Å¸â€œâ€¦ *Type:* {$event->event_type}\n"
                 . "Ã°Å¸â€œÂ *Venue:* " . ($event->venue ?: 'Not specified') . "\n"
@@ -395,7 +393,7 @@ class EventController extends Controller
         $gateway = new SmsGatewayController();
         $approverName = Auth::user()->name ?? 'Approver';
 
-        // Ã¢Å“â€¦ Log approver comment (for transparency)
+        // Log approver comment (for transparency)
         if ($request->filled('comments')) {
             ChurchEventReviewerComment::create([
                 'event_id' => $event->id,
@@ -414,7 +412,7 @@ class EventController extends Controller
                 'approver_comments'=> $request->comments,
             ]);
 
-            // Ã¢Å“â€¦ Notify creator that the event is approved
+            // Notify creator that the event is approved
             $creator = $event->creator ?? ChurchMember::where('user_id', $event->created_by)->first();
             if ($creator && !empty($creator->phone)) {
                 $publishUrl = route('churchmeet.events.publish', $event->id);
@@ -438,7 +436,7 @@ class EventController extends Controller
                 'approved_at'      => now(),
             ]);
 
-            // Ã¢Å“â€¦ Notify creator that the event was rejected
+            // Notify creator that the event was rejected
             $creator = $event->creator ?? ChurchMember::where('user_id', $event->created_by)->first();
             if ($creator && !empty($creator->phone)) {
                 $message = "Ã¢ÂÅ’ *Event Rejected*\n\n"
@@ -504,7 +502,7 @@ public function publishAction(Request $request, $id)
         'notify_all' => 'nullable|boolean',
     ]);
 
-    // Ã¢Å“â€¦ Update event status
+    // Update event status
     $event->update([
         'status' => 'published',
         'published_by' => Auth::id(),
@@ -571,7 +569,7 @@ public function publishAction(Request $request, $id)
         . "Ã°Å¸â€â€” Event PDF: {$pdfUrl}\n\n"
         . "_Churchly Event System_";
 
-    foreach (array_filter($notifyList) as $phone) {
+    foreach (array_unique(array_filter($notifyList)) as $phone) {
         $gateway->sendZenderMessage($phone, $personalMsg, 'whatsapp');
     }
 
@@ -603,7 +601,7 @@ public function publishAction(Request $request, $id)
     }
 
     // ===========================================
-    // Ã¢Å“â€¦ Final Confirmation
+    // Final Confirmation
     // ===========================================
     return redirect()
         ->route('churchmeet.events.index')
@@ -625,7 +623,7 @@ public function publishAction(Request $request, $id)
         $resolvedId = Event::decodePublicViewKey((string) $id);
         abort_if(!$resolvedId, 404, __('Event link is invalid.'));
 
-        // Ã¢Å“â€¦ Load the event with all relations for a full detail view
+        // Load the event with all relations for a full detail view
         $event = $this->visibleEventsQuery([
                 'lead',
                 'assistant',
@@ -635,7 +633,7 @@ public function publishAction(Request $request, $id)
                 'occurrences.attendanceEvent.records.member'
             ])->findOrFail($resolvedId);
 
-        // Ã¢Å“â€¦ Load attendance data if available
+        // Load attendance data if available
         $attendanceEvent = $this->resolvePreferredAttendanceEvent($event);
         $attendanceOccurrences = $event->occurrences
             ->where('is_cancelled', false)
@@ -655,14 +653,14 @@ public function publishAction(Request $request, $id)
             })
             ->values();
 
-        // Ã¢Å“â€¦ Attendance stats summary
+        // Attendance stats summary
         $attendanceStats = [
             'total_registered' => $event->occurrences->sum(fn ($occurrence) => $occurrence->attendanceEvent?->records?->count() ?? 0),
             'present' => $event->occurrences->sum(fn ($occurrence) => $occurrence->attendanceEvent?->records?->where('status', 'present')->count() ?? 0),
             'absent'  => $event->occurrences->sum(fn ($occurrence) => $occurrence->attendanceEvent?->records?->where('status', 'absent')->count() ?? 0),
         ];
 
-        // Ã¢Å“â€¦ Format times for clean display
+        // Format times for clean display
         $event->formatted_start = $event->start_time
             ? \Carbon\Carbon::parse($event->start_time)->format('D, M j, Y Ã¢â‚¬Â¢ g:i A')
             : 'Not specified';
@@ -670,7 +668,7 @@ public function publishAction(Request $request, $id)
             ? \Carbon\Carbon::parse($event->end_time)->format('D, M j, Y Ã¢â‚¬Â¢ g:i A')
             : 'Not specified';
 
-        // Ã¢Å“â€¦ Prepare comment thread for discussion view
+        // Prepare comment thread for discussion view
         $event->formatted_start = $event->start_time
             ? \Carbon\Carbon::parse($event->start_time)->format('D, M j, Y g:i A')
             : 'Not specified';
@@ -689,7 +687,7 @@ public function publishAction(Request $request, $id)
         $canCreateLivekitMeeting = $canCreateOnlineMeeting && $meetingPlatform === 'livekit';
         $canJoinOnlineMeeting = $this->canJoinOnlineMeeting($attendanceEvent);
 
-        // Ã¢Å“â€¦ Send all context to the view
+        // Send all context to the view
         return view('churchmeet::attendance.events.show', compact(
             'event',
             'attendanceEvent',
@@ -786,7 +784,7 @@ public function publishAction(Request $request, $id)
             ->withInput();
     }
 
-    // Ã¢Å“â€¦ Update main event
+    // Update main event
     $event->update([
         'title'        => $request->title,
         'event_type'   => $request->event_type,
@@ -821,7 +819,7 @@ public function publishAction(Request $request, $id)
         ? (bool) $request->boolean('auto_log_attendance')
         : in_array($request->mode, ['online', 'hybrid'], true);
 
-    // Ã¢Å“â€¦ Refresh program items
+    // Refresh program items
     EventProgram::where('event_id', $id)->delete();
 
     if ($request->program_item && is_array($request->program_item)) {
@@ -842,7 +840,7 @@ public function publishAction(Request $request, $id)
     if ($status === 'resubmitted')
     {
 
-    // Ã¢Å“â€¦ Send WhatsApp notifications to Lead & Assistant
+    // Send WhatsApp notifications to Lead & Assistant
             $lead = ChurchMember::find($request->lead_id);
             $assistant = ChurchMember::find($request->assistant_id);
 
