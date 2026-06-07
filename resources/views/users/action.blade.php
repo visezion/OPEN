@@ -37,7 +37,7 @@
     @permission('user reset password')
         <div class="action-btn me-2">
             <a href="#" class="btn btn-sm d-inline-flex align-items-center bg-warning"
-                data-url="{{ route('users.reset', \Crypt::encrypt($user->id)) }}" data-ajax-popup="true"
+                data-url="{{ route('users.reset', $user->id) }}" data-ajax-popup="true"
                 data-bs-toggle="tooltip" data-bs-original-title="{{ __('Reset Password') }}"
                 data-title="{{ __('Reset Password') }}"> <span class="text-white"><i class="ti ti-adjustments"></i></a>
         </div>
@@ -52,7 +52,7 @@
             </div>
         @elseif ($user->is_enable_login == 0 && $user->password == null)
             <div class="action-btn me-2">
-                <a href="#" data-url="{{ route('users.reset', \Crypt::encrypt($user->id)) }}" data-ajax-popup="true"
+                <a href="#" data-url="{{ route('users.reset', $user->id) }}" data-ajax-popup="true"
                     data-size="md" class="btn btn-sm d-inline-flex align-items-center login_enable bg-secondary"
                     data-title="{{ __('New Password') }}" data-bs-toggle="tooltip"
                     data-bs-original-title="{{ __('New Password') }}"> <span class="text-white"><i

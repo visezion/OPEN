@@ -142,7 +142,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::post('edit-profile', [UserController::class, 'editprofile'])->name('edit.profile');
     Route::post('change-password', [UserController::class, 'updatePassword'])->name('update.password');
-    Route::any('user-reset-password/{id}', [UserController::class, 'UserPassword'])->name('users.reset');
+    Route::get('user-reset-password/{id}', [UserController::class, 'UserPassword'])->name('users.reset');
     Route::get('user-login/{id}', [UserController::class, 'LoginManage'])->name('users.login');
     Route::post('user-reset-password/{id}', [UserController::class, 'UserPasswordReset'])->name('user.password.update');
     Route::get('users/{id}/login-with-company', [UserController::class, 'LoginWithCompany'])->name('login.with.company');

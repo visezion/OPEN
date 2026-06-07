@@ -1,5 +1,5 @@
 {{ Form::model($user, array(
-    'route' => array('user.password.update',\Crypt::encrypt($user->id)),'method' => 'post','class' => 'needs-validation',
+    'route' => array('user.password.update',$user->id),'method' => 'post','class' => 'needs-validation',
     'novalidate' => true
 )) }}
 <div class="modal-body">
@@ -24,4 +24,3 @@
     <input type="submit" value="{{__('Reset')}}" class="btn  btn-primary">
 </div>
 {{Form::close()}}
-

@@ -36,6 +36,17 @@ class ProfileTest extends TestCase
         $this->assertNotNull($route);
         $this->assertSame('user-reset-password/{id}', $route->uri());
         $this->assertContains('GET', $route->methods());
+        $this->assertNotContains('POST', $route->methods());
+        $this->assertContains('auth', $route->gatherMiddleware());
+        $this->assertContains('verified', $route->gatherMiddleware());
+    }
+
+    public function test_user_reset_password_update_route_matches_application_structure(): void
+    {
+        $route = Route::getRoutes()->getByName('user.password.update');
+
+        $this->assertNotNull($route);
+        $this->assertSame('user-reset-password/{id}', $route->uri());
         $this->assertContains('POST', $route->methods());
         $this->assertContains('auth', $route->gatherMiddleware());
         $this->assertContains('verified', $route->gatherMiddleware());

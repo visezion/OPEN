@@ -302,7 +302,7 @@
 
                                             @permission('user reset password')
                                                 <a href="#!"
-                                                    data-url="{{ route('users.reset', \Crypt::encrypt($user->id)) }}"
+                                                    data-url="{{ route('users.reset', $user->id) }}"
                                                     data-ajax-popup="true" data-size="md" class="dropdown-item"
                                                     data-title="{{ __('Reset Password') }}"
                                                     data-bs-original-title="{{ __('Reset Password') }}">
@@ -319,7 +319,7 @@
                                                     </a>
                                                 @elseif ($user->is_enable_login == 0 && $user->password == null)
                                                     <a href="#"
-                                                        data-url="{{ route('users.reset', \Crypt::encrypt($user->id)) }}"
+                                                        data-url="{{ route('users.reset', $user->id) }}"
                                                         data-ajax-popup="true" data-size="md" class="dropdown-item login_enable"
                                                         data-title="{{ __('New Password') }}" class="dropdown-item">
                                                         <i class="ti ti-road-sign"></i>
@@ -466,7 +466,7 @@
                                         @endpermission
                                         @permission('user reset password')
                                             <a href="#!"
-                                                data-url="{{ route('users.reset', \Crypt::encrypt($user->id)) }}"
+                                                data-url="{{ route('users.reset', $user->id) }}"
                                                 data-ajax-popup="true" data-size="md" class="btn btn-sm border"
                                                 data-title="{{ __('Reset Password') }}"
                                                 data-bs-original-title="{{ __('Reset Password') }}" data-bs-toggle="tooltip"
@@ -514,7 +514,7 @@
                                                 </a>
                                             @elseif ($user->is_enable_login == 0 && $user->password == null)
                                                 <a href="#"
-                                                    data-url="{{ route('users.reset', \Crypt::encrypt($user->id)) }}"
+                                                    data-url="{{ route('users.reset', $user->id) }}"
                                                     data-ajax-popup="true" data-size="md"
                                                     class="btn btn-sm border login_enable"
                                                     data-title="{{ __('New Password') }}"

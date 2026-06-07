@@ -610,29 +610,17 @@ class UserController extends Controller
     {
         if(Auth::user()->isAbleTo('user reset password'))
         {
-            try {
-                $eId = \Crypt::decrypt($id);
-
-                if(Auth::user()->hasRole('super admin'))
-                {
-                    $user = User::where('id', $eId)->where('type','company')->first();
-                }
-                else
-                {
-                    $user = User::where('id', $eId)->where('workspace_id',getActiveWorkSpace())->where('created_by', creatorId())->first();
-                }
-                if($user)
-                {
-                    return view('users.reset',compact('user'));
-                }
-                return response()->json(['error' => __('Something Went Wrong, User Not Found!')], 401);
-            } catch (\Throwable $th) {
-                return response()->json(['error' => $th->getMessage()], 401);
+            $user = $this->resolvePasswordResetUser($id);
+            if($user)
+            {
+                return view('users.reset',compact('user'));
             }
+
+            return $this->invalidPasswordResetResponse(request());
         }
         else
         {
-            return response()->json(['error' => __('Permission denied.')], 401);
+            return response()->json(['error' => __('Permission denied.')], 403);
         }
 
     }
@@ -655,16 +643,7 @@ class UserController extends Controller
             }
 
             try {
-                $eId = \Crypt::decrypt($id);
-
-                if(Auth::user()->hasRole('super admin'))
-                {
-                    $user = User::where('id', $eId)->where('type','company')->first();
-                }
-                else
-                {
-                    $user = User::where('id', $eId)->where('workspace_id',getActiveWorkSpace())->where('created_by', creatorId())->first();
-                }
+                $user = $this->resolvePasswordResetUser($id);
                 if($user)
                 {
                     if(isset($request->login_enable))
@@ -685,15 +664,63 @@ class UserController extends Controller
                         'success', __('The user password updated successfully')
                     );
                 }
-                return redirect()->back()->with('error', __('Something Went Wrong, User Not Found!'));
+                return $this->invalidPasswordResetResponse($request);
             } catch (\Throwable $th) {
-                return redirect()->back()->with('error', $th->getMessage());
+                return redirect()->route('users.index')->with('error', __('Unable to update the password right now.'));
             }
         }
         else
         {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
+    }
+
+    private function resolvePasswordResetUser(string $id): ?User
+    {
+        $userId = $this->parseManagedUserId($id);
+
+        if($userId === null)
+        {
+            return null;
+        }
+
+        if(Auth::user()->hasRole('super admin'))
+        {
+            return User::where('id', $userId)->where('type','company')->first();
+        }
+
+        return User::where('id', $userId)
+            ->where('workspace_id',getActiveWorkSpace())
+            ->where('created_by', creatorId())
+            ->first();
+    }
+
+    private function parseManagedUserId(string $id): ?int
+    {
+        if(is_numeric($id))
+        {
+            return (int) $id;
+        }
+
+        try {
+            $decrypted = \Crypt::decrypt(urldecode($id));
+
+            return is_numeric($decrypted) ? (int) $decrypted : null;
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
+
+    private function invalidPasswordResetResponse(Request $request)
+    {
+        $message = __('This password reset link is invalid or expired. Please open a new reset form from the users list.');
+
+        if($request->ajax() || $request->expectsJson())
+        {
+            return response()->json(['error' => $message], 404);
+        }
+
+        return redirect()->route('users.index')->with('error', $message);
     }
 
     public function LoginManage($id)
