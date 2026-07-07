@@ -2,6 +2,60 @@
 
 Production‑ready Laravel application with a modular Churchly package. This README covers local setup and multiple deployment options, including a self‑hosted GitHub Actions runner on Hestia/cPanel servers (no public IP required).
 
+## Docker Deployment
+
+Docker is the recommended deployment path for this repository.
+
+### What the Docker stack includes
+
+- `app`: Apache + PHP 8.2 serving the Laravel application
+- `db`: MySQL 8.4
+- `redis`: Redis 7 for queues and cache
+- `queue`: Laravel queue worker
+- `scheduler`: Laravel scheduler worker
+- `mailpit`: SMTP catcher for deployment validation
+
+### Quick start
+
+1) Clone and enter the project
+- `git clone https://github.com/visezion/OPEN.git`
+- `cd OPEN`
+
+2) Create the Docker environment file
+- `cp .env.docker.example .env`
+
+3) Start the stack
+- `chmod +x scripts/docker-deploy.sh`
+- `./scripts/docker-deploy.sh`
+
+4) Open the application
+- `http://localhost:8080`
+
+5) Optional first-time seed on a brand new database
+- `./scripts/docker-deploy.sh --seed`
+
+### Common Docker commands
+
+- Start or rebuild:
+  - `./scripts/docker-deploy.sh`
+- Stop:
+  - `docker compose down`
+- Stop and remove database data:
+  - `docker compose down -v`
+- Follow logs:
+  - `docker compose logs -f app`
+- Open a shell in the app container:
+  - `docker compose exec app bash`
+- Run Laravel tests inside the container:
+  - `docker compose exec app php artisan test --without-tty`
+
+### Important Docker notes
+
+- `scripts/docker-deploy.sh` creates `.env` if it is missing and writes a persistent `APP_KEY` into that file.
+- The application is served from the repository root, not from `public/`, so the existing `/uploads`, `/build`, `/css`, `/js`, and `/images` URLs keep working.
+- MySQL data, Redis data, Laravel storage, and uploaded files are persisted through Docker volumes.
+- For a fresh install that needs seed data, run `./scripts/docker-deploy.sh --seed` once, then set `LARAVEL_RUN_SEEDERS=false` in `.env` for normal restarts.
+
 ## Quick Start
 
 1) Clone and enter the project

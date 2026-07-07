@@ -16,7 +16,7 @@ return new class extends Migration
 
         if (Schema::hasTable('vendors') && !Schema::hasColumn('vendors', 'debit_note_balance')) {
             Schema::table('vendors', function (Blueprint $table) {
-                $table->string('debit_note_balance')->after('balance')->default('0.00');
+                $table->string('debit_note_balance')->default('0.00');
             });
         }
     }
@@ -29,7 +29,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('vendors', function (Blueprint $table) {
-
+            if (Schema::hasColumn('vendors', 'debit_note_balance')) {
+                $table->dropColumn('debit_note_balance');
+            }
         });
     }
 };

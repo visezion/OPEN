@@ -15,7 +15,7 @@ return new class extends Migration
     {
         if (Schema::hasTable('customers') && !Schema::hasColumn('customers', 'credit_note_balance')) {
             Schema::table('customers', function (Blueprint $table) {
-                $table->string('credit_note_balance')->after('balance')->default('0.00');
+                $table->string('credit_note_balance')->default('0.00');
             });
         }
     }
@@ -28,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('customers', function (Blueprint $table) {
-
+            if (Schema::hasColumn('customers', 'credit_note_balance')) {
+                $table->dropColumn('credit_note_balance');
+            }
         });
     }
 };
