@@ -21,7 +21,6 @@ services:
     ports:
       - "${APP_PORT:-8080}:80"
     volumes:
-      - ./docker/entrypoint.sh:/usr/local/bin/open-entrypoint:ro
       - app_storage:/var/www/html/storage
       - app_uploads:/var/www/html/uploads
 
@@ -43,7 +42,6 @@ services:
       app:
         condition: service_started
     volumes:
-      - ./docker/entrypoint.sh:/usr/local/bin/open-entrypoint:ro
       - app_storage:/var/www/html/storage
       - app_uploads:/var/www/html/uploads
 
@@ -64,7 +62,6 @@ services:
       app:
         condition: service_started
     volumes:
-      - ./docker/entrypoint.sh:/usr/local/bin/open-entrypoint:ro
       - app_storage:/var/www/html/storage
       - app_uploads:/var/www/html/uploads
 
