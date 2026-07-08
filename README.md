@@ -43,6 +43,16 @@ The first run will:
 - build the Docker image
 - start Apache, PHP, MySQL, Redis, queue worker, scheduler, and Mailpit
 - run Laravel migrations automatically
+- seed the default super admin automatically if the database has no users yet
+
+Default first login on a brand new Docker install:
+
+```text
+Email: superadmin@example.com
+Password: 1234
+```
+
+Sign in once, then change that password immediately.
 
 ## Fresh Install With Seed Data
 
@@ -52,6 +62,15 @@ If you need seed data on a brand new database, run:
 cd OPEN
 sudo bash ./scripts/docker-deploy.sh --seed
 ```
+
+If you deploy with `--seed`, the default super admin login is:
+
+```text
+Email: superadmin@example.com
+Password: 1234
+```
+
+Sign in with that account once, then change the password immediately.
 
 ## Daily Commands
 

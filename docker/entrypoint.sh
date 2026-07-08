@@ -13,6 +13,34 @@ artisan() {
     php artisan "$@" --no-interaction
 }
 
+query_scalar() {
+php <<'PHP'
+<?php
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+require __DIR__.'/vendor/autoload.php';
+$app = require __DIR__.'/bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
+
+$query = getenv('OPEN_QUERY_SCALAR') ?: '';
+
+if ($query === 'users_count') {
+    if (!Schema::hasTable('users')) {
+        echo 'missing';
+        exit(0);
+    }
+
+    echo (string) DB::table('users')->count();
+    exit(0);
+}
+
+fwrite(STDERR, "Unknown scalar query: {$query}\n");
+exit(1);
+PHP
+}
+
 ensure_runtime_directories() {
     mkdir -p \
         "${app_root}/bootstrap/cache" \
@@ -86,6 +114,18 @@ bootstrap_laravel() {
 
     if [[ "${LARAVEL_RUN_MIGRATIONS:-true}" == "true" ]]; then
         artisan migrate --force --graceful
+    fi
+
+    if [[ "${LARAVEL_AUTO_SEED_ON_EMPTY_DB:-true}" == "true" && "${role}" == "app" ]]; then
+        local users_count
+        users_count="$(OPEN_QUERY_SCALAR=users_count query_scalar)"
+
+        if [[ "${users_count}" == "0" ]]; then
+            log "No users found. Running one-time database seed for initial login."
+            artisan db:seed --force
+        elif [[ "${users_count}" == "missing" ]]; then
+            log "Users table not found yet. Skipping automatic seed."
+        fi
     fi
 
     if [[ "${LARAVEL_RUN_SEEDERS:-false}" == "true" ]]; then
