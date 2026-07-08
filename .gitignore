@@ -2,6 +2,7 @@
 /node_modules/
 /.env
 .env.*
+!.env.docker.example
 /storage/*.key
 /public/storage
 /public/build
