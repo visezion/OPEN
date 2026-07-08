@@ -79,5 +79,5 @@ RUN chmod +x /usr/local/bin/open-entrypoint \
     && chown -R www-data:www-data bootstrap/cache storage uploads \
     && chmod -R ug+rw bootstrap/cache storage uploads
 
-ENTRYPOINT ["open-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/open-entrypoint"]
 CMD ["apache2-foreground"]
