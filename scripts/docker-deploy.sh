@@ -44,6 +44,37 @@ resolve_docker_cmd() {
     exit 1
 }
 
+available_kb_for_path() {
+    df -Pk "$1" | awk 'NR==2 {print $4}'
+}
+
+ensure_docker_build_space() {
+    local docker_root
+    local before_kb
+    local after_kb
+    local minimum_kb=$((6 * 1024 * 1024))
+
+    docker_root="$("${DOCKER_CMD[@]}" info --format '{{.DockerRootDir}}' 2>/dev/null || true)"
+    docker_root="${docker_root:-/var/lib/docker}"
+    before_kb="$(available_kb_for_path "${docker_root}")"
+
+    if [[ -z "${before_kb}" || "${before_kb}" -ge "${minimum_kb}" ]]; then
+        return
+    fi
+
+    echo "Low Docker disk space detected under ${docker_root}. Cleaning stale OPEN build artifacts..."
+    "${DOCKER_CMD[@]}" compose down --remove-orphans >/dev/null 2>&1 || true
+    "${DOCKER_CMD[@]}" image rm -f visezion/open:latest >/dev/null 2>&1 || true
+    "${DOCKER_CMD[@]}" image prune -f >/dev/null 2>&1 || true
+    "${DOCKER_CMD[@]}" builder prune -af >/dev/null 2>&1 || true
+
+    after_kb="$(available_kb_for_path "${docker_root}")"
+
+    if [[ -n "${after_kb}" && "${after_kb}" -lt "${minimum_kb}" ]]; then
+        echo "Warning: only $((after_kb / 1024 / 1024)) GiB free under ${docker_root}. Docker build may still fail on very small disks." >&2
+    fi
+}
+
 update_env_value() {
     local key="$1"
     local value="$2"
@@ -117,6 +148,7 @@ resolve_docker_cmd
 ensure_env_file
 ensure_app_key
 apply_seed_flag "${seed_flag}"
+ensure_docker_build_space
 
 "${DOCKER_CMD[@]}" compose build app
 "${DOCKER_CMD[@]}" compose up -d
